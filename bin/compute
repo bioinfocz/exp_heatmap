@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import allel
+import argparse
+
+bin_dir = os.path.join(os.path.dirname(__file__), "..")
+sys.path.append(os.path.realpath(bin_dir))
+
+import src.utils as utils
+import src.xpehh as xpehh
+
+parser = argparse.ArgumentParser(prog="bin/compute", description="Compute",)
+
+parser.add_argument("zarr_dir", metavar="ZARR_DIR")
+parser.add_argument("panel_file", metavar="PANEL_FILE")
+
+args = parser.parse_args()
+
+utils.check_path_or_exit(args.zarr_dir)
+utils.check_path_or_exit(args.panel_file)
+
+xpehh.run(args.zarr_dir, args.panel_file)
