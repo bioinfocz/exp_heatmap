@@ -22,36 +22,36 @@ pip3 install -r requirements.txt
 
 ## Usage
 
-### Get data
+**Get data**
 
-- VCF files ([1000 Genomes Project](https://www.internationalgenome.org/data))
-- Panel file ([1000 Genomes Project](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel))
+- VCF files (e.g. [1000 Genomes Project](https://www.internationalgenome.org/data))
+- Panel file (e.g. [1000 Genomes Project](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel))
 
-### Extract only SNP
+**Extract only SNP**
+
+You can give an .vcf or .vcf.gz file
 
 ```bash
-# Automatic way
-bin/recode VCF_FILE
-
-# Or manual way
-vcftools --gzvcf VCF_FILE --remove-indels --recode --recode-INFO-all --out OUTPUT
+bin/recode FILE.vcf
+# => FILE.recode.vcf
 ```
 
-### Prepare data for computing
+**Prepare data for computing**
 
 ```bash
-bin/prepare RECODE_FILE
+bin/prepare FILE.recode.vcf
+# => FILE.recode.zarr
 ```
 
-### Compute
+**Compute**
 
 ```bash
-bin/compute ZARR_DIR PANEL_FILE
+bin/compute FILE.recode.zarr PANEL_FILE
 ```
 
 # Contributors
 
-- Eda Ehler
-- Jan Pačes
-- Mariana Šatrová
+- Eda Ehler ([@EdaEhler](https://github.com/EdaEhler))
+- Jan Pačes ([@hpaces](https://github.com/hpaces))
+- Mariana Šatrová ([@satrovam](https://github.com/satrovam))
 - Ondřej Moravčík ([@ondra-m](https://github.com/ondra-m))

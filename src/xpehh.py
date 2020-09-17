@@ -12,6 +12,8 @@ import json
 
 import src.preprocessing as preprocessing
 import src.xp_utils as xp_utils
+import src.utils as utils
+import src.rank_tools as rank_tools
 
 
 def run(zarr_dir, panel_file):
@@ -32,7 +34,7 @@ def run(zarr_dir, panel_file):
 
         sys.exit(1)
 
-    name = os.path.basename(zarr_dir.replace(".vcf", "").replace(".gz", ""))
+    name = utils.name_from_path(zarr_dir)
     df = pd.DataFrame({"variant_pos": positions})
     df.insert(0, "name", name)
 
@@ -91,27 +93,33 @@ def run(zarr_dir, panel_file):
     # count the number of results that will be removed from each file after masking
     num_masked = nan_mask.count(False)
 
+    print(nan_mask)
+
     print("Applying NaN mask for all results")
     print("Number of results removed from each file: {}".format(num_masked))
 
-    #  try:
-   #  with open("a.json", "w") as f:
-   #      for a in results:
-   #          f.write(json.dumps(list(a)))
+    xpehh_dir = utils.name_with_path(zarr_dir) + ".xpehh"
 
-    #  except:
-    #      pass
+    os.makedirs(xpehh_dir, exist_ok=True)
 
     for pair, res in zip(pop_pairs, results):
-        # create direcotry for each pop pair
-        pops_res_dir = "result/" + pair[0] + "_" + pair[1] + "/"
-        if not os.path.exists(pops_res_dir):
-            os.makedirs(pops_res_dir)
-
-        result_path = pops_res_dir + name + ".xpehh.tsv"
+        result_path = os.path.join(xpehh_dir, "_".join(pair) + ".tsv")
 
         # add results to the dataframe with coordinates
         df["xpehh"] = res
+
+        # Compute ascending and descending log10 rank p-values
+        for order_bool in [True, False]:
+            df.sort_values(by="xpehh", inplace=True, ascending=order_bool)
+            test_results = df["xpehh"].values
+            ranks = rank_tools.compute_ranks(test_results)
+            rank_p_vals = rank_tools.compute_rank_p_vals(ranks)
+            log_10_p_vals = rank_tools.compute_log_10_p_vals(rank_p_vals)
+
+            if order_bool:
+                df["-log10_p_value_ascending"] = log_10_p_vals
+            else:
+                df["-log10_p_value_descending"] = log_10_p_vals
 
         # save only the part of dataframe without nan values
         df[nan_mask].to_csv(result_path, index=False, sep="\t")
