@@ -121,6 +121,8 @@ def run(zarr_dir, panel_file):
             else:
                 df["-log10_p_value_descending"] = log_10_p_vals
 
+        df.sort_values(by="variant_pos", inplace=True, ascending=True)
+
         # save only the part of dataframe without nan values
         df[nan_mask].to_csv(result_path, index=False, sep="\t")
 

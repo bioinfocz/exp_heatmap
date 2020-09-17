@@ -3,7 +3,7 @@
 ## Requirements
 
 - python3
-- vcftools ([github repo](https://github.com/vcftools/vcftools))
+- vcftools ([repository](https://github.com/vcftools/vcftools))
 - space on disk (.vcf files are usually quite large)
 
 ## Install
@@ -24,8 +24,8 @@ pip3 install -r requirements.txt
 
 **Get data**
 
-- VCF files (e.g. [1000 Genomes Project](https://www.internationalgenome.org/data))
-- Panel file (e.g. [1000 Genomes Project](ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel))
+- VCF files (e.g. [1000 Genomes Project](https://www.internationalgenome.org/data) and [Phase 3, chr22](ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr22_GRCh38.genotypes.20170504.vcf.gz))
+- Panel file (e.g. [1000 Genomes Project](ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel))
 
 **Extract only SNP**
 
@@ -47,6 +47,39 @@ bin/prepare FILE.recode.vcf
 
 ```bash
 bin/compute FILE.recode.zarr PANEL_FILE
+# => FILE.recode.xpehh
+```
+
+**Plot graph**
+
+- `begin`, `end` (required)
+   - plot boundaries
+- `title` (optional)
+   - name of the image
+- `cmap` (optional)
+   - color schema
+   - [more informations](http://seaborn.pydata.org/tutorial/color_palettes.html)
+
+```bash
+bin/plot FILE.recode.xpehh --begin BEING --end END --title TITLE
+# => TITLE.png
+```
+
+## Example
+
+```bash
+# Download datasets
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr22_GRCh38.genotypes.20170504.vcf.gz" -O chr22.genotypes.vcf.gz
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
+
+
+# Compute files for graph
+bin/recode chr22.genotypes.vcf.gz
+bin/prepare chr22.genotypes.recode.vcf
+bin/compute chr22.genotypes.recode.zarr genotypes.panel
+
+# Plot heatmap
+bin/plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title ADM2
 ```
 
 # Contributors
