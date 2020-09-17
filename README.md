@@ -94,17 +94,17 @@ bin/plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title AD
 # Acknowledgement
 
 <a href="http://genomat.img.cas.cz">
-  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/genomat.png">
+  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/genomat.png" width=100>
 </a>
 
 ---
 
 <a href="https://www.img.cas.cz/en">
-  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/img.png">
+  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/img.png" width=100>
 </a>
 
 ---
 
 <a href="https://www.elixir-czech.cz">
-  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/elixir.png">
+  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/elixir.png" width=100>
 </a>
