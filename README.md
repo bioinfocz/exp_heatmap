@@ -58,7 +58,7 @@ bin/compute FILE.recode.zarr PANEL_FILE
    - name of the image
 - `cmap` (optional)
    - color schema
-   - [more informations](http://seaborn.pydata.org/tutorial/color_palettes.html)
+   - [more informations at seaborn package](http://seaborn.pydata.org/tutorial/color_palettes.html)
 
 ```bash
 bin/plot FILE.recode.xpehh --begin BEING --end END --title TITLE
@@ -80,6 +80,8 @@ bin/compute chr22.genotypes.recode.zarr genotypes.panel
 
 # Plot heatmap
 bin/plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title ADM2
+
+# A heatmap is saved at ADM2.png
 ```
 
 # Contributors
