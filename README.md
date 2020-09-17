@@ -90,3 +90,21 @@ bin/plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title AD
 - Jan Pačes ([@hpaces](https://github.com/hpaces))
 - Mariana Šatrová ([@satrovam](https://github.com/satrovam))
 - Ondřej Moravčík ([@ondra-m](https://github.com/ondra-m))
+
+# Acknowledgement
+
+<a href="http://genomat.img.cas.cz">
+  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/genomat.png">
+</a>
+
+---
+
+<a href="https://www.img.cas.cz/en">
+  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/img.png">
+</a>
+
+---
+
+<a href="https://www.elixir-czech.cz">
+  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/elixir.png">
+</a>
