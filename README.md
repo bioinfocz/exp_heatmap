@@ -1,5 +1,9 @@
 # ExP Selection
 
+**LCT gene**
+
+<img src="https://github.com/ondra-m/exp-selection/raw/master/assets/LCT_gene.png" width=400>
+
 ## Requirements
 
 - python3
