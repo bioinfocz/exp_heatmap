@@ -44,12 +44,17 @@ def plot(xpehh_dir, begin, end, title, cmap):
 
     segment_files = glob.glob(os.path.join(xpehh_dir, "*.tsv"))
 
+    index = 1
     for segment_file in segment_files:
         # segment_files is something like ACB_KHV.tsv
         pop_pair = os.path.splitext(os.path.basename(segment_file))[0]
         pop_id_list.append(pop_pair)
 
-        print("Loading {} from {}".format(pop_pair, segment_file))
+        print(
+            "[{}/{}] Loading {} from {}".format(
+                index, len(segment_files), pop_pair, segment_file
+            )
+        )
 
         segments = pd.read_csv(segment_file, sep="\t")
         segments = segments[
@@ -57,6 +62,8 @@ def plot(xpehh_dir, begin, end, title, cmap):
         ]
 
         df_list.append(segments)
+
+        index += 1
 
     # check that they all have the same dimensions AND variant_pos
     df_shape = df_list[0].shape
@@ -157,9 +164,9 @@ def plot(xpehh_dir, begin, end, title, cmap):
     ax.set_ylabel(
         "population pairings\n\nAMR  |    EUR     |     EAS    |    SAS     |       AFR  "
     )
-    # ax.set_xlabel("-500 kbp" + (" " * 176) + "+500kbp \nsnp position relative to ")
+    ax.set_xlabel("{:,} - {:,}".format(begin, end))
     middle = int(big_df.shape[1] / 2)
-    ax.axvline(x=middle, linewidth=2, color="grey")
+    ax.axvline(x=middle, linewidth=1, color="grey")
 
     print("Savig heatmap")
 
