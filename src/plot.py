@@ -157,7 +157,7 @@ def plot(xpehh_dir, begin, end, title, cmap):
     ax.set_ylabel(
         "population pairings\n\nAMR  |    EUR     |     EAS    |    SAS     |       AFR  "
     )
-    ax.set_xlabel("-500 kbp" + (" " * 176) + "+500kbp \nsnp position relative to ")
+    # ax.set_xlabel("-500 kbp" + (" " * 176) + "+500kbp \nsnp position relative to ")
     middle = int(big_df.shape[1] / 2)
     ax.axvline(x=middle, linewidth=2, color="grey")
 
