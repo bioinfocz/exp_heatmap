@@ -46,6 +46,7 @@ def main():
     plot_parser.add_argument("--end", type=int, required=True)
     plot_parser.add_argument("--cmap", default=None)
     plot_parser.add_argument("--title", default=None)
+    plot_parser.add_argument("--output", default=None)
     plot_parser.set_defaults(
         func=lambda args: plot(
             args.xpehh_dir,
@@ -53,6 +54,7 @@ def main():
             end=args.end,
             title=args.title,
             cmap=args.cmap,
+            output=args.output,
         )
     )
 

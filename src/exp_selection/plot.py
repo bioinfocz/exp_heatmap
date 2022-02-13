@@ -37,7 +37,7 @@ population_sorter = (
 )  # AMR
 
 
-def plot(xpehh_dir, begin, end, title, cmap):
+def plot(xpehh_dir, begin, end, title, cmap, output):
     df_list = []
     pop_id_list = []
     different_dfs = False
@@ -160,6 +160,9 @@ def plot(xpehh_dir, begin, end, title, cmap):
     if not title:
         title = "{} - {}".format(begin, end)
 
+    if not output:
+        output = title
+
     ax.set_title(title)
     ax.set_ylabel(
         "population pairings\n\nAMR  |    EUR     |     EAS    |    SAS     |       AFR  "
@@ -170,5 +173,8 @@ def plot(xpehh_dir, begin, end, title, cmap):
 
     print("Savig heatmap")
 
-    ax.figure.savefig(title, dpi=400, bbox_inches="tight")
+    ax.figure.savefig(output, dpi=400, bbox_inches="tight")
     plt.close(fig)
+
+    print()
+    print(f"Saved into {output}")
