@@ -13,40 +13,40 @@ def main():
 
     parser.set_defaults(func=lambda _: parser.print_help())
 
-    prepare_parse = subparser.add_parser("prepare")
-    prepare_parse.add_argument(
+    prepare_parser = subparser.add_parser("prepare")
+    prepare_parser.add_argument(
         "recode_file", metavar="RECODE_FILE", help="Where is recoded VCF"
     )
-    prepare_parse.add_argument(
+    prepare_parser.add_argument(
         "zarr_dir", metavar="ZARR_DIR", help="Where ZARR dir will be saved"
     )
-    prepare_parse.set_defaults(
+    prepare_parser.set_defaults(
         func=lambda args: prepare(args.recode_file, args.zarr_dir)
     )
 
-    compute_parse = subparser.add_parser("compute")
-    compute_parse.add_argument(
+    compute_parser = subparser.add_parser("compute")
+    compute_parser.add_argument(
         "zarr_dir", metavar="ZARR_DIR", help="Where ZARR dir is located"
     )
-    compute_parse.add_argument(
+    compute_parser.add_argument(
         "panel_file", metavar="PANEL_FILE", help="Where panel file will be saved"
     )
-    compute_parse.add_argument(
+    compute_parser.add_argument(
         "xpehh_dir", metavar="XPEHH_DIR", help="Where xpehh dir will be saved"
     )
-    compute_parse.set_defaults(
+    compute_parser.set_defaults(
         func=lambda args: compute(args.zarr_dir, args.panel_file, args.xpehh_dir)
     )
 
-    compute_parse = subparser.add_parser("plot")
-    compute_parse.add_argument(
+    plot_parser = subparser.add_parser("plot")
+    plot_parser.add_argument(
         "xpehh_dir", metavar="XPEHH_DIR", help="Where xpehh dir is located"
     )
-    parser.add_argument("--begin", type=int, required=True)
-    parser.add_argument("--end", type=int, required=True)
-    parser.add_argument("--cmap", default=None)
-    parser.add_argument("--title", default=None)
-    compute_parse.set_defaults(
+    plot_parser.add_argument("--begin", type=int, required=True)
+    plot_parser.add_argument("--end", type=int, required=True)
+    plot_parser.add_argument("--cmap", default=None)
+    plot_parser.add_argument("--title", default=None)
+    plot_parser.set_defaults(
         func=lambda args: plot(
             args.xpehh_dir,
             begin=args.begin,
