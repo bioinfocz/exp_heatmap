@@ -6,22 +6,14 @@
 
 ## Requirements
 
-- python3
+- python >= 3.8
 - vcftools ([repository](https://github.com/vcftools/vcftools))
 - space on disk (.vcf files are usually quite large)
 
 ## Install
 
-Get the repository
-
 ```bash
-git clone git@github.com:ondra-m/exp-selection.git
-```
-
-Install python packages
-
-```bash
-pip3 install -r requirements.txt
+pip install exp-selection
 ```
 
 ## Usage
@@ -36,33 +28,40 @@ pip3 install -r requirements.txt
 You can give an .vcf or .vcf.gz file
 
 ```bash
-bin/recode FILE.vcf
-# => FILE.recode.vcf
+# Gziped VCF
+vcftools --gzvcf DATA.vcf.gz --remove-indels --recode --recode-INFO-all --out DATA.recode.vcf
+
+# Plan VCF
+vcftools --vcf DATA.vcf --remove-indels --recode --recode-INFO-all --out DATA.recode.vcf
 ```
 
 **Prepare data for computing**
 
 ```bash
-bin/prepare FILE.recode.vcf
-# => FILE.recode.zarr
+# DATA.recode.vcf a vcf from previous step
+# DATA.zarr is path where zarr will be saved
+exp-selection prepare DATA.recode.vcf DATA.zarr
 ```
 
 **Compute**
 
 ```bash
-bin/compute FILE.recode.zarr PANEL_FILE
-# => FILE.recode.xpehh
+# DATA.zarr a zarr data from previous step
+# DATA.xpehh a path where xpehh will be saved
+exp-selection compute DATA.zarr genotypes.panel DATA.xpehh
 ```
 
 **Plot graph**
 
-- `begin`, `end` (required)
-   - plot boundaries
-- `title` (optional)
-   - name of the image
-- `cmap` (optional)
-   - color schema
-   - [more informations at seaborn package](http://seaborn.pydata.org/tutorial/color_palettes.html)
+- `--begin`, `--end` (required)
+  - plot boundaries
+- `--title` (optional)
+  - name of the image
+- `--cmap` (optional)
+  - color schema
+  - [more informations at seaborn package](http://seaborn.pydata.org/tutorial/color_palettes.html)
+- `--output` (optional)
+  - png output path
 
 ```bash
 bin/plot FILE.recode.xpehh --begin BEING --end END --title TITLE
@@ -78,14 +77,19 @@ wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_sample
 
 
 # Compute files for graph
-bin/recode chr22.genotypes.vcf.gz
-bin/prepare chr22.genotypes.recode.vcf
-bin/compute chr22.genotypes.recode.zarr genotypes.panel
+vcftools --gzvcf chr22.genotypes.vcf.gz \
+         --remove-indels \
+         --recode \
+         --recode-INFO-all \
+         --out chr22.genotypes.recode.vcf
+
+exp-selection prepare chr22.genotypes.recode.vcf
+exp-selection compute chr22.genotypes.recode.zarr genotypes.panel
 
 # Plot heatmap
-bin/plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title ADM2
+exp-selection plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title ADM2 --output adm2
 
-# A heatmap is saved at ADM2.png
+# A heatmap is saved at adm2.png
 ```
 
 # Contributors

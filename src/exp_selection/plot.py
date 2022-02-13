@@ -177,4 +177,4 @@ def plot(xpehh_dir, begin, end, title, cmap, output):
     plt.close(fig)
 
     print()
-    print(f"Saved into {output}")
+    print(f"Saved into {output}.png")
