@@ -64,7 +64,7 @@ exp-selection compute DATA.zarr genotypes.panel DATA.xpehh
   - png output path
 
 ```bash
-exp-selection DATA.recode.xpehh --begin BEING --end END --title TITLE --output NAME
+exp-selection plot DATA.recode.xpehh --begin BEING --end END --title TITLE --output NAME
 ```
 
 ## Example
