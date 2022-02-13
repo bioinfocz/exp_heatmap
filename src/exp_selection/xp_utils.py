@@ -26,10 +26,10 @@ def get_haplotypes(gt_array, panel, pop):
 
 def get_pop_triplets():
     """
-      This function returns a 3D lists, so in list[i][j][p]:
-      i = superpopulation with j triplets
-      j = triplet
-      p = population in triplet
+    This function returns a 3D lists, so in list[i][j][p]:
+    i = superpopulation with j triplets
+    j = triplet
+    p = population in triplet
     """
 
     # Too tired to code, here are list of pops grouped in superpops

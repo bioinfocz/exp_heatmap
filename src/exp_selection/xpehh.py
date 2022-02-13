@@ -1,22 +1,17 @@
 import allel
 import zarr
-import argparse
-import glob
 import os
-from datetime import datetime
 import numpy as np
 import pandas as pd
 import sys
-import time
-import json
 
-import src.preprocessing as preprocessing
-import src.xp_utils as xp_utils
-import src.utils as utils
-import src.rank_tools as rank_tools
+import exp_selection.preprocessing as preprocessing
+import exp_selection.xp_utils as xp_utils
+import exp_selection.utils as utils
+import exp_selection.rank_tools as rank_tools
 
 
-def run(zarr_dir, panel_file):
+def run(zarr_dir: str, panel_file: str, xpehh_dir: str):
     panel = pd.read_csv(panel_file, sep="\t", usecols=["sample", "pop", "super_pop"])
     pop_pairs = xp_utils.create_pop_pairs(panel)
 
@@ -97,8 +92,6 @@ def run(zarr_dir, panel_file):
 
     print("Applying NaN mask for all results")
     print("Number of results removed from each file: {}".format(num_masked))
-
-    xpehh_dir = utils.name_with_path(zarr_dir) + ".xpehh"
 
     os.makedirs(xpehh_dir, exist_ok=True)
 

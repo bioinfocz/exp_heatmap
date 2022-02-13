@@ -1,1 +1,5 @@
 .vscode
+data/
+dist/
+__pycache__/
+exp_selection.egg-info/

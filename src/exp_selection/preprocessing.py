@@ -1,13 +1,12 @@
 import allel
-import numpy as np
 
 
 def filter_by_AF(callset, af_t):
     """
-      returns genotype array with variants
-      with alternate alllel frequency > af_t
+    returns genotype array with variants
+    with alternate alllel frequency > af_t
 
-      and array of positions without filtered variants
+    and array of positions without filtered variants
     """
 
     # acess alternate allele frequencies
