@@ -75,6 +75,8 @@ exp-selection plot DATA.xpehh --begin BEING --end END --title TITLE --output NAM
 
 ## Example
 
+This example shows an analysis of 1000 Genomes Project, phase 3 data of chromosome 22, chosen especially for its small size and thus reasonable fast computations. It is focused on ADM2 gene ([link](https://www.ensembl.org/Homo_sapiens/Gene/Phenotype?db=core;g=ENSG00000128165;r=22:50481543-50486440)), which is active especially in reproductive system, and angiogenesis and cardiovascular system in general.
+
 ```bash
 # Download datasets
 wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr22_GRCh38.genotypes.20170504.vcf.gz" -O chr22.genotypes.vcf.gz
@@ -97,7 +99,7 @@ exp-selection compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotype
 
 # Plot heatmap
 exp-selection plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
-exp-selection plot chr22.genotypes.recode.xpehh --begin 50910000 --end 50950000 --title ADM2_test --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
+exp-selection plot chr22.genotypes.recode.xpehh --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
 
 # A heatmap is saved at adm2.png
 ```
