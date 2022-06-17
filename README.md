@@ -16,6 +16,10 @@
 pip install exp-selection
 ```
 
+## Workflow
+
+<img src="https://github.com/ondra-m/exp-selection/blob/master/assets/ExP_process_schema.png" width=800>
+
 ## Usage
 
 **Get data**
