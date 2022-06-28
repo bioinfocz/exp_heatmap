@@ -32,7 +32,7 @@ pip install exp-selection
 
 ### Prepage the data
 
-  **Extract only SNP**
+&ensp;  **Extract only SNP**
 
 You can give an .vcf or .vcf.gz file
 
