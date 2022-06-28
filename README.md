@@ -32,7 +32,7 @@ pip install exp-selection
 
 ### Prepage the data
 
-&ensp;  **Extract only SNP**
+&emsp;  **Extract only SNP**
 
 You can give an .vcf or .vcf.gz file
 
@@ -49,7 +49,7 @@ vcftools --gzvcf DATA.vcf.gz --remove-indels --recode --recode-INFO-all --out DA
 vcftools --vcf DATA.vcf --remove-indels --recode --recode-INFO-all --out DATA
 ```
 
-  **Prepare data for computing**
+&emsp;  **Prepare data for computing**
 
 ```bash
 # DATA.recode.vcf a vcf from previous step
