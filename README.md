@@ -24,10 +24,12 @@ pip install exp-selection
 
 ## Usage
 
-**Get data**
+### Get the data
 
 - VCF files (e.g. [1000 Genomes Project](https://www.internationalgenome.org/data) and [Phase 3, chr22](ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr22_GRCh38.genotypes.20170504.vcf.gz))
 - Panel file (e.g. [1000 Genomes Project](ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel))
+
+### Prepage the data
 
 **Extract only SNP**
 
@@ -54,7 +56,7 @@ vcftools --vcf DATA.vcf --remove-indels --recode --recode-INFO-all --out DATA
 exp-selection prepare DATA.recode.vcf DATA.zarr
 ```
 
-**Compute**
+### Compute pairwise values
 
 ```bash
 # DATA.zarr a zarr data from previous step
@@ -63,7 +65,7 @@ exp-selection prepare DATA.recode.vcf DATA.zarr
 exp-selection compute DATA.zarr genotypes.panel DATA.xpehh
 ```
 
-**Plot graph**
+### Display ExP heatmap
 
 - `--begin`, `--end` (required)
   - plot boundaries
