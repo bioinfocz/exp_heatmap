@@ -107,7 +107,7 @@ exp-selection compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotype
 exp-selection plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
 exp-selection plot chr22.genotypes.recode.xpehh --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
 
-# A heatmap is saved at adm2.png
+# The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
 ```
 
 # Contributors
