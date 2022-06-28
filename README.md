@@ -29,9 +29,10 @@ pip install exp-selection
 - VCF files (e.g. [1000 Genomes Project](https://www.internationalgenome.org/data) and [Phase 3, chr22](ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr22_GRCh38.genotypes.20170504.vcf.gz))
 - Panel file (e.g. [1000 Genomes Project](ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel))
 
+
 ### Prepage the data
 
-**Extract only SNP**
+  **Extract only SNP**
 
 You can give an .vcf or .vcf.gz file
 
@@ -48,13 +49,14 @@ vcftools --gzvcf DATA.vcf.gz --remove-indels --recode --recode-INFO-all --out DA
 vcftools --vcf DATA.vcf --remove-indels --recode --recode-INFO-all --out DATA
 ```
 
-**Prepare data for computing**
+  **Prepare data for computing**
 
 ```bash
 # DATA.recode.vcf a vcf from previous step
 # DATA.zarr is path (folder) where zarr representation of the VCF input will be saved
 exp-selection prepare DATA.recode.vcf DATA.zarr
 ```
+
 
 ### Compute pairwise values
 
@@ -64,6 +66,7 @@ exp-selection prepare DATA.recode.vcf DATA.zarr
 # in this step, by default Cross-population extended haplotype homozygosity (XPEHH) score will be computed for all positions provided together with their -log10 rank p-values.
 exp-selection compute DATA.zarr genotypes.panel DATA.xpehh
 ```
+
 
 ### Display ExP heatmap
 
@@ -80,6 +83,7 @@ exp-selection compute DATA.zarr genotypes.panel DATA.xpehh
 ```bash
 exp-selection plot DATA.xpehh --begin BEING --end END --title TITLE --output NAME
 ```
+
 
 ## Example
 
