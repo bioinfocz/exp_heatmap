@@ -32,15 +32,15 @@ def main():
         "panel_file", metavar="PANEL_FILE", help="Where panel file will be saved"
     )
     compute_parser.add_argument(
-        "xpehh_dir", metavar="XPEHH_DIR", help="Where xpehh dir will be saved"
+        "output_dir", metavar="OUTPUT_DIR", help="Where output dir will be saved"
     )
     compute_parser.set_defaults(
-        func=lambda args: compute(args.zarr_dir, args.panel_file, args.xpehh_dir)
+        func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir)
     )
 
     plot_parser = subparser.add_parser("plot")
     plot_parser.add_argument(
-        "xpehh_dir", metavar="XPEHH_DIR", help="Where xpehh dir is located"
+        "output_dir", metavar="OUTPUT_DIR", help="Where output dir is located"
     )
     plot_parser.add_argument("--begin", type=int, required=True)
     plot_parser.add_argument("--end", type=int, required=True)
@@ -49,7 +49,7 @@ def main():
     plot_parser.add_argument("--output", default=None)
     plot_parser.set_defaults(
         func=lambda args: plot(
-            args.xpehh_dir,
+            args.output_dir,
             begin=args.begin,
             end=args.end,
             title=args.title,
