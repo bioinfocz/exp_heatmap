@@ -37,17 +37,39 @@ population_sorter = (
 )  # AMR
 
 
-def plot(xpehh_dir, begin, end, title, cmap, output):
+def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
+    """
+    This function creates an input pandas DataFrame that will subsequently be used as input for ExP heatmap plotting function
+
+    input_dir -- directory, where the function expects the data to be found in a serie of *.tsv files for each population pair,
+                 the names of these files should start with 'POP1_POP2' string
+
+    begin, end -- limit the X-axis (position), displayed area
+
+    populations -- by default, the '1000Genomes' option, 26 populations from 1000 Genomes Project are expected. If your population/classes set is different,
+                   provide an iterable with population/classes names. For example, with populations=['pop1', 'pop2', 'pop3'] this function will search the input directory (input_dir)
+                   for *.tsv files with all combinations of pairwise values, named pop1_pop2.*.tsv, pop1_pop3.*.tsv, pop2_pop1.*.tsv etc.
+
+                   The output 'big_df' DataFrame with following 6 rows of pairwise values will be created:
+                   pop1 vs pop2
+                   pop1 vs pop3
+                   pop2 vs pop1
+                   pop2 vs pop3
+                   pop3 vs pop1
+                   pop3 vs pop2
+
+    """
     df_list = []
     pop_id_list = []
     different_dfs = False
 
-    segment_files = glob.glob(os.path.join(xpehh_dir, "*.tsv"))
+    segment_files = glob.glob(os.path.join(input_dir, "*.tsv"))
 
+    # reading the input files, saving only the regions between BEGIN and END to process further
     index = 1
     for segment_file in segment_files:
-        # segment_files is something like ACB_KHV.tsv
-        pop_pair = os.path.splitext(os.path.basename(segment_file))[0]
+        # segment_files is something like ACB_KHV.tsv or ACB_KHV.some_more_info.tsv
+        pop_pair = os.path.splitext(os.path.basename(segment_file))[0].split(".")[0]
         pop_id_list.append(pop_pair)
 
         print(
@@ -139,6 +161,99 @@ def plot(xpehh_dir, begin, end, title, cmap, output):
     pop_labels = [pop.split("_")[0] for pop in pop_labels]
     big_df.index = pop_labels
 
+    return big_df
+
+
+def plot_exp_heatmap(
+    input_df,
+    begin,
+    end,
+    title,
+    output,
+    cmap=None,
+    populations="1000Genomes",
+    vertical_line=True,
+    cbar_vmin=1,
+    cbar_vmax=4.853,
+    ylabel=False,
+    xlabel=False,
+    cbar_ticks=False,
+):
+    """
+    Read input DataFrame and create the ExP heatmap accordingly.
+
+    input_df -- input pandas DataFrame, data to display
+
+    begin, end -- limit the X-axis (position), displayed area
+
+    title -- title of the graph
+
+    cmap -- seaborn colormap, 'Blues' or 'crest' work well
+
+    output -- ouput file, will be saved with *.png suffix
+
+    populations -- by default, the '1000Genomes' option, 26 populations from 1000 Genomes Project are expected. If your population/classes set is different,
+                   provide an iterable with population/classes names. For example, with populations=['pop1', 'pop2', 'pop3'] this function expects input_df
+                   with 6 rows of pairwise values:
+                   pop1 vs pop2
+                   pop1 vs pop3
+                   pop2 vs pop1
+                   pop2 vs pop3
+                   pop3 vs pop1
+                   pop3 vs pop2
+    """
+
+    print("Checking input")
+
+    # check the input data for number of populations and input_df shape
+    if populations == "1000Genomes":
+
+        print("- expecting 1000 Genomes Project, phase 3 input data, 26 populations")
+        print("- expecting 650 population pairs...", end="")
+
+        if input_df.shape[0] == 650:
+            print("CHECK\n")
+
+        else:
+            print("ERROR")
+            raise ValueError(
+                "With selected populations='1000Genomes' option, the input_df was expected to have 650 rows, actual shape was: {} rows, {} columns".format(
+                    input_df.shape[0], input_df.shape[1]
+                )
+            )
+
+    else:
+
+        n_populations = len(populations)
+        print("- custom {} populations entered:".format(str(n_populations)))
+        for i in populations:
+            print(i, end="  ")
+
+        print()
+        print(
+            "- expecting {} population pairs...".format(
+                str(n_populations * (n_populations - 1))
+            ),
+            end="",
+        )
+
+        if input_df.shape[0] == (n_populations * (n_populations - 1)):
+            print("CHECK\n")
+
+        else:
+            print("ERROR")
+            raise ValueError(
+                "With selected populations={} option, the input_df was expected to have {} rows, actual shape was: {} rows, {} columns".format(
+                    populations,
+                    n_populations * (n_populations - 1),
+                    input_df.shape[0],
+                    input_df.shape[1],
+                )
+            )
+
+    #########################
+    # create the ExP figure #
+    #########################
     print("Creating heatmap")
 
     fig, ax = plt.subplots(figsize=(15, 5))
@@ -146,30 +261,60 @@ def plot(xpehh_dir, begin, end, title, cmap, output):
     if not cmap:
         cmap = "Blues"
 
-    sns.heatmap(
-        big_df,
-        yticklabels="auto",
-        xticklabels=False,
-        vmin=1,
-        vmax=4.853,
-        cbar_kws={"ticks": [1.3, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]},
-        ax=ax,
-        cmap=cmap,
-    )
+    # draw default exp heatmap with 26 populations from 1000 Genomes Project
+    if populations == "1000Genomes":
+        sns.heatmap(
+            input_df,
+            yticklabels="auto",
+            xticklabels=False,
+            vmin=1,
+            vmax=4.853,
+            cbar_kws={"ticks": [1.3, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]},
+            ax=ax,
+            cmap=cmap,
+        )
 
-    if not title:
-        title = "{} - {}".format(begin, end)
+        if not title:
+            title = "{} - {}".format(begin, end)
 
-    if not output:
-        output = title
+        if not output:
+            output = title
 
-    ax.set_title(title)
-    ax.set_ylabel(
-        "population pairings\n\nAMR  |    EUR     |     EAS    |    SAS     |       AFR  "
-    )
-    ax.set_xlabel("{:,} - {:,}".format(begin, end))
-    middle = int(big_df.shape[1] / 2)
-    ax.axvline(x=middle, linewidth=1, color="grey")
+        ax.set_title(title)
+        ax.set_ylabel(
+            "population pairings\n\nAMR  |    EUR     |     EAS    |    SAS     |       AFR  "
+        )
+        ax.set_xlabel("{:,} - {:,}".format(begin, end))
+
+    # draw custom exp heatmap with user-defined populations (number of pops, labels)
+    #
+    else:
+        sns.heatmap(
+            input_df,
+            yticklabels="auto",
+            xticklabels=False,
+            vmin=cbar_vmin,
+            vmax=cbar_vmin,
+            cbar_kws={"ticks": cbar_ticks},
+            ax=ax,
+            cmap=cmap,
+        )
+
+        if not title:
+            title = "{} - {}".format(begin, end)
+
+        if not output:
+            output = title
+
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel(xlabel)
+
+    # optionally add vertical line in the middle of the figure
+    if vertical_line:
+
+        middle = int(input_df.shape[1] / 2)
+        ax.axvline(x=middle, linewidth=1, color="grey")
 
     print("Savig heatmap")
 
@@ -178,3 +323,10 @@ def plot(xpehh_dir, begin, end, title, cmap, output):
 
     print()
     print(f"Saved into {output}.png")
+
+
+def plot(xpehh_dir, begin, end, title, cmap, output):
+    data_to_plot = create_plot_input(xpehh_dir, begin=begin, end=end)
+    plot_exp_heatmap(
+        data_to_plot, begin=begin, end=end, title=title, cmap=cmap, output=output
+    )

@@ -30,7 +30,7 @@ pip install exp-selection
 - Panel file (e.g. [1000 Genomes Project](ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel))
 
 
-### Prepage the data
+### Prepare the data
 
 &emsp;  **Extract only SNP**
 
@@ -62,9 +62,9 @@ exp-selection prepare DATA.recode.vcf DATA.zarr
 
 ```bash
 # DATA.zarr a zarr data from previous step
-# DATA.xpehh a path (folder) where the results will be saved
+# DATA.output a path (folder) where the results will be saved
 # in this step, by default Cross-population extended haplotype homozygosity (XPEHH) score will be computed for all positions provided together with their -log10 rank p-values.
-exp-selection compute DATA.zarr genotypes.panel DATA.xpehh
+exp-selection compute DATA.zarr genotypes.panel DATA.output
 ```
 
 
@@ -81,7 +81,7 @@ exp-selection compute DATA.zarr genotypes.panel DATA.xpehh
   - png output path
 
 ```bash
-exp-selection plot DATA.xpehh --begin BEING --end END --title TITLE --output NAME
+exp-selection plot DATA.output --begin BEING --end END --title TITLE --output NAME
 ```
 
 
@@ -107,11 +107,11 @@ vcftools --gzvcf chr22.genotypes.vcf.gz \
          --out chr22.genotypes
 
 exp-selection prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
-exp-selection compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.recode.xpehh
+exp-selection compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
 
 # Plot heatmap
-exp-selection plot chr22.genotypes.recode.xpehh --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
-exp-selection plot chr22.genotypes.recode.xpehh --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
+exp-selection plot chr22.genotypes.output --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
+exp-selection plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
 
 # The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
 ```
