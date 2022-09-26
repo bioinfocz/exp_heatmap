@@ -173,25 +173,19 @@ def plot_exp_heatmap(
     cmap=None,
     populations="1000Genomes",
     vertical_line=True,
-    cbar_vmin=1,
-    cbar_vmax=4.853,
+    cbar_vmin=None,
+    cbar_vmax=None,
     ylabel=False,
     xlabel=False,
-    cbar_ticks=False,
+    cbar_ticks=None,
 ):
     """
     Read input DataFrame and create the ExP heatmap accordingly.
-
     input_df -- input pandas DataFrame, data to display
-
     begin, end -- limit the X-axis (position), displayed area
-
     title -- title of the graph
-
     cmap -- seaborn colormap, 'Blues' or 'crest' work well
-
     output -- ouput file, will be saved with *.png suffix
-
     populations -- by default, the '1000Genomes' option, 26 populations from 1000 Genomes Project are expected. If your population/classes set is different,
                    provide an iterable with population/classes names. For example, with populations=['pop1', 'pop2', 'pop3'] this function expects input_df
                    with 6 rows of pairwise values:
@@ -291,7 +285,7 @@ def plot_exp_heatmap(
     else:
         sns.heatmap(
             input_df,
-            yticklabels="auto",
+            yticklabels=populations,
             xticklabels=False,
             vmin=cbar_vmin,
             vmax=cbar_vmin,
@@ -309,6 +303,17 @@ def plot_exp_heatmap(
         ax.set_title(title)
         ax.set_ylabel(ylabel)
         ax.set_xlabel(xlabel)
+        
+        # set the y-axis tics and labels
+        y_axis_len = len(populations) * (len(populations) - 1)  # length of the input data, number of df row
+        y_labels_pos = list(np.arange(0, y_axis_len, step=(len(populations)-1)))  # arange positions in steps
+        y_labels_pos.append(y_axis_len) # add also the last one
+        ax.set_yticks(y_labels_pos)
+        ax.set_yticks(np.arange(y_labels_pos[0] + ((len(populations)-1) / 2), y_labels_pos[-1], step=(len(populations)-1)),
+                      minor=True) # position of minor yticks - just between the major one
+        ax.tick_params(axis="y", which="minor", length=0) # set minor yaxis ticks to zero length
+        
+        ax.set_yticklabels(populations, minor=True)
 
     # optionally add vertical line in the middle of the figure
     if vertical_line:
@@ -319,10 +324,56 @@ def plot_exp_heatmap(
     print("Savig heatmap")
 
     ax.figure.savefig(output, dpi=400, bbox_inches="tight")
-    plt.close(fig)
+    
+    # plt.close(fig)
 
     print()
     print(f"Saved into {output}.png")
+    
+    return ax
+    
+    
+def prepare_cbar_params(data_df, n_cbar_ticks=4):
+    """
+    Gets the pandas.DataFrame (i.e. data_to_plot) with the data you want to display with your custom plot_exp_heatmap function,
+    returns cbar_vmin, cbar_vmax and cbar_ticks.
+    """
+    
+    import numpy as np
+    from math import floor
+    
+    
+    # target min max cbar values
+    cmin = 0
+    cmax = 0
+    
+    # min max values in data
+    dmin = data_df.min().min()
+    dmax = data_df.max().max()
+    
+    
+    # deciding min cbar values
+    if dmin < 0.5:
+        cmin = 0
+        
+    elif dmin < 1:
+        cmin = 0.5
+        
+    else:
+        cmin = floor(dmin)
+        
+        
+    # deciding max cbar values
+    if dmax < 1:
+        cmax = 1
+        
+    else:
+        cmax = floor(dmax + 1)
+        
+    # cbar ticks; adjust the cmax value by minimal amount to get the clear cmax value from np.arange function
+    cbar_ticks = np.arange(cmin, cmax + 0.001, step=(cmax - cmin)/(n_cbar_ticks-1))
+    
+    return cmin, cmax, list(cbar_ticks)
 
 
 def plot(xpehh_dir, begin, end, title, cmap, output):
