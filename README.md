@@ -14,6 +14,8 @@ This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surr
 
 ## Install
 
+Pypi repository link ([exp-selection](https://pypi.org/project/exp-selection/))
+
 ```bash
 pip install exp-selection
 ```
