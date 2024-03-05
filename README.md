@@ -1,8 +1,8 @@
-# ExP Selection
+# ExP Heatmap
 
 **ExP heatmap example - LCT gene**
 
-<img src="https://github.com/ondra-m/exp-selection/raw/master/assets/LCT_gene.png" width=800>
+<img src="https://github.com/bioinfocz/exp-heatmap/raw/master/assets/LCT_gene.png" width=800>
 
 This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surrounding genomic region displaying population differences between 26 populations of 1000 Genomes Project, phase 3. Displayed values are the adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test.
 
@@ -14,10 +14,10 @@ This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surr
 
 ## Install
 
-Pypi repository link ([exp-selection](https://pypi.org/project/exp-selection/))
+Pypi repository link ([exp-heatmap](https://pypi.org/project/exp-heatmap/))
 
 ```bash
-pip install exp-selection
+pip install exp-heatmap
 ```
 
 ## Workflow
