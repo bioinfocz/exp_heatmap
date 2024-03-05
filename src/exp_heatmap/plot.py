@@ -377,7 +377,12 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
 
 
 def plot(xpehh_dir, begin, end, title, cmap, output):
+    """
+    create the plot function input data and print/save them
+    """
+
     data_to_plot = create_plot_input(xpehh_dir, begin=begin, end=end)
+    
     plot_exp_heatmap(
         data_to_plot, begin=begin, end=end, title=title, cmap=cmap, output=output
     )
