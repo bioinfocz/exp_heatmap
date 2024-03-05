@@ -22,7 +22,7 @@ pip install exp-heatmap
 
 ## Workflow
 
-<img src="https://github.com/ondra-m/exp-selection/blob/master/assets/ExP_process_schema.png" width=1100>
+<img src="https://github.com/bioinfocz/exp-heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
 
 ## Usage
 
@@ -56,7 +56,7 @@ vcftools --vcf DATA.vcf --remove-indels --recode --recode-INFO-all --out DATA
 ```bash
 # DATA.recode.vcf a vcf from previous step
 # DATA.zarr is path (folder) where zarr representation of the VCF input will be saved
-exp-selection prepare DATA.recode.vcf DATA.zarr
+exp-heatmap prepare DATA.recode.vcf DATA.zarr
 ```
 
 
@@ -66,7 +66,7 @@ exp-selection prepare DATA.recode.vcf DATA.zarr
 # DATA.zarr a zarr data from previous step
 # DATA.output a path (folder) where the results will be saved
 # in this step, by default Cross-population extended haplotype homozygosity (XPEHH) score will be computed for all positions provided together with their -log10 rank p-values.
-exp-selection compute DATA.zarr genotypes.panel DATA.output
+exp-heatmap compute DATA.zarr genotypes.panel DATA.output
 ```
 
 
@@ -83,7 +83,7 @@ exp-selection compute DATA.zarr genotypes.panel DATA.output
   - png output path
 
 ```bash
-exp-selection plot DATA.output --begin BEING --end END --title TITLE --output NAME
+exp-heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 ```
 
 
@@ -108,12 +108,12 @@ vcftools --gzvcf chr22.genotypes.vcf.gz \
          --recode-INFO-all \
          --out chr22.genotypes
 
-exp-selection prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
-exp-selection compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
+exp-heatmap prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
+exp-heatmap compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
 
 # Plot heatmap
-exp-selection plot chr22.genotypes.output --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
-exp-selection plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
+exp-heatmap plot chr22.genotypes.output --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
+exp-heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
 
 # The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
 ```
@@ -128,17 +128,17 @@ exp-selection plot chr22.genotypes.output --begin 50910000 --end 50950000 --titl
 # Acknowledgement
 
 <a href="http://genomat.img.cas.cz">
-  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/genomat.png" width=100>
+  <img src="https://github.com/bioinfocz/exp-heatmap/raw/master/assets/genomat.png" width=100>
 </a>
 
 ---
 
 <a href="https://www.img.cas.cz/en">
-  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/img.png" width=100>
+  <img src="https://github.com/bioinfocz/exp-heatmap/raw/master/assets/img.png" width=100>
 </a>
 
 ---
 
 <a href="https://www.elixir-czech.cz">
-  <img src="https://github.com/ondra-m/exp-selection/raw/master/assets/elixir.png" width=100>
+  <img src="https://github.com/bioinfocz/exp-heatmap/raw/master/assets/elixir.png" width=100>
 </a>
