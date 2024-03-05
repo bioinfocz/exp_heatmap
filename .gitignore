@@ -2,4 +2,4 @@
 data/
 dist/
 __pycache__/
-exp_selection.egg-info/
+exp_heatmap.egg-info/

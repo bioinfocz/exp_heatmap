@@ -2,7 +2,7 @@
 
 **ExP heatmap example - LCT gene**
 
-<img src="https://github.com/bioinfocz/exp-heatmap/raw/master/assets/LCT_gene.png" width=800>
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width=800>
 
 This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surrounding genomic region displaying population differences between 26 populations of 1000 Genomes Project, phase 3. Displayed values are the adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test.
 
@@ -14,15 +14,15 @@ This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surr
 
 ## Install
 
-Pypi repository link ([exp-heatmap](https://pypi.org/project/exp-heatmap/))
+Pypi repository link ([exp_heatmap](https://pypi.org/project/exp_heatmap/))
 
 ```bash
-pip install exp-heatmap
+pip install exp_heatmap
 ```
 
 ## Workflow
 
-<img src="https://github.com/bioinfocz/exp-heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
+<img src="https://github.com/bioinfocz/exp_heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
 
 ## Usage
 
@@ -56,7 +56,7 @@ vcftools --vcf DATA.vcf --remove-indels --recode --recode-INFO-all --out DATA
 ```bash
 # DATA.recode.vcf a vcf from previous step
 # DATA.zarr is path (folder) where zarr representation of the VCF input will be saved
-exp-heatmap prepare DATA.recode.vcf DATA.zarr
+exp_heatmap prepare DATA.recode.vcf DATA.zarr
 ```
 
 
@@ -66,7 +66,7 @@ exp-heatmap prepare DATA.recode.vcf DATA.zarr
 # DATA.zarr a zarr data from previous step
 # DATA.output a path (folder) where the results will be saved
 # in this step, by default Cross-population extended haplotype homozygosity (XPEHH) score will be computed for all positions provided together with their -log10 rank p-values.
-exp-heatmap compute DATA.zarr genotypes.panel DATA.output
+exp_heatmap compute DATA.zarr genotypes.panel DATA.output
 ```
 
 
@@ -83,7 +83,7 @@ exp-heatmap compute DATA.zarr genotypes.panel DATA.output
   - png output path
 
 ```bash
-exp-heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
+exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 ```
 
 
@@ -108,12 +108,12 @@ vcftools --gzvcf chr22.genotypes.vcf.gz \
          --recode-INFO-all \
          --out chr22.genotypes
 
-exp-heatmap prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
-exp-heatmap compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
+exp_heatmap prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
+exp_heatmap compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
 
 # Plot heatmap
-exp-heatmap plot chr22.genotypes.output --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
-exp-heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
+exp_heatmap plot chr22.genotypes.output --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
+exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
 
 # The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
 ```
@@ -128,17 +128,17 @@ exp-heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title 
 # Acknowledgement
 
 <a href="http://genomat.img.cas.cz">
-  <img src="https://github.com/bioinfocz/exp-heatmap/raw/master/assets/genomat.png" width=100>
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/genomat.png" width=100>
 </a>
 
 ---
 
 <a href="https://www.img.cas.cz/en">
-  <img src="https://github.com/bioinfocz/exp-heatmap/raw/master/assets/img.png" width=100>
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/img.png" width=100>
 </a>
 
 ---
 
 <a href="https://www.elixir-czech.cz">
-  <img src="https://github.com/bioinfocz/exp-heatmap/raw/master/assets/elixir.png" width=100>
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/elixir.png" width=100>
 </a>
