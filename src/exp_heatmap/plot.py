@@ -8,33 +8,34 @@ import matplotlib.pyplot as plt
 import glob
 
 population_sorter = (
-    "ACB",
+    "ACB",  # AFR (superpopulations)
     "ASW",
     "ESN",
     "GWD",
     "LWK",
     "MSL",
-    "YRI",  # AFR
-    "BEB",
+    "YRI",
+    "BEB",  # SAS
     "GIH",
     "ITU",
     "PJL",
-    "STU",  # SAS
-    "CDX",
+    "STU",
+    "CDX",  # EAS
     "CHB",
     "CHS",
     "JPT",
-    "KHV",  # EAS
-    "CEU",
+    "KHV",
+    "CEU",  # EUR
     "FIN",
     "GBR",
     "IBS",
-    "TSI",  # EUR
-    "CLM",
+    "TSI",
+    "CLM",  # AMR
     "MXL",
     "PEL",
     "PUR",
-)  # AMR
+)
+
 
 
 def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
@@ -49,6 +50,8 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
     populations -- by default, the '1000Genomes' option, 26 populations from 1000 Genomes Project are expected. If your population/classes set is different,
                    provide an iterable with population/classes names. For example, with populations=['pop1', 'pop2', 'pop3'] this function will search the input directory (input_dir)
                    for *.tsv files with all combinations of pairwise values, named pop1_pop2.*.tsv, pop1_pop3.*.tsv, pop2_pop1.*.tsv etc.
+                   
+                   Populations in the final image output will be sorted according the their order in this iterable ('populations')
 
                    The output 'big_df' DataFrame with following 6 rows of pairwise values will be created:
                    pop1 vs pop2
@@ -59,33 +62,63 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
                    pop3 vs pop2
 
     """
+    
+    
     df_list = []
     pop_id_list = []
     different_dfs = False
 
+
+    # if not using 1000Genomes, use the custom populations' list to sort the data
+    if populations=="1000Genomes":
+        population_sorter = population_sorter
+        
+    else:
+        population_sorter = populations
+    
+    
+    
     segment_files = glob.glob(os.path.join(input_dir, "*.tsv"))
+    
+
+    ##############################################
 
     # reading the input files, saving only the regions between BEGIN and END to process further
     index = 1
     for segment_file in segment_files:
         # segment_files is something like ACB_KHV.tsv or ACB_KHV.some_more_info.tsv
         pop_pair = os.path.splitext(os.path.basename(segment_file))[0].split(".")[0]
-        pop_id_list.append(pop_pair)
+        
+        # test, if file names (p1, p2) are in the 'populations' a.k.a 'population_sorter'
+        p1, p2 = pop_pair.split("_")
+        
+        if all(x in population_sorter for x in (p1,p2)):
+            pop_id_list.append(pop_pair)
 
-        print(
-            "[{}/{}] Loading {} from {}".format(
-                index, len(segment_files), pop_pair, segment_file
+            print(
+                "[{}/{}] Loading {} from {}".format(
+                    index, len(segment_files), pop_pair, segment_file
+                )
             )
-        )
 
-        segments = pd.read_csv(segment_file, sep="\t")
-        segments = segments[
-            (segments.variant_pos >= begin) & (segments.variant_pos <= end)
-        ]
+            segments = pd.read_csv(segment_file, sep="\t")
+            segments = segments[
+                (segments.variant_pos >= begin) & (segments.variant_pos <= end)
+            ]
 
-        df_list.append(segments)
+            df_list.append(segments)
 
-        index += 1
+            index += 1
+            
+        else:
+            print(
+                "[{}/{}] ERROR Loading {} from {}. {} or {} not in provided 'populations' list.".format(
+                    index, len(segment_files), pop_pair, segment_file, p1, p2
+                )
+            )
+                
+            return p1, p2, population_sorter
+            
 
     # check that they all have the same dimensions AND variant_pos
     df_shape = df_list[0].shape
@@ -162,6 +195,7 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
     big_df.index = pop_labels
 
     return big_df
+
 
 
 def plot_exp_heatmap(
@@ -250,13 +284,14 @@ def plot_exp_heatmap(
     #########################
     print("Creating heatmap")
 
-    fig, ax = plt.subplots(figsize=(15, 5))
-
     if not cmap:
         cmap = "Blues"
 
     # draw default exp heatmap with 26 populations from 1000 Genomes Project
     if populations == "1000Genomes":
+        
+        fig, ax = plt.subplots(figsize=(15, 5))
+        
         sns.heatmap(
             input_df,
             yticklabels="auto",
@@ -281,8 +316,12 @@ def plot_exp_heatmap(
         ax.set_xlabel("{:,} - {:,}".format(begin, end))
 
     # draw custom exp heatmap with user-defined populations (number of pops, labels)
-    #
     else:
+        
+        # need to set up figure size for large population sample-sets
+        # here the default size (15,5) is increased by 1 inch for every 1000 SNPs (x axis) and by 1 inch for every 900 population pairs (y axis) in input_df
+        fig, ax = plt.subplots(figsize=(15 + (input_df.shape[1] // 1000), 5 + (input_df.shape[0] // 900)))
+        
         sns.heatmap(
             input_df,
             yticklabels=populations,
@@ -323,15 +362,23 @@ def plot_exp_heatmap(
 
     print("Savig heatmap")
 
-    ax.figure.savefig(output, dpi=400, bbox_inches="tight")
+    if output:
+        print()
+        print(f"ExP heatmap saved into {output}.png")
+        
+        ax.figure.savefig(output, dpi=400, bbox_inches="tight")
+        
+    else:
+        plt.show()
+        
     
-    # plt.close(fig)
+    #plt.close(fig)
 
-    print()
-    print(f"Saved into {output}.png")
+    
     
     return ax
     
+
     
 def prepare_cbar_params(data_df, n_cbar_ticks=4):
     """
@@ -374,6 +421,7 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
     cbar_ticks = np.arange(cmin, cmax + 0.001, step=(cmax - cmin)/(n_cbar_ticks-1))
     
     return cmin, cmax, list(cbar_ticks)
+
 
 
 def plot(xpehh_dir, begin, end, title, cmap, output):
