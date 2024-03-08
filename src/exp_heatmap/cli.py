@@ -7,12 +7,14 @@ from exp_heatmap.plot import plot
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="exp-selection",
+        prog="exp_heatmap",
     )
     subparser = parser.add_subparsers()
 
     parser.set_defaults(func=lambda _: parser.print_help())
 
+    
+    # prepare
     prepare_parser = subparser.add_parser("prepare")
     prepare_parser.add_argument(
         "recode_file", metavar="RECODE_FILE", help="Where is recoded VCF"
@@ -24,20 +26,27 @@ def main():
         func=lambda args: prepare(args.recode_file, args.zarr_dir)
     )
 
+
+    # compute
     compute_parser = subparser.add_parser("compute")
     compute_parser.add_argument(
-        "zarr_dir", metavar="ZARR_DIR", help="Where ZARR dir is located"
+        "zarr_dir", metavar="ZARR_DIR", help="Where the ZARR dir is located"
     )
     compute_parser.add_argument(
-        "panel_file", metavar="PANEL_FILE", help="Where panel file will be saved"
+        "panel_file", metavar="PANEL_FILE", help="Where the panel file can be found"
     )
     compute_parser.add_argument(
-        "output_dir", metavar="OUTPUT_DIR", help="Where output dir will be saved"
+        "output_dir", metavar="OUTPUT_DIR", help="Where the output dir will be saved"
+    )
+    compute_parser.add_argument(
+        "-t", "--test", metavar="TEST", default="xpehh", required=False, help="What test will be computed"
     )
     compute_parser.set_defaults(
-        func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir)
+        func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir, args.test)
     )
 
+
+    # plot
     plot_parser = subparser.add_parser("plot")
     plot_parser.add_argument(
         "output_dir", metavar="OUTPUT_DIR", help="Where output dir is located"
