@@ -2,7 +2,7 @@
 
 Welcome to the ExP Heatmap `python` package and command-line tool. Our software is focused on displaying multidimensional data, expecially the so called cross-population data - differences/similarities/p-values/or any other parameters of your choice between several groups/populations. Our method allows the user to quickly and efficiently evaluate millions of p-values or test statistics in one figure.
 
-This tool is being developed in the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/research/cestmir-vlcek/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic, v. v. i.
+This tool is being developed in the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/group/michal-kolar/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic, v. v. i.
 
 
 The ExP Heatmap manual is divided into following sections:
@@ -14,49 +14,7 @@ The ExP Heatmap manual is divided into following sections:
 
 4. **Licence and final remarks**
 
-
-
-
-<!---# RAW
-## Creates 2 Lines that CAN be selected as text
-## ------------------------------------------------->
-
-### HTML <(br)/> tag
-line1 - jeden br tagy pod sebou
-<br />
-line2
-
-line1 - dva br tagy pod sebou
-<br />
-<br />
-line2
-
-
-line1 - tři br tagy pod sebou
-<br />
-<br />
-<br />
-line2
-
-
-### jen lomítko
-line1 - dvě lomítka
-\
-\
-line2
-
-
-
-### jen jeden prázdný řádek
-line1
-
-line2
-
-################
-
-
-
-
+<br/>
 
 #### ExP heatmap example - LCT gene
 
@@ -81,10 +39,58 @@ Pypi repository link ([exp_heatmap](https://pypi.org/project/exp_heatmap/))
 pip install exp_heatmap
 ```
 
+<br/>
+
 ## 2. ExP Heatmap - workflow
 
 <img src="https://github.com/bioinfocz/exp_heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
 
+As an workflow example we present an analysis of 1000 Genomes Project, phase 3 data of chromosome 22, chosen especially for its small size and thus reasonable fast computations. It is focused on ADM2 gene ([link](https://www.ensembl.org/Homo_sapiens/Gene/Phenotype?db=core;g=ENSG00000128165;r=22:50481543-50486440)), which is active especially in reproductive system, and angiogenesis and cardiovascular system in general.
+
+```bash
+################
+# GET THE DATA #
+################
+# Download chromosome 22 from 1000genomes ftp
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr22_GRCh38.genotypes.20170504.vcf.gz" -O chr22.genotypes.vcf.gz
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
+
+# OR
+
+# The 1000 Genomes Project alternative ftp mirror (GRCh37 version);
+wget "https://ddbj.nig.ac.jp/public/mirror_database/1000genomes/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz" -O chr22.genotypes.vcf.gz
+wget "https://ddbj.nig.ac.jp/public/mirror_database/1000genomes/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
+
+####################
+# PREPARE THE DATA #
+####################
+# Filter the VCF
+vcftools --gzvcf chr22.genotypes.vcf.gz \
+         --remove-indels \
+         --recode \
+         --recode-INFO-all \
+         --out chr22.genotypes
+
+exp_heatmap prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
+
+###########################
+# COMPUTE PAIRWISE VALUES #
+###########################
+exp_heatmap compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
+
+#######################
+# DISPLAY ExP HEATMAP #
+#######################
+# Plot heatmap
+exp_heatmap plot chr22.genotypes.output --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
+
+# OR
+
+# use this if you used the GRCh37 version of the VCF input files.
+exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37
+
+# The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
+```
 
 
 ## 3. Usage, examples and prepared scripts
@@ -151,36 +157,11 @@ exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 ```
 
 
-## Example
+## Examples
 
-This example shows an analysis of 1000 Genomes Project, phase 3 data of chromosome 22, chosen especially for its small size and thus reasonable fast computations. It is focused on ADM2 gene ([link](https://www.ensembl.org/Homo_sapiens/Gene/Phenotype?db=core;g=ENSG00000128165;r=22:50481543-50486440)), which is active especially in reproductive system, and angiogenesis and cardiovascular system in general.
-
-```bash
-# Download chromosome 22 from 1000genomes ftp
-wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr22_GRCh38.genotypes.20170504.vcf.gz" -O chr22.genotypes.vcf.gz
-wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
-
-# The 1000 Genomes Project alternative ftp mirror (GRCh37 version);
-wget "https://ddbj.nig.ac.jp/public/mirror_database/1000genomes/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz" -O chr22.genotypes.vcf.gz
-wget "https://ddbj.nig.ac.jp/public/mirror_database/1000genomes/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
-
-
-# Compute files for graph
-vcftools --gzvcf chr22.genotypes.vcf.gz \
-         --remove-indels \
-         --recode \
-         --recode-INFO-all \
-         --out chr22.genotypes
-
-exp_heatmap prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
-exp_heatmap compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
-
-# Plot heatmap
-exp_heatmap plot chr22.genotypes.output --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
-exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37 # use this plotting if you use GRCh37 version of the VCF input files.
-
-# The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
-```
+xxxx
+xxx
+xxx
 
 
 ## 4. Licence and final remarks
