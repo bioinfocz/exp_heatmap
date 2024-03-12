@@ -20,33 +20,36 @@ The ExP Heatmap manual is divided into following sections:
 <!---# RAW
 ## Creates 2 Lines that CAN be selected as text
 ## ------------------------------------------------->
-### The non-breaking space ASCII character
-line1
-&nbsp;
-&nbsp;
-line2
 
 ### HTML <(br)/> tag
-line1
+line1 - jeden br tagy pod sebou
+<br />
+line2
+
+line1 - dva br tagy pod sebou
 <br />
 <br />
 line2
 
-<!---## Creates 2 Lines that CANNOT be selected as text
-## ------------------------------------------------->
-### HTML Entity &NewLine;
-line1
-&NewLine;
-&NewLine;
+
+line1 - tři br tagy pod sebou
+<br />
+<br />
+<br />
 line2
 
-### Backticks with a space inside followed by two spaces
-`(space)`(space)(space)
-`(space)`(space)(space)
-#### sample:
+
+### jen lomítko
+line1 - dvě lomítka
+\
+\
+line2
+
+
+
+### jen jeden prázdný řádek
 line1
-` `  
-` `
+
 line2
 
 ################
@@ -55,7 +58,7 @@ line2
 
 
 
-### ExP heatmap example - LCT gene
+#### ExP heatmap example - LCT gene
 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width=800>
 
@@ -78,13 +81,14 @@ Pypi repository link ([exp_heatmap](https://pypi.org/project/exp_heatmap/))
 pip install exp_heatmap
 ```
 
-## ExP Heatmap - workflow
+## 2. ExP Heatmap - workflow
 
 <img src="https://github.com/bioinfocz/exp_heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
 
 
 
-## Usage
+## 3. Usage, examples and prepared scripts
+
 
 ### Get the data
 
