@@ -424,7 +424,7 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
 
 
 
-def plot(xpehh_dir, begin, end, title, cmap, output):
+def plot(xpehh_dir, begin, end, title, output, cmap="Blues"):
     """
     create the plot function input data and print/save them
     """

@@ -10,9 +10,11 @@ The ExP Heatmap manual is divided into following sections:
 
 2. **ExP Heatmap - workflow**
 
-3. **Usage, examples and prepared scripts**
+3. **ExP Heatmap as command-line tool**
 
-4. **Licence and final remarks**
+4. **ExP Heatmap as Python package**
+
+5. **Licence and final remarks**
 
 <br/>
 
@@ -93,7 +95,7 @@ exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title 
 ```
 
 
-## 3. Usage, examples and prepared scripts
+## 3. ExP Heatmap as command-line tool
 
 
 ### Get the data
@@ -106,7 +108,7 @@ exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title 
 
 &emsp;  **Extract only SNP**
 
-You can give an .vcf or .vcf.gz file
+You can use an .vcf or .vcf.gz file
 
 ```bash
 # we will use SNPs only, so we remove insertion/deletion polymorphisms
@@ -126,6 +128,7 @@ vcftools --vcf DATA.vcf --remove-indels --recode --recode-INFO-all --out DATA
 ```bash
 # DATA.recode.vcf a vcf from previous step
 # DATA.zarr is path (folder) where zarr representation of the VCF input will be saved
+# this will vastly increase the speed of follow-up computations
 exp_heatmap prepare DATA.recode.vcf DATA.zarr
 ```
 
@@ -135,8 +138,18 @@ exp_heatmap prepare DATA.recode.vcf DATA.zarr
 ```bash
 # DATA.zarr a zarr data from previous step
 # DATA.output a path (folder) where the results will be saved
-# in this step, by default Cross-population extended haplotype homozygosity (XPEHH) score will be computed for all positions provided together with their -log10 rank p-values.
+# in this step, by default Cross-population extended haplotype homozygosity (XPEHH) score will be computed for all positions, together with their -log10 rank p-values.
 exp_heatmap compute DATA.zarr genotypes.panel DATA.output
+```
+Besides the default cross-population extended haplotype homozygosity (XPEHH) test, you can use this `exp_heatmap compute` with optional parameter `-t` and one of the keywords:
+`xpehh` - computes cross-population extended haplotype homozygosity (XPEHH) test (default),
+`xpnsl` - computes cross-population number of segregating sites by length (NSL) test,
+`delta_tajima_d` - computes delta Tajima's D,
+`hudson_fst` - computes pairwise genetic distance Fst (using the method od Hudson (1992)).
+
+```bash
+# computing the XP-NSL test
+exp_heatmap compute DATA.zarr genotypes.panel DATA.output -t xpnsl
 ```
 
 
@@ -157,7 +170,7 @@ exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 ```
 
 
-## Examples
+## 5. ExP Heatmap as Python package
 
 xxxx
 xxx
@@ -166,10 +179,11 @@ xxx
 
 ## 4. Licence and final remarks
 
-The ExP Heatmap package is available under the GNU Affero General Public License v3.0. ([link](https://www.gnu.org/licenses/agpl-3.0.en.html "GNU AGPLv3.0"))
+The ExP Heatmap package is available under the MIT License. ([link](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file "ExP Heatmap MIT licence"))
 
 If you would be interested in using this method in your commercial software under another licence, please, contact us at edvard.ehler@img.cas.cz.
 
+<br/>
 
 # Contributors
 

@@ -28,7 +28,7 @@ def run(
     output_dir -- directory where the final *.tsv files end up
 
     test -- what kind of test to compute, using the scikit-allele selection or pairwise distances/F-statistics tests.
-            Should be one of the following: 'xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst', 'custom'
+            Should be one of the following: 'xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst', [option 'custom' not implemented yet]
 
     d_tajima_d_size -- int, Delta Tajima's D size and step value (number of SNPs), values between 10 and 20 seems to work well
                        and are sufficiently large not to be too sensitive to local variation on one side, but still be able to describe

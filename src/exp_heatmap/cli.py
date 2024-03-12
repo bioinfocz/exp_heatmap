@@ -30,16 +30,16 @@ def main():
     # compute
     compute_parser = subparser.add_parser("compute")
     compute_parser.add_argument(
-        "zarr_dir", metavar="ZARR_DIR", help="Where the ZARR dir is located"
+        "zarr_dir", metavar="ZARR_DIR", help="Where is the ZARR dir located"
     )
     compute_parser.add_argument(
-        "panel_file", metavar="PANEL_FILE", help="Where the panel file can be found"
+        "panel_file", metavar="PANEL_FILE", help="Where is the panel file located"
     )
     compute_parser.add_argument(
-        "output_dir", metavar="OUTPUT_DIR", help="Where the output dir will be saved"
+        "output_dir", metavar="OUTPUT_DIR", help="What directory will be the output saved in"
     )
     compute_parser.add_argument(
-        "-t", "--test", metavar="TEST", default="xpehh", required=False, help="What test will be computed"
+        "-t", "--test", metavar="TEST", default="xpehh", required=False, help="What test will be computed (default: %(default)s). Possible values are: 'xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst'."
     )
     compute_parser.set_defaults(
         func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir, args.test)
@@ -49,20 +49,18 @@ def main():
     # plot
     plot_parser = subparser.add_parser("plot")
     plot_parser.add_argument(
-        "output_dir", metavar="OUTPUT_DIR", help="Where output dir is located"
+        "output_dir", metavar="OUTPUT_DIR", help="Where is the output dir from prevous step ('exp_heatmap compute') located. This contains *.tsv files of pairwise parameters that will serve as input data for plotting."
     )
-    plot_parser.add_argument("--begin", type=int, required=True)
-    plot_parser.add_argument("--end", type=int, required=True)
-    plot_parser.add_argument("--cmap", default=None)
-    plot_parser.add_argument("--title", default=None)
-    plot_parser.add_argument("--output", default=None)
+    plot_parser.add_argument("--begin", type=int, required=True, help="Beginning of displayed area")
+    plot_parser.add_argument("--end", type=int, required=True, help="End of displayed area")
+    plot_parser.add_argument("--title", default=None, help="Title of the figure")
+    plot_parser.add_argument("--output", default=None, help="The figure will be saved as 'output' + .png")
     plot_parser.set_defaults(
         func=lambda args: plot(
             args.output_dir,
             begin=args.begin,
             end=args.end,
             title=args.title,
-            cmap=args.cmap,
             output=args.output,
         )
     )
