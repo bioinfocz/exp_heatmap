@@ -1,18 +1,37 @@
 # ExP Heatmap
 
+Welcome to the ExP Heatmap Python package and command-line tool. Our software is focused on displaying multidimensional data, expecially the so called cross-population data - differences/similarities/p-values/or any other parameters of your choice between several groups.
+
+This tool is being developed in the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/research/cestmir-vlcek/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic, v. v. i.
+
+We aim our tool to display the cross-population data from 1000 Genomes Project, phase 3 (all data freely downloadable from 1000genomes.org). This data-set consists of 26 populations that are further grouped into 5 super-populations. We have developed the basis of ExP heatmap method while analysing the selection pressure patern on the 1000 Genomes Project, phase 3, data. The greatest obstacle in this study was not getting the data or computing the selection tests, but it was to sort the huge number of results and select those who might be important to anwer our research questions. Here, we are talking about tens or hunderds of milions of p-values. A lot of them will be important, but another bunch will be just false-positives and random noise. The tests, we are talking about are the above-mentioned cross-population tests. In case of 1000 Genomes dataset, from the 26 populations we can create 325 unique pairs (combinations), and for each of this population pair, we can compute the appropriate test for many thousands loci (usually SNPs) in a chosen genomic window.
+
+The ExP Heatmap manual is divided into following sections:
+1. **`exp_heatmap` Python package requirements and install**
+
+2. **ExP Heatmap - workflow**
+
+3. **Usage, examples and prepared scripts**
+
+4. **Licence and final remarks**
+
+
 **ExP heatmap example - LCT gene**
 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width=800>
 
 This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surrounding genomic region displaying population differences between 26 populations of 1000 Genomes Project, phase 3. Displayed values are the adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test.
 
-## Requirements
+
+## 1. `exp_heatmap` Python package requirements and install
+
+# Requirements
 
 - python >= 3.8
 - vcftools ([repository](https://github.com/vcftools/vcftools))
 - space on disk (.vcf files are usually quite large)
 
-## Install
+### Install
 
 Pypi repository link ([exp_heatmap](https://pypi.org/project/exp_heatmap/))
 
@@ -92,11 +111,11 @@ exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 This example shows an analysis of 1000 Genomes Project, phase 3 data of chromosome 22, chosen especially for its small size and thus reasonable fast computations. It is focused on ADM2 gene ([link](https://www.ensembl.org/Homo_sapiens/Gene/Phenotype?db=core;g=ENSG00000128165;r=22:50481543-50486440)), which is active especially in reproductive system, and angiogenesis and cardiovascular system in general.
 
 ```bash
-# Download datasets
+# Download chromosome 22 from 1000genomes ftp
 wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/supporting/GRCh38_positions/ALL.chr22_GRCh38.genotypes.20170504.vcf.gz" -O chr22.genotypes.vcf.gz
 wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
 
-# The 1000 Genomes Project ftp seems not working, you can get the VCF files (GRCh37 version) at this mirror
+# The 1000 Genomes Project alternative ftp mirror (GRCh37 version);
 wget "https://ddbj.nig.ac.jp/public/mirror_database/1000genomes/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz" -O chr22.genotypes.vcf.gz
 wget "https://ddbj.nig.ac.jp/public/mirror_database/1000genomes/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
 
@@ -117,6 +136,14 @@ exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title 
 
 # The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
 ```
+
+
+## 4. Licence and final remarks
+
+The ExP Heatmap package is available under the GNU Affero General Public License v3.0. ([link](https://www.gnu.org/licenses/agpl-3.0.en.html "GNU AGPLv3.0"))
+
+If you would be interested in using this method in your commercial software under another licence, please, contact us at edvard.ehler@img.cas.cz.
+
 
 # Contributors
 
