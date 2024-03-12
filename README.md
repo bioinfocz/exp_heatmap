@@ -1,10 +1,9 @@
 # ExP Heatmap
 
-Welcome to the ExP Heatmap Python package and command-line tool. Our software is focused on displaying multidimensional data, expecially the so called cross-population data - differences/similarities/p-values/or any other parameters of your choice between several groups.
+Welcome to the ExP Heatmap `python` package and command-line tool. Our software is focused on displaying multidimensional data, expecially the so called cross-population data - differences/similarities/p-values/or any other parameters of your choice between several groups/populations. Our method allows the user to quickly and efficiently evaluate millions of p-values or test statistics in one figure.
 
 This tool is being developed in the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/research/cestmir-vlcek/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic, v. v. i.
 
-We aim our tool to display the cross-population data from 1000 Genomes Project, phase 3 (all data freely downloadable from 1000genomes.org). This data-set consists of 26 populations that are further grouped into 5 super-populations. We have developed the basis of ExP heatmap method while analysing the selection pressure patern on the 1000 Genomes Project, phase 3, data. The greatest obstacle in this study was not getting the data or computing the selection tests, but it was to sort the huge number of results and select those who might be important to anwer our research questions. Here, we are talking about tens or hunderds of milions of p-values. A lot of them will be important, but another bunch will be just false-positives and random noise. The tests, we are talking about are the above-mentioned cross-population tests. In case of 1000 Genomes dataset, from the 26 populations we can create 325 unique pairs (combinations), and for each of this population pair, we can compute the appropriate test for many thousands loci (usually SNPs) in a chosen genomic window.
 
 The ExP Heatmap manual is divided into following sections:
 1. **`exp_heatmap` Python package requirements and install**
@@ -16,7 +15,47 @@ The ExP Heatmap manual is divided into following sections:
 4. **Licence and final remarks**
 
 
-**ExP heatmap example - LCT gene**
+
+
+<!---# RAW
+## Creates 2 Lines that CAN be selected as text
+## ------------------------------------------------->
+### The non-breaking space ASCII character
+line1
+&nbsp;
+&nbsp;
+line2
+
+### HTML <(br)/> tag
+line1
+<br />
+<br />
+line2
+
+<!---## Creates 2 Lines that CANNOT be selected as text
+## ------------------------------------------------->
+### HTML Entity &NewLine;
+line1
+&NewLine;
+&NewLine;
+line2
+
+### Backticks with a space inside followed by two spaces
+`(space)`(space)(space)
+`(space)`(space)(space)
+#### sample:
+line1
+` `  
+` `
+line2
+
+################
+
+
+
+
+
+### ExP heatmap example - LCT gene
 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width=800>
 
@@ -25,7 +64,7 @@ This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surr
 
 ## 1. `exp_heatmap` Python package requirements and install
 
-# Requirements
+### Requirements
 
 - python >= 3.8
 - vcftools ([repository](https://github.com/vcftools/vcftools))
@@ -39,9 +78,11 @@ Pypi repository link ([exp_heatmap](https://pypi.org/project/exp_heatmap/))
 pip install exp_heatmap
 ```
 
-## Workflow
+## ExP Heatmap - workflow
 
 <img src="https://github.com/bioinfocz/exp_heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
+
+
 
 ## Usage
 
