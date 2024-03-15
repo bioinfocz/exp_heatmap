@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 
+
+# 1000 Genomes populations
 population_sorter = (
     "ACB",  # AFR (superpopulations)
     "ASW",
@@ -36,6 +38,12 @@ population_sorter = (
     "PUR",
 )
 
+# 1000 Genomes super-populations
+superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
+                    "SAS": ("BEB", "GIH", "ITU", "PJL", "STU"),
+                    "EAS": ("CDX", "CHB", "CHS", "JPT", "KHV"),
+                    "EUR": ("CEU", "FIN", "GBR", "IBS", "TSI"),
+                    "AMR": ("CLM", "MXL", "PEL", "PUR",)}
 
 
 def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
@@ -219,6 +227,8 @@ def plot_exp_heatmap(
     begin, end -- limit the X-axis (position), displayed area
     title -- title of the graph
     cmap -- seaborn colormap, 'Blues' or 'crest' work well
+    vertical_line -- if True, displays one line in the middle of the x-axis
+                     if vertical_line=([x1, label1], [x2, label2], [x3, label3]...), display multiple vlines with different labels
     output -- ouput file, will be saved with *.png suffix
     populations -- by default, the '1000Genomes' option, 26 populations from 1000 Genomes Project are expected. If your population/classes set is different,
                    provide an iterable with population/classes names. For example, with populations=['pop1', 'pop2', 'pop3'] this function expects input_df
@@ -279,13 +289,35 @@ def plot_exp_heatmap(
                 )
             )
 
+    
+
+    ########################
+    # Color map definition #
+    ########################
+
+    # custom colormap assembly
+    if cmap == "expheatmap":
+        
+        from matplotlib import cm
+        import matplotlib as mpl
+
+        cmap = cm.gist_ncar_r(np.arange(256))  # just a np array from cmap
+        cmap[0] = [1.0, 1.0, 1.0, 1.0]  # change the lowest values in colormap to white
+        cmap[-1] = [0, 0, 0.302, 1.0]
+        # create cmap object from a list of colors (RGB)
+        cmap = mpl.colors.ListedColormap(cmap, name='expheatmap_cmap',
+                                             N=cmap.shape[0])
+
+    # default colormap
+    if not cmap:
+        cmap = "Blues"
+
+    
+
     #########################
     # create the ExP figure #
     #########################
     print("Creating heatmap")
-
-    if not cmap:
-        cmap = "Blues"
 
     # draw default exp heatmap with 26 populations from 1000 Genomes Project
     if populations == "1000Genomes":
@@ -354,13 +386,41 @@ def plot_exp_heatmap(
         
         ax.set_yticklabels(populations, minor=True)
 
-    # optionally add vertical line in the middle of the figure
-    if vertical_line:
+    
 
-        middle = int(input_df.shape[1] / 2)
-        ax.axvline(x=middle, linewidth=1, color="grey")
+    # optionally add vertical line in the middle of the figure, or else as defined
+    try:  # test if vertical line is iterable --> draw more vertical lines
+        iterator = iter(vertical_line)
+
+        # vertical_line=([x1, label1], [x2, label2], [x3, label3]...)
+
+        try:
+            for (x, label) in vertical_line:
+                ax.axvline(x=x, label=label, linewidth=1, color="grey")
+
+        except:
+            print("Could not read 'vertical_line', was expecting this 'vertical_line=([x1, label1], [x2, label2], [x3, label3]...)'.")
+            print("No vertical line will be displayed")
+
+
+
+    
+    except TypeError:
+        # not iterable
+        if vertical_line: # just one verticle line in the middle
+
+            middle = int(input_df.shape[1] / 2)
+            ax.axvline(x=middle, linewidth=1, color="grey")
+
+        else:
+            print("Could not read 'vertical_line', was expecting this 'vertical_line=([x1, label1], [x2, label2], [x3, label3]...)'.")
+            print("No vertical line will be displayed")
+
+
+    
 
     print("Savig heatmap")
+
 
     if output:
         print()

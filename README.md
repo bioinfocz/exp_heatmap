@@ -172,16 +172,109 @@ exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 
 ## 5. ExP Heatmap as Python package
 
-xxxx
-xxx
-xxx
+Besides using ExP Heatmap as standalone command-line tool, more options and user-defined parameters' changes are available when ExP Heatmap is imported directly into your python script.
 
+Test files used in these examples (p-values, test results, VCF files etc.) can be downloaded [HERE](http://genomat.img.cas.cz/). They are based on results of cross-population selection tests of the lactase ([LCT](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000115850;r=2:135787850-135837184)) gene area (
+chr2:135,787,850-135,837,184).
+
+Here we outline a solution to 3 possible and most common scenarios where the ExP is being used.
+Possible model scenarios:
+* **a) you have values ready to display**
+* **b) you have some kind of parameters/test results, need to compute the p-values and display them**
+* **c) you only have the input data (VCF), need to compute the parameters/tests, turn them into p-values and display them as ExP heatmap**
+
+
+### a) you have values ready to display 
+Your data are in a \*.tsv file, tab-delimited text file (table), where the results or p-values are stored in columns, first column is 'CHROM', second column 'POS', followed by X columns of pairwise parameters (i.e. rank p-values). For 1000 Genomes data, that would mean 325 columns of pair-wise p-values for 26 populations.
+
+```python
+from exp_heatmap.plot import plot_exp_heatmap
+import pandas as pd
+
+# input data in the form of pandas DataFrame, expected shape (x, 327)
+# 327 columns consisting of CHROM, POS and 325 columns of pairwise p-values
+# x represents the number of SNPs to display
+# column names are expected to include the 1000 Genomes population abbreviations
+data_to_plot = pd.read_csv("LCT_xpnsl_pvalues.csv", sep="\t")
+
+
+plot_exp_heatmap(data_to_plot,
+                 begin=135287850,
+                 end=136287850,
+                 title="XP-NSL test on LCT gene in 1000 Genomes Project (phase 3) populations",
+                 cmap="Blues",
+                 output=False,  # enter the save file name here
+                 populations="1000Genomes",
+                 xlabel="LCT gene, 1 Mbp window, 2:135,287,850-136,287,850, GRCh38")
+```
+
+
+### b) you have some kind of parameters/test results, need to compute the p-values and display them
+Here, you will need to compute the p-values using a prepared function in `exp_heatmap` python package.
+
+```python
+from exp_heatmap.plot import plot_exp_heatmap, create_plot_input, superpopulations, prepare_cbar_params
+
+# input data are in the form of pairwise population results per file
+# here, the results of XP-NSL test for populations of 1000 Genome Project dataset
+results_directory = "chr2_xpnsl_1000Genomes.test/"
+
+# compute ranked p-values and prepare data for ExP heatmap
+data_to_plot = create_plot_input("chr2_xpnsl_1000Genomes.test/", begin=135287850, end=136287850, populations="1000Genomes")
+
+
+plot_exp_heatmap(data_to_plot,
+                 begin=135287850,
+                 end=136287850,
+                 title="XP-NSL test on LCT gene in 1000 Genomes Project (phase 3) populations",
+                 cmap="Blues",
+                 output=False,  # enter the save file name here
+                 populations="1000Genomes",
+                 xlabel="LCT gene, 1 Mbp window, 2:135,287,850-136,287,850, GRCh38")
+
+
+#######################################################################################
+# you can tweak different paramaters in the ExP heatmap plot
+# prepare custom colorbar parameters
+
+cmin, cmax, cbar_ticks = prepare_cbar_params(data_to_plot, n_cbar_ticks=4)
+
+# display custom population set
+plot_exp_heatmap(data_to_plot,
+                 begin=135000000,
+                 end=137000000,
+                 title="XP-NSL test results in African populations",
+                 cmap="expheatmap",  # custom heatmap
+                 output="xpnsl_Africa",  # save results
+                 vertical_line=([135851073, "rs41525747"], [135851081, "rs41380347"], [135851176, "rs145946881"]), # 3 vertical lines marking SNPs with described selection pressure (https://doi.org/10.1093/gbe/evab065)
+                 populations=superpopulations["AFR"], # custom population set
+                 xlabel="LCT gene region, 2:135,000,000-137,000,000, GRCh38")
+
+```
+
+
+### c) you only have the input data (vcf)...
+...and need to compute the parameters/tests, turn them into p-values and display them as ExP heatmap.
+Here the process will differ depending on what kind test you want to run. Below we give different examples using common tools (`VCFtools`)
+and pythonic library `scikit-allel`.
+
+```python
+XX VCF to zarr
+XX Compute test (different!)
+XX Display!
+XX
+XX
+```
+
+<br/>
 
 ## 4. Licence and final remarks
 
 The ExP Heatmap package is available under the MIT License. ([link](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file "ExP Heatmap MIT licence"))
 
 If you would be interested in using this method in your commercial software under another licence, please, contact us at edvard.ehler@img.cas.cz.
+
+
 
 <br/>
 
