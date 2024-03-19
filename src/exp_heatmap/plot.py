@@ -9,7 +9,7 @@ import glob
 
 
 # 1000 Genomes populations
-population_sorter = (
+populations_1000genomes = (
     "ACB",  # AFR (superpopulations)
     "ASW",
     "ESN",
@@ -79,7 +79,7 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
 
     # if not using 1000Genomes, use the custom populations' list to sort the data
     if populations=="1000Genomes":
-        population_sorter = population_sorter
+        population_sorter = populations_1000genomes
         
     else:
         population_sorter = populations
