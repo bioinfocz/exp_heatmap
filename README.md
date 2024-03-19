@@ -142,10 +142,10 @@ exp_heatmap prepare DATA.recode.vcf DATA.zarr
 exp_heatmap compute DATA.zarr genotypes.panel DATA.output
 ```
 Besides the default cross-population extended haplotype homozygosity (XPEHH) test, you can use this `exp_heatmap compute` with optional parameter `-t` and one of the keywords:
-`xpehh` - computes cross-population extended haplotype homozygosity (XPEHH) test (default),
-`xpnsl` - computes cross-population number of segregating sites by length (NSL) test,
-`delta_tajima_d` - computes delta Tajima's D,
-`hudson_fst` - computes pairwise genetic distance Fst (using the method od Hudson (1992)).
+- `xpehh` - computes cross-population extended haplotype homozygosity (XPEHH) test (default),
+- `xpnsl` - computes cross-population number of segregating sites by length (NSL) test,
+- `delta_tajima_d` - computes delta Tajima's D,
+- `hudson_fst` - computes pairwise genetic distance Fst (using the method od Hudson (1992)).
 
 ```bash
 # computing the XP-NSL test
