@@ -6,13 +6,13 @@ This tool is being developed in the [Laboratory of Genomics and Bioinformatics](
 
 
 The ExP Heatmap manual is divided into following sections:
-1. **`Requirements and install**
+1. **Requirements and install**
 
 2. **Simple example**
 
 3. **Workflow**
 
-4. **Command-line tool usage**
+4. **Command-line tool**
 
 5. **Python package usage and examples**
 
@@ -27,12 +27,12 @@ The ExP Heatmap manual is divided into following sections:
 This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surrounding genomic region displaying population differences between 26 populations of 1000 Genomes Project, phase 3. Displayed values are the adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test.
 
 
-## 1. `exp_heatmap` Python package requirements and install
+## 1. Requirements and install
 
 ### Requirements
 
-- python >= 3.8
-- vcftools ([repository](https://github.com/vcftools/vcftools))
+- `python` >= 3.8
+- `vcftools` for genomic data preparation (not needed if you want just plot your data) ([repository](https://github.com/vcftools/vcftools))
 - space on disk (.vcf files are usually quite large)
 
 ### Install
@@ -45,7 +45,13 @@ pip install exp_heatmap
 
 <br/>
 
-## 2. ExP Heatmap - workflow
+## 2. Simple example
+
+
+
+
+
+## 3. Workflow
 
 <img src="https://github.com/bioinfocz/exp_heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
 
@@ -97,7 +103,7 @@ exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title 
 ```
 
 
-## 3. `exp_heatmap` as command-line tool
+## 4. Command-line tool
 
 After installing the `exp_heatmap` using `pip` as described above, you can use its basic functionality directly from the command line interface.
 
@@ -118,12 +124,14 @@ You can use an .vcf or .vcf.gz file
 # another option would be to use only biallelic SNPs (--min-alleles 2 --max-alleles 2),
 # probably with minor allele frequency above 5% (--maf 0.05)
 # ouput VCF will be named DATA.recode.vcf
+DATA="ALL.chr22_GRCh38.genotypes.20170504"
+
 
 # Gziped VCF
-vcftools --gzvcf DATA.vcf.gz --remove-indels --recode --recode-INFO-all --out DATA
+vcftools --gzvcf $DATA.vcf.gz --remove-indels --recode --recode-INFO-all --out $DATA
 
 # Plain VCF
-vcftools --vcf DATA.vcf --remove-indels --recode --recode-INFO-all --out DATA
+vcftools --vcf $DATA.vcf --remove-indels --recode --recode-INFO-all --out $DATA
 ```
 
 &emsp;  **Prepare data for computing**
@@ -173,9 +181,9 @@ exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 ```
 
 
-## 5. `exp_heatmap` as Python package
+## 5. Python package
 
-Besides using ExP Heatmap as standalone command-line tool, more options and user-defined parameters' changes are available when ExP Heatmap is imported directly into your python script.
+Besides using ExP Heatmap as standalone command-line tool, more options and user-defined parameters' changes are available when ExP Heatmap is imported directly into your Python script.
 
 Test files used in these examples (p-values, test results, VCF files etc.) can be downloaded [HERE](http://genomat.img.cas.cz/). They are based on results of cross-population selection tests of the lactase ([LCT](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000115850;r=2:135787850-135837184)) gene area (
 chr2:135,787,850-135,837,184).
@@ -271,7 +279,7 @@ XX
 
 <br/>
 
-## 4. Licence and final remarks
+## 6. Licence and final remarks
 
 The ExP Heatmap package is available under the MIT License. ([link](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file "ExP Heatmap MIT licence"))
 

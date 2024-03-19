@@ -46,7 +46,7 @@ superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
                     "AMR": ("CLM", "MXL", "PEL", "PUR",)}
 
 
-def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
+def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pvalues="descending"):
     """
     This function creates an input pandas DataFrame that will subsequently be used as input for ExP heatmap plotting function
 
@@ -69,6 +69,11 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
                    pop3 vs pop1
                    pop3 vs pop2
 
+    rank_pvalues -- which test results/pvalues are the most significant. In selection tests, usually the highest test values are the most interesting ones.
+                    In this situation the results' ranks for rank pvalues are computed in descending order (highest first, lowest ranks).
+                    Possible values: "ascending" -> "-log10_p_value_ascending" column will be used to create the ExP heatmap
+                                     "descending" -> "-log10_p_value_descending" column will be used to create the Exp heatmap (default)
+    
     """
     
     
@@ -151,20 +156,31 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
     transp_list = []
 
     for df, pop_pair in zip(df_list, pop_id_list):
-        # select the descending ranks that are significant for pop1_pop2 (pop1 is under selection)
-        left_df = df[["variant_pos", "-log10_p_value_descending"]].copy()
-        left_df.rename(columns={"-log10_p_value_descending": pop_pair}, inplace=True)
+        if rank_pvalues == "ascending":
+            pvalues_column = "-log10_p_value_ascending"
+        
+        elif rank_pvalues == "descending":
+            pvalues_column = "-log10_p_value_descending"
+        
+        else:
+            raise ValueError(f"Unknown value for 'rank_pvalues' parameter in create_plot_input(). Expected values are: 'ascending' or 'descending', got '{rank_pvalues}'")
+            
+        
+        
+        # select the appropriate ranks that are significant for pop1_pop2 (pop1 is under selection)
+        left_df = df[["variant_pos", pvalues_column]].copy()
+        left_df.rename(columns={pvalues_column: pop_pair}, inplace=True)
         left_df = left_df.set_index("variant_pos").T
         transp_list.append(left_df)
 
-        # select the ascending ranks that are significant for pop2_pop1 (pop2 is under selection)
+        # select the apropriate ranks that are significant for pop2_pop1 (pop2 is under selection)
         reverse_pop_pair = "_".join(
             pop_pair.split("_")[::-1]
         )  # change name pop1_pop2 to pop2_pop1
 
-        right_df = df[["variant_pos", "-log10_p_value_ascending"]].copy()
+        right_df = df[["variant_pos", pvalues_column]].copy()
         right_df.rename(
-            columns={"-log10_p_value_ascending": reverse_pop_pair}, inplace=True
+            columns={pvalues_column: reverse_pop_pair}, inplace=True
         )
         right_df = right_df.set_index("variant_pos").T
         transp_list.append(right_df)
@@ -196,11 +212,14 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes"):
 
     # drop the temporary columns
     big_df.drop(["first_pop", "second_pop"], axis=1, inplace=True)
-
+    
+    # set index name
+    big_df.index.name = "pop_pairs"
+    
     # label it just by the pop1 (which is gonna be printed with plot ticks)
-    pop_labels = big_df.index.values
-    pop_labels = [pop.split("_")[0] for pop in pop_labels]
-    big_df.index = pop_labels
+    #pop_labels = big_df.index.values
+    #pop_labels = [pop.split("_")[0] for pop in pop_labels]
+    #big_df.index = pop_labels
 
     return big_df
 
@@ -242,7 +261,10 @@ def plot_exp_heatmap(
     """
 
     print("Checking input")
-
+    
+    # cropping the input_df according to user defined range
+    input_df = input_df.loc[:, begin:end]
+    
     # check the input data for number of populations and input_df shape
     if populations == "1000Genomes":
 
@@ -321,12 +343,13 @@ def plot_exp_heatmap(
 
     # draw default exp heatmap with 26 populations from 1000 Genomes Project
     if populations == "1000Genomes":
+        populations = populations_1000genomes
         
         fig, ax = plt.subplots(figsize=(15, 5))
         
         sns.heatmap(
             input_df,
-            yticklabels="auto",
+            yticklabels=populations,
             xticklabels=False,
             vmin=1,
             vmax=4.853,
@@ -343,7 +366,7 @@ def plot_exp_heatmap(
 
         ax.set_title(title)
         ax.set_ylabel(
-            "population pairings\n\nAMR  |    EUR     |     EAS    |    SAS     |       AFR  "
+            "population pairings\n\n    AMR   |     EUR    |     EAS    |    SAS     |       AFR          "
         )
         ax.set_xlabel("{:,} - {:,}".format(begin, end))
 
@@ -375,16 +398,16 @@ def plot_exp_heatmap(
         ax.set_ylabel(ylabel)
         ax.set_xlabel(xlabel)
         
-        # set the y-axis tics and labels
-        y_axis_len = len(populations) * (len(populations) - 1)  # length of the input data, number of df row
-        y_labels_pos = list(np.arange(0, y_axis_len, step=(len(populations)-1)))  # arange positions in steps
-        y_labels_pos.append(y_axis_len) # add also the last one
-        ax.set_yticks(y_labels_pos)
-        ax.set_yticks(np.arange(y_labels_pos[0] + ((len(populations)-1) / 2), y_labels_pos[-1], step=(len(populations)-1)),
-                      minor=True) # position of minor yticks - just between the major one
-        ax.tick_params(axis="y", which="minor", length=0) # set minor yaxis ticks to zero length
-        
-        ax.set_yticklabels(populations, minor=True)
+    # set the y-axis tics and labels
+    y_axis_len = len(populations) * (len(populations) - 1)  # length of the input data, number of df row
+    y_labels_pos = list(np.arange(0, y_axis_len, step=(len(populations)-1)))  # arange positions in steps
+    y_labels_pos.append(y_axis_len) # add also the last one
+    ax.set_yticks(y_labels_pos)
+    ax.set_yticks(np.arange(y_labels_pos[0] + ((len(populations)-1) / 2), y_labels_pos[-1], step=(len(populations)-1)),
+                  minor=True) # position of minor yticks - just between the major one
+    ax.tick_params(axis="y", which="minor", length=0) # set minor yaxis ticks to zero length
+
+    ax.set_yticklabels(populations, minor=True)
 
     
 
@@ -392,15 +415,26 @@ def plot_exp_heatmap(
     try:  # test if vertical line is iterable --> draw more vertical lines
         iterator = iter(vertical_line)
 
-        # vertical_line=([x1, label1], [x2, label2], [x3, label3]...)
+        # vertical_line=([pos1, label1], [pos2, label2], [pos3, label3]...)
 
         try:
-            for (x, label) in vertical_line:
-                ax.axvline(x=x, label=label, linewidth=1, color="grey")
+            list_of_columns = input_df.columns.to_list()
+            
+            for (pos, label) in vertical_line:
+                ax.axvline(x=list_of_columns.index(pos), label=label, linewidth=1, color="grey")
+                
+            # I will get the list of positions, but the heatmap x-axis is indexed from 0
+            # so I need to turn the positions (non-consecutive, as they are SNPs!!) into indices of column labels
+            ax.set_xticks([list_of_columns.index(i[0]) for i in vertical_line])  # what column index is the user-defined x position of the vline?
+            ax.set_xticklabels([i[1] for i in vertical_line])  # labels
 
         except:
             print("Could not read 'vertical_line', was expecting this 'vertical_line=([x1, label1], [x2, label2], [x3, label3]...)'.")
+            print("Vertical lines might be out of range of displayed graph are ('begin', 'end'), please double-check")
+            print(f"Got this input for 'vertical_line': {vertical_line}")
+            print("---")
             print("No vertical line will be displayed")
+            print()
 
 
 
@@ -415,6 +449,7 @@ def plot_exp_heatmap(
         else:
             print("Could not read 'vertical_line', was expecting this 'vertical_line=([x1, label1], [x2, label2], [x3, label3]...)'.")
             print("No vertical line will be displayed")
+            print()
 
 
     
