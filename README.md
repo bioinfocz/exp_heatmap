@@ -95,7 +95,7 @@ exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title 
 ```
 
 
-## 3. ExP Heatmap as command-line tool
+## 3. `exp_heatmap` as command-line tool
 
 After installing the `exp_heatmap` using `pip` as described above, you can use its basic functionality directly from the command line interface.
 
@@ -171,7 +171,7 @@ exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 ```
 
 
-## 5. ExP Heatmap as Python package
+## 5. `exp_heatmap` as Python package
 
 Besides using ExP Heatmap as standalone command-line tool, more options and user-defined parameters' changes are available when ExP Heatmap is imported directly into your python script.
 
