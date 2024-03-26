@@ -230,7 +230,8 @@ def plot_exp_heatmap(
     begin,
     end,
     title,
-    output,
+    output=None,
+    output_suffix="png",
     cmap=None,
     populations="1000Genomes",
     vertical_line=True,
@@ -459,9 +460,9 @@ def plot_exp_heatmap(
 
     if output:
         print()
-        print(f"ExP heatmap saved into {output}.png")
+        print(f"ExP heatmap saved into {output}.{output_suffix}")
         
-        ax.figure.savefig(output, dpi=400, bbox_inches="tight")
+        ax.figure.savefig(f"{output}.{output_suffix}", dpi=400, bbox_inches="tight")
         
     else:
         plt.show()
