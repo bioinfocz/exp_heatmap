@@ -49,12 +49,12 @@ def main():
     # plot
     plot_parser = subparser.add_parser("plot")
     plot_parser.add_argument(
-        "output_dir", metavar="OUTPUT_DIR", help="Where is the output dir from prevous step ('exp_heatmap compute') located. This contains *.tsv files of pairwise parameters that will serve as input data for plotting."
+        "input_dir", metavar="INPUT_DIR", help="What files to use as input, i.e. where is the output dir from prevous step ('exp_heatmap compute') located. This contains *.tsv files of pairwise parameters that will serve as input data for plotting."
     )
     plot_parser.add_argument("--begin", type=int, required=True, help="Beginning of displayed area")
     plot_parser.add_argument("--end", type=int, required=True, help="End of displayed area")
     plot_parser.add_argument("--title", default=None, help="Title of the figure")
-    plot_parser.add_argument("--output", default=None, help="The figure will be saved as 'output' + .png")
+    plot_parser.add_argument("--output", required=True, default="ExP_heatmap", help="The figure will be saved as OUTPUT + .png")
     plot_parser.set_defaults(
         func=lambda args: plot(
             args.output_dir,

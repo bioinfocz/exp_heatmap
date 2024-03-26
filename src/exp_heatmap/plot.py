@@ -527,5 +527,5 @@ def plot(xpehh_dir, begin, end, title, output, cmap="Blues"):
     data_to_plot = create_plot_input(xpehh_dir, begin=begin, end=end)
     
     plot_exp_heatmap(
-        data_to_plot, begin=begin, end=end, title=title, cmap=cmap, output=output
+        data_to_plot, begin=data_to_plot_example.columns[0], end=data_to_plot_example.columns[-1], title=title, cmap=cmap, output=output
     )
