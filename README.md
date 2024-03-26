@@ -54,7 +54,7 @@ pip install git+https://github.com/bioinfocz/exp_heatmap.git
 
 After installing the package, try to construct ExP heatmap in **three simple steps:**
 1. **Download** the prepared results of the extended haplotype homozygosity (XPEHH) selection test for the part of human chromosome 2, 1000 Genomes Project data: ([example results](https://github.com/bioinfocz/exp_heatmap/blob/master/assets/chr2.xpehh.example.zip))
-2. **Unpack** the zipped folder `chr2.xpehh.example/` in your working directory: (`unzip chr2.xpehh.example.zip`)
+2. **Unpack** the zipped folder `chr2.xpehh.example/` in your working directory: `unzip chr2.xpehh.example.zip`
 3. **Run** the following command:
 ```bash
 exp_heatmap plot chr2.xpehh.example/ --begin 135287850 --end 136287850 --output LCT_xpehh
