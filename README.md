@@ -52,7 +52,7 @@ pip install git+https://github.com/bioinfocz/exp_heatmap.git
 
 ## 2. Simple example
 
-After installing the package, try to contruct ExP heatmap in **three simple steps:**
+After installing the package, try to construct ExP heatmap in **three simple steps:**
 1. **Download** the prepared results of the extended haplotype homozygosity (XPEHH) selection test for the part of human chromosome 2, 1000 Genomes Project data: ([example results](https://github.com/bioinfocz/exp_heatmap/blob/master/assets/chr2.xpehh.example.zip))
 2. **Unpack** the zipped folder `chr2.xpehh.example/` in your working directory: (`unzip chr2.xpehh.example.zip`)
 3. **Run** the following command:
@@ -61,7 +61,7 @@ exp_heatmap plot chr2.xpehh.example/ --begin 135287850 --end 136287850 --output 
 ```
 The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder and create the ExP heatmap and save it as `LCT_xpehh.png` file.
 
-
+<br/>
 
 
 ## 3. Workflow
@@ -114,7 +114,7 @@ exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title 
 
 # The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
 ```
-
+<br/>
 
 ## 4. Command-line tool
 
@@ -192,7 +192,7 @@ exp_heatmap compute DATA.zarr genotypes.panel DATA.output -t xpnsl
 ```bash
 exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 ```
-
+<br/>
 
 ## 5. Python package
 
@@ -232,7 +232,7 @@ plot_exp_heatmap(data_to_plot,
                  xlabel="LCT gene, 1 Mbp window, 2:135,287,850-136,287,850, GRCh38")
 ```
 
-
+<br/>
 ### b) you have some kind of parameters/test results, need to compute the p-values and display them
 Here, you will need to compute the p-values using a prepared function in `exp_heatmap` python package.
 
@@ -276,7 +276,7 @@ plot_exp_heatmap(data_to_plot,
 
 ```
 
-
+<br/>
 ### c) you only have the input data (vcf)...
 ...and need to compute the parameters/tests, turn them into p-values and display them as ExP heatmap.
 Here the process will differ depending on what kind test you want to run. Below we give different examples using common tools (`VCFtools`)
