@@ -43,10 +43,23 @@ PyPI repository link ([exp_heatmap](https://pypi.org/project/exp_heatmap/))
 pip install exp_heatmap
 ```
 
+
+Install the latest version directly from this GitHub
+```bash
+pip install git+https://github.com/bioinfocz/exp_heatmap.git
+```
 <br/>
 
 ## 2. Simple example
 
+After installing the package, try to contruct ExP heatmap in **three simple steps:**
+1. **Download** the prepared results of the extended haplotype homozygosity (XPEHH) selection test for the part of human chromosome 2, 1000 Genomes Project data
+2. **Unpack** the zipped folder `chr2.xpehh.example/` in your working directory
+3. **Run** the following command:
+```bash
+exp_heatmap plot chr2.xpehh.example/ --begin 135287850 --end 136287850 --output LCT_xpehh
+```
+The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder and save the heatmap as `LCT_xpehh.png` file.
 
 
 
