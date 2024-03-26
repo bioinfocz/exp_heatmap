@@ -201,11 +201,11 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pva
 
     # set pop1 to be a categorical column with value order defined by sorter
     big_df.first_pop = big_df.first_pop.astype("category")
-    big_df.first_pop.cat.set_categories(population_sorter, inplace=True)
+    big_df.first_pop = big_df.first_pop.cat.set_categories(population_sorter)
 
     # set pop2 to be a categorical column with value order defined by sorter
     big_df.second_pop = big_df.second_pop.astype("category")
-    big_df.second_pop.cat.set_categories(population_sorter, inplace=True)
+    big_df.second_pop = big_df.second_pop.cat.set_categories(population_sorter)
 
     # sort df by pop1 and withing pop1 by pop2
     big_df.sort_values(["first_pop", "second_pop"], inplace=True)
