@@ -1,6 +1,6 @@
 # ExP Heatmap
 
-Welcome to the ExP Heatmap `python` package and command-line tool. Our software is focused on displaying multidimensional data, expecially the so called cross-population data - differences/similarities/p-values/or any other parameters of your choice between several groups/populations. Our method allows the user to quickly and efficiently evaluate millions of p-values or test statistics in one figure.
+Welcome to the ExP Heatmap `python` package and command-line tool. Our software is focused on displaying multidimensional data, expecially the so-called cross-population data - differences/similarities/p-values/or any other parameters of your choice between several groups/populations. Our method allows the user to quickly and efficiently evaluate millions of p-values or test statistics in one figure.
 
 This tool is being developed in the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/group/michal-kolar/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic, v. v. i.
 
@@ -32,7 +32,7 @@ This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surr
 ### Requirements
 
 - `python` >= 3.8
-- `vcftools` for genomic data preparation (not needed if you want just plot your data) ([repository](https://github.com/vcftools/vcftools))
+- `vcftools` for genomic data preparation (not needed if you just want just plot your data) ([repository](https://github.com/vcftools/vcftools))
 - space on disk (.vcf files are usually quite large)
 
 ### Install
@@ -68,7 +68,7 @@ The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder 
 
 <img src="https://github.com/bioinfocz/exp_heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
 
-As an workflow example we present an analysis of 1000 Genomes Project, phase 3 data of chromosome 22, chosen especially for its small size and thus reasonable fast computations. It is focused on ADM2 gene ([link](https://www.ensembl.org/Homo_sapiens/Gene/Phenotype?db=core;g=ENSG00000128165;r=22:50481543-50486440)), which is active especially in reproductive system, and angiogenesis and cardiovascular system in general.
+As a workflow example we present an analysis of 1000 Genomes Project, phase 3 data of chromosome 22, chosen especially for its small size and thus reasonable fast computations. It is focused on ADM2 gene ([link](https://www.ensembl.org/Homo_sapiens/Gene/Phenotype?db=core;g=ENSG00000128165;r=22:50481543-50486440)), which is active especially in reproductive system, and angiogenesis and cardiovascular system in general.
 
 ```bash
 ################
@@ -112,7 +112,7 @@ exp_heatmap plot chr22.genotypes.output --begin 50481556 --end 50486440 --title 
 # use this if you used the GRCh37 version of the VCF input files.
 exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37
 
-# The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of plot function are you using.
+# The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of the plot function you are using.
 ```
 <br/>
 
@@ -130,7 +130,7 @@ After installing the `exp_heatmap` using `pip` as described above, you can use i
 
 &emsp;  **Extract only SNP**
 
-You can use an .vcf or .vcf.gz file
+You can use a .vcf or .vcf.gz file
 
 ```bash
 # we will use SNPs only, so we remove insertion/deletion polymorphisms
@@ -196,7 +196,7 @@ exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
 
 ## 5. Python package
 
-Besides using ExP Heatmap as standalone command-line tool, more options and user-defined parameters' changes are available when ExP Heatmap is imported directly into your Python script.
+Besides using ExP Heatmap as a standalone command-line tool, more options and user-defined parameters' changes are available when ExP Heatmap is imported directly into your Python script.
 
 Test files used in these examples (p-values, test results, VCF files etc.) can be downloaded [HERE](http://genomat.img.cas.cz/). They are based on results of cross-population selection tests of the lactase ([LCT](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000115850;r=2:135787850-135837184)) gene area (
 chr2:135,787,850-135,837,184).
@@ -296,7 +296,7 @@ XX
 
 The ExP Heatmap package is available under the MIT License. ([link](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file "ExP Heatmap MIT licence"))
 
-If you would be interested in using this method in your commercial software under another licence, please, contact us at edvard.ehler@img.cas.cz.
+If you are interested in using this method in your commercial software under another licence, please, contact us at edvard.ehler@img.cas.cz.
 
 
 
