@@ -7,18 +7,16 @@ This tool is being developed in the [Laboratory of Genomics and Bioinformatics](
 
 The ExP Heatmap manual is divided into following sections:
 1. [**Requirements and install**](#1-requirements-and-install)
-[l1](/exp_heatmap?tab=readme-ov-file#1-requirements-and-install)
-[l2](#1-requirements-and-install)
-[l3](1-requirements-and-install)
-3. **Simple example**
 
-4. **Workflow**
+2. [**Simple example**](#2-simple-example)
 
-5. **Command-line tool**
+3. [**Workflow**](#3-workflow)
 
-6. **Python package usage and examples**
+4. [**Command-line tool**](#4-command-line-tool)
 
-7. **Licence and final remarks**
+5. [**Python package usage and examples**](#5-python-package-usage-and-examples)
+
+6. [**Licence and final remarks**](#6-licence-and-final-remarks)
 
 <br/>
 
