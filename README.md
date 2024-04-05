@@ -14,7 +14,7 @@ The ExP Heatmap manual is divided into following sections:
 
 4. [**Command-line tool**](#4-command-line-tool)
 
-5. [**Python package usage and examples**](#5-python-package-usage-and-examples)
+5. [**Python package**](#5-python-package)
 
 6. [**Licence and final remarks**](#6-licence-and-final-remarks)
 
