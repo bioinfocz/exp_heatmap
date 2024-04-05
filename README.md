@@ -6,10 +6,10 @@ This tool is being developed in the [Laboratory of Genomics and Bioinformatics](
 
 
 The ExP Heatmap manual is divided into following sections:
-1. **Requirements and install**[https://github.com/bioinfocz/exp_heatmap?tab=readme-ov-file#1-requirements-and-install]
-l1[/exp_heatmap?tab=readme-ov-file#1-requirements-and-install]
-l2[#1-requirements-and-install]
-l3[1-requirements-and-install]
+1. **Requirements and install**(https://github.com/bioinfocz/exp_heatmap?tab=readme-ov-file#1-requirements-and-install)
+[l1](/exp_heatmap?tab=readme-ov-file#1-requirements-and-install)
+[l2](#1-requirements-and-install)
+[l3](1-requirements-and-install)
 3. **Simple example**
 
 4. **Workflow**
