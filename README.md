@@ -233,7 +233,9 @@ plot_exp_heatmap(data_to_plot,
 ```
 
 <br/>
+
 ### b) you have some kind of parameters/test results, need to compute the p-values and display them
+
 Here, you will need to compute the p-values using a prepared function in `exp_heatmap` python package.
 
 ```python
@@ -277,7 +279,9 @@ plot_exp_heatmap(data_to_plot,
 ```
 
 <br/>
+
 ### c) you only have the input data (vcf)...
+
 ...and need to compute the parameters/tests, turn them into p-values and display them as ExP heatmap.
 Here the process will differ depending on what kind test you want to run. Below we give different examples using common tools (`VCFtools`)
 and pythonic library `scikit-allel`.
@@ -291,6 +295,10 @@ XX
 ```
 
 <br/>
+
+### d) custom population set
+xxxx
+
 
 ## 6. Licence and final remarks
 
