@@ -167,8 +167,8 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pva
             pvalues_column2 = "-log10_p_value_descending"
 
         elif rank_pvalues == "2-tailed":
-            pvalues_column1 = "-log10_p_value_ascending"
-            pvalues_column2 = "-log10_p_value_descending"
+            pvalues_column1 = "-log10_p_value_descending"
+            pvalues_column2 = "-log10_p_value_ascending"
         
         else:
             raise ValueError(f"Unknown value for 'rank_pvalues' parameter in create_plot_input(). Expected values are: 'ascending', 'descending' or '2-tailed', got '{rank_pvalues}'")
