@@ -46,7 +46,7 @@ superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
                     "AMR": ("CLM", "MXL", "PEL", "PUR",)}
 
 
-def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pvalues="descending"):
+def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pvalues="2-tailed"):
     """
     This function creates an input pandas DataFrame that will subsequently be used as input for ExP heatmap plotting function
 
@@ -73,6 +73,8 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pva
                     In this situation the results' ranks for rank pvalues are computed in descending order (highest first, lowest ranks).
                     Possible values: "ascending" -> "-log10_p_value_ascending" column will be used to create the ExP heatmap
                                      "descending" -> "-log10_p_value_descending" column will be used to create the Exp heatmap (default)
+                                     "2-tailed" -> in pop1_pop2 pair, for pop1_pop2 the "-log10_p_value_ascending" column will be used;
+                                                    for pop2_pop1 pair the "-log10_p_value_descending" column will be used
     
     """
     
@@ -157,19 +159,25 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pva
 
     for df, pop_pair in zip(df_list, pop_id_list):
         if rank_pvalues == "ascending":
-            pvalues_column = "-log10_p_value_ascending"
+            pvalues_column1 = "-log10_p_value_ascending"
+            pvalues_column2 = "-log10_p_value_ascending"
         
         elif rank_pvalues == "descending":
-            pvalues_column = "-log10_p_value_descending"
+            pvalues_column1 = "-log10_p_value_descending"
+            pvalues_column2 = "-log10_p_value_descending"
+
+        elif rank_pvalues == "2-tailed":
+            pvalues_column1 = "-log10_p_value_ascending"
+            pvalues_column2 = "-log10_p_value_descending"
         
         else:
-            raise ValueError(f"Unknown value for 'rank_pvalues' parameter in create_plot_input(). Expected values are: 'ascending' or 'descending', got '{rank_pvalues}'")
+            raise ValueError(f"Unknown value for 'rank_pvalues' parameter in create_plot_input(). Expected values are: 'ascending', 'descending' or '2-tailed', got '{rank_pvalues}'")
             
         
         
         # select the appropriate ranks that are significant for pop1_pop2 (pop1 is under selection)
-        left_df = df[["variant_pos", pvalues_column]].copy()
-        left_df.rename(columns={pvalues_column: pop_pair}, inplace=True)
+        left_df = df[["variant_pos", pvalues_column1]].copy()
+        left_df.rename(columns={pvalues_column1: pop_pair}, inplace=True)
         left_df = left_df.set_index("variant_pos").T
         transp_list.append(left_df)
 
@@ -178,9 +186,9 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pva
             pop_pair.split("_")[::-1]
         )  # change name pop1_pop2 to pop2_pop1
 
-        right_df = df[["variant_pos", pvalues_column]].copy()
+        right_df = df[["variant_pos", pvalues_column2]].copy()
         right_df.rename(
-            columns={pvalues_column: reverse_pop_pair}, inplace=True
+            columns={pvalues_column2: reverse_pop_pair}, inplace=True
         )
         right_df = right_df.set_index("variant_pos").T
         transp_list.append(right_df)
@@ -369,7 +377,12 @@ def plot_exp_heatmap(
         ax.set_ylabel(
             "population pairings\n\n    AMR   |     EUR    |     EAS    |    SAS     |       AFR          "
         )
-        ax.set_xlabel("{:,} - {:,}".format(begin, end))
+
+        # custom or default x-axis label
+        if xlabel:
+            ax.set_xlabel(xlabel)
+        else:
+            ax.set_xlabel("{:,} - {:,}".format(begin, end))
 
     # draw custom exp heatmap with user-defined populations (number of pops, labels)
     else:
@@ -528,5 +541,10 @@ def plot(xpehh_dir, begin, end, title, output, cmap="Blues"):
     data_to_plot = create_plot_input(xpehh_dir, begin=begin, end=end)
     
     plot_exp_heatmap(
-        data_to_plot, begin=data_to_plot.columns[0], end=data_to_plot.columns[-1], title=title, cmap=cmap, output=output
+        data_to_plot, begin=data_to_plot.columns[0],
+        end=data_to_plot.columns[-1],
+        title=title,
+        cmap=cmap,
+        output=output,
+        xlabel="{:,} - {:,}".format(begin, end)
     )
