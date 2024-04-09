@@ -51,10 +51,13 @@ def main():
     plot_parser.add_argument(
         "input_dir", metavar="INPUT_DIR", help="What files to use as input for drawing of the ExP heatmap, i.e. where is the output dir from previous step ('exp_heatmap compute') located. This contains *.tsv files of pairwise parameters that will serve as input data for plotting."
     )
-    plot_parser.add_argument("--begin", type=int, required=True, help="Beginning of displayed area (if this position is not in your input data, will take the closest position instead)")
-    plot_parser.add_argument("--end", type=int, required=True, help="End of displayed area (if this position is not in your input data, will take the closest position instead)")
+    plot_parser.add_argument("--begin", type=int, required=True,
+        help="Beginning of displayed area (if this position is not in your input data, will take the closest position instead)")
+    plot_parser.add_argument("--end", type=int, required=True,
+        help="End of displayed area (if this position is not in your input data, will take the closest position instead)")
     plot_parser.add_argument("--title", default=None, help="Title of the figure")
     plot_parser.add_argument("--output", required=True, default="ExP_heatmap", help="The figure will be saved as OUTPUT + .png")
+    
     plot_parser.set_defaults(
         func=lambda args: plot(
             args.input_dir,
