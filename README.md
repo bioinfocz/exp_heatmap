@@ -98,9 +98,9 @@ vcftools --gzvcf chr22.genotypes.vcf.gz \
 
 exp_heatmap prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
 
-###########################
-# COMPUTE PAIRWISE VALUES #
-###########################
+#################################################
+# COMPUTE PAIRWISE VALUES (default XP-EHH test) #
+#################################################
 exp_heatmap compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
 
 #######################
