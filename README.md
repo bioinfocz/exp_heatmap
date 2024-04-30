@@ -77,8 +77,8 @@ As a workflow example we present an analysis of 1000 Genomes Project, phase 3 da
 # GET THE DATA #
 ################
 # Download chromosome 22 from 1000genomes ftp (GRch38 version)
-wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/20181203_biallelic_SNV/ALL.chr22.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz" -O chr22.genotypes.vcf.gz
-wget "ftp.1000genomes.ebi.ac.uk/vol1/withdrawn/release/20130502/integrated_call_samples_v2.20130502.ALL.panel" -O genotypes.panel
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz" -O chr22.genotypes.vcf.gz
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
 
 # OR
 
