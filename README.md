@@ -16,7 +16,9 @@ The ExP Heatmap manual is divided into following sections:
 
 5. [**Python package**](#5-python-package)
 
-6. [**Licence and final remarks**](#6-licence-and-final-remarks)
+6. [**Galery**](#6-galery)
+
+7. [**Licence and final remarks**](#7-licence-and-final-remarks)
 
 <br/>
 
@@ -300,7 +302,10 @@ XX
 xxxx
 
 
-## 6. Licence and final remarks
+## 6. Galery
+
+
+## 7. Licence and final remarks
 
 The ExP Heatmap package is available under the MIT License. ([link](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file "ExP Heatmap MIT licence"))
 
