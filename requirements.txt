@@ -1,8 +1,0 @@
-scikit-allel
-zarr
-argparse
-glob3
-numpy
-pandas
-matplotlib
-seaborn
