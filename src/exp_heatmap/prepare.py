@@ -24,7 +24,9 @@ def prepare(recode_file: str, zarr_dir: str) -> None:
     if zarr_version.startswith('3.') or int(zarr_version.split('.')[0]) >= 3:
         print(f"Error: zarr version {zarr_version} is not supported.")
         print("Please downgrade to zarr version < 3.0.0:")
+        print()
         print("  pip install 'zarr<3.0.0'")
+        print()
         sys.exit(1)
     
     # Check if input file exists
