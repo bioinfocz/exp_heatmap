@@ -3,3 +3,5 @@ data/
 dist/
 __pycache__/
 exp_heatmap.egg-info/
+.DS_Store
+adam/testing/.DS_Store
