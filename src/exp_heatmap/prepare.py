@@ -5,7 +5,21 @@ import zarr
 import exp_heatmap.utils as utils
 
 
-def prepare(recode_file: str, zarr_dir: str):
+def prepare(recode_file: str, zarr_dir: str) -> None:
+    """
+    Convert VCF file to ZARR array.
+    
+    Requirements:
+        - zarr version < 3.0.0
+    
+    Args:
+        - recode_file: Path to the input VCF file (recoded, SNPs only)
+        - zarr_dir: Path where the ZARR directory will be created
+        
+    Raises:
+        - SystemExit: If zarr version >= 3.0.0 is detected, if input file doesn't exist, or if conversion fails
+    """
+    # Check zarr version compatibility
     zarr_version = zarr.__version__
     if zarr_version.startswith('3.') or int(zarr_version.split('.')[0]) >= 3:
         print(f"Error: zarr version {zarr_version} is not supported.")
@@ -13,8 +27,10 @@ def prepare(recode_file: str, zarr_dir: str):
         print("  pip install 'zarr<3.0.0'")
         sys.exit(1)
     
+    # Check if input file exists
     utils.check_path_or_exit(recode_file)
 
+    # Convert VCF file to ZARR array
     try:
         allel.vcf_to_zarr(recode_file, zarr_dir, fields="*", log=sys.stdout)
     except Exception as e:
