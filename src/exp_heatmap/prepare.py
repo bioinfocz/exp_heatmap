@@ -22,7 +22,7 @@ def prepare(recode_file: str, zarr_dir: str) -> None:
     # Check zarr version compatibility
     zarr_version = zarr.__version__
     if int(zarr_version.split('.')[0]) >= 3:
-        print(f"Error: zarr version {zarr_version} is not supported.")
+        print(f"Error: Unsupported zarr version: {zarr_version}")
         print("Please downgrade to zarr version < 3.0.0:")
         print()
         print("  pip install 'zarr<3.0.0'")
