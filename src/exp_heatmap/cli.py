@@ -19,10 +19,10 @@ def main():
     # prepare
     prepare_parser = subparser.add_parser("prepare", help="Convert VCF file to ZARR format")
     prepare_parser.add_argument(
-        "recode_file", metavar="RECODE_FILE", help="Where is recoded VCF"
+        "recode_file", metavar="RECODE_FILE", help="Path to recoded VCF file"
     )
     prepare_parser.add_argument(
-        "zarr_dir", metavar="ZARR_DIR", help="Where ZARR dir will be saved"
+        "zarr_dir", metavar="ZARR_DIR", help="Path where ZARR directory will be saved"
     )
     prepare_parser.set_defaults(
         func=lambda args: prepare(args.recode_file, args.zarr_dir)
@@ -32,13 +32,13 @@ def main():
     # compute
     compute_parser = subparser.add_parser("compute", help="Compute population genetics statistics")
     compute_parser.add_argument(
-        "zarr_dir", metavar="ZARR_DIR", help="Where is the ZARR dir located"
+        "zarr_dir", metavar="ZARR_DIR", help="Path to ZARR directory"
     )
     compute_parser.add_argument(
-        "panel_file", metavar="PANEL_FILE", help="Where is the panel file located"
+        "panel_file", metavar="PANEL_FILE", help="Path to panel file"
     )
     compute_parser.add_argument(
-        "output_dir", metavar="OUTPUT_DIR", help="What directory will be the output saved in"
+        "output_dir", metavar="OUTPUT_DIR", help="Directory for output files"
     )
     compute_parser.add_argument(
         "-t", "--test", choices=['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst'], 
@@ -52,7 +52,7 @@ def main():
     # plot
     plot_parser = subparser.add_parser("plot", help="Generate heatmap visualization")
     plot_parser.add_argument(
-        "input_dir", metavar="INPUT_DIR", help="What files to use as input for drawing of the ExP heatmap, i.e. where is the output dir from previous step ('exp_heatmap compute') located. This contains *.tsv files of pairwise parameters that will serve as input data for plotting."
+        "input_dir", metavar="INPUT_DIR", help="Directory containing TSV files from 'exp_heatmap compute'"
     )
     plot_parser.add_argument("--begin", type=int, required=True,
         help="Beginning of displayed area (if this position is not in your input data, will start from the next closest position instead)")
