@@ -58,7 +58,7 @@ def main():
     plot_parser.add_argument("--end", type=int, required=True,
         help="End of displayed area (if this position is not in your input data, will finish on the previous closest position instead)")
     plot_parser.add_argument("--title", default=None, help="Title of the figure")
-    plot_parser.add_argument("--output", required=True, default="ExP_heatmap", help="The figure will be saved as OUTPUT + .png")
+    plot_parser.add_argument("--output", default="ExP_heatmap", help="The figure will be saved as OUTPUT + .png")
     plot_parser.add_argument("--cmap", default="Blues", help="Colormap to be used for drawing ExP heatmap values (e.g., pvalues)")
 
     plot_parser.set_defaults(
