@@ -1,10 +1,6 @@
 import argparse
 
-from exp_heatmap.prepare import prepare
-from exp_heatmap.compute import compute
-from exp_heatmap.plot import plot
-from exp_heatmap import __version__
-
+from exp_heatmap import prepare, compute, plot, __version__
 
 def main():
     parser = argparse.ArgumentParser(
