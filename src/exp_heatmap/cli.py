@@ -41,7 +41,8 @@ def main():
         "output_dir", metavar="OUTPUT_DIR", help="What directory will be the output saved in"
     )
     compute_parser.add_argument(
-        "-t", "--test", metavar="TEST", default="xpehh", required=False, help="What test will be computed (default: %(default)s). Possible values are: 'xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst'."
+        "-t", "--test", choices=['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst'], 
+        default="xpehh", help="Statistical test to compute (default: %(default)s)"
     )
     compute_parser.set_defaults(
         func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir, args.test)
