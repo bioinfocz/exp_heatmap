@@ -17,7 +17,7 @@ def main():
 
     
     # prepare
-    prepare_parser = subparser.add_parser("prepare")
+    prepare_parser = subparser.add_parser("prepare", help="Convert VCF file to ZARR format")
     prepare_parser.add_argument(
         "recode_file", metavar="RECODE_FILE", help="Where is recoded VCF"
     )
@@ -30,7 +30,7 @@ def main():
 
 
     # compute
-    compute_parser = subparser.add_parser("compute")
+    compute_parser = subparser.add_parser("compute", help="Compute population genetics statistics")
     compute_parser.add_argument(
         "zarr_dir", metavar="ZARR_DIR", help="Where is the ZARR dir located"
     )
@@ -50,7 +50,7 @@ def main():
 
 
     # plot
-    plot_parser = subparser.add_parser("plot")
+    plot_parser = subparser.add_parser("plot", help="Generate heatmap visualization")
     plot_parser.add_argument(
         "input_dir", metavar="INPUT_DIR", help="What files to use as input for drawing of the ExP heatmap, i.e. where is the output dir from previous step ('exp_heatmap compute') located. This contains *.tsv files of pairwise parameters that will serve as input data for plotting."
     )
