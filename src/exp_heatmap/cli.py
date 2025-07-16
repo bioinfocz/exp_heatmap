@@ -8,6 +8,8 @@ from exp_heatmap.plot import plot
 def main():
     parser = argparse.ArgumentParser(
         prog="exp_heatmap",
+        description="Generate heatmaps from population genetics data using VCF files",
+        epilog="For more information, see the documentation at https://github.com/bioinfocz/exp_heatmap/"
     )
     subparser = parser.add_subparsers()
 
