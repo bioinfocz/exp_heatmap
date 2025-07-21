@@ -7,7 +7,7 @@ import allel
 import sys
 import pandas as pd
 from itertools import combinations
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 
 def create_pop_pairs(panel: pd.DataFrame) -> List[Tuple[str, str]]:
