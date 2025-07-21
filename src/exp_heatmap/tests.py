@@ -48,7 +48,7 @@ def run(
 
     samples = callset["samples"][:]
     
-    # Check sample order using comprehensive function from utils
+    # Check the sample order
     utils.check_sample_order(samples, panel["sample"])
 
     name = utils.name_from_path(zarr_dir)
