@@ -36,11 +36,6 @@ def name_from_path(path: str):
 
     return path
 
-
-def name_with_path(path: str):
-    return os.path.join(os.path.dirname(path), name_from_path(path))
-
-
 def check_sample_order(zarr_samples, panel_samples):
     """
     Checks the sample order between zarr and panel data.
