@@ -47,14 +47,9 @@ def run(
     gt, positions = preprocessing.filter_by_AF(callset, 0.05)
 
     samples = callset["samples"][:]
-    if np.all(samples == panel["sample"].values):
-        print("Order of samples ok")
-    else:
-        print(
-            "Order of samples in panel file does not match order of samples in given zarr. It is possible that you are using wrong panel file path e.g. from different phase than you variant data comes from different phase than your data"
-        )
-
-        sys.exit(1)
+    
+    # Check sample order using comprehensive function from utils
+    utils.check_sample_order(samples, panel["sample"])
 
     name = utils.name_from_path(zarr_dir)
 
