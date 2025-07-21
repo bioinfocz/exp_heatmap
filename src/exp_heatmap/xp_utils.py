@@ -28,17 +28,6 @@ def create_pop_pairs(panel: pd.DataFrame) -> List[Tuple[str, str]]:
     populations = np.unique(panel["pop"].values)
     return list(combinations(populations, 2))
 
-    pop_pairs = []
-    for i in range(len(populations)):
-        pop1 = populations[i]
-        for j in range(i + 1, len(populations)):
-            pop2 = populations[j]
-            pop_pairs.append((pop1, pop2))
-
-    return pop_pairs
-
-
-
 def get_haplotypes(gt_array, panel, pop):
     # get the indices of samples which belong to given population
     indices_pop = panel.index[panel["pop"] == pop]
