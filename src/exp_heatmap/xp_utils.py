@@ -1,3 +1,7 @@
+"""
+Specific utilities for genetic data analysis and population genetics calculations.
+"""
+
 import numpy as np
 import allel
 import sys

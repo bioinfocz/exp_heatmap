@@ -1,3 +1,7 @@
+"""
+General utilities for file path handling and name extraction.
+"""
+
 import re
 import os
 import sys
