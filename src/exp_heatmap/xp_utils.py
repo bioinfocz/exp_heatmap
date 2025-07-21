@@ -5,10 +5,28 @@ Specific utilities for genetic data analysis and population genetics calculation
 import numpy as np
 import allel
 import sys
+import pandas as pd
+from itertools import combinations
+from typing import List, Tuple
 
 
-def create_pop_pairs(panel):
+def create_pop_pairs(panel: pd.DataFrame) -> List[Tuple[str, str]]:
+    """
+    Create all unique population pairs from a population panel.
+    
+    Args:
+        panel: DataFrame with population information, must contain 'pop' column
+        
+    Returns:
+        List of tuples containing population pair combinations
+        
+    Example:
+        >>> panel = pd.DataFrame({'pop': ['AFR', 'EUR', 'ASN']})
+        >>> create_pop_pairs(panel)
+        [('AFR', 'EUR'), ('AFR', 'ASN'), ('EUR', 'ASN')]
+    """
     populations = np.unique(panel["pop"].values)
+    return list(combinations(populations, 2))
 
     pop_pairs = []
     for i in range(len(populations)):
