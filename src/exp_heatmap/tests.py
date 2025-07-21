@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import sys
 
-import exp_heatmap.preprocessing as preprocessing
 import exp_heatmap.xp_utils as xp_utils
 import exp_heatmap.utils as utils
 import exp_heatmap.rank_tools as rank_tools
@@ -44,12 +43,12 @@ def run(
 
     callset = zarr.open_group(zarr_dir, mode="r")
 
-    gt, positions = preprocessing.filter_by_AF(callset, 0.05)
+    gt, positions = xp_utils.filter_by_AF(callset, 0.05)
 
     samples = callset["samples"][:]
     
     # Check the sample order
-    utils.check_sample_order(samples, panel["sample"])
+    xp_utils.check_sample_order(samples, panel["sample"])
 
     name = utils.name_from_path(zarr_dir)
 
