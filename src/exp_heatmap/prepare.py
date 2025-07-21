@@ -2,7 +2,7 @@ import sys
 import allel
 import zarr
 
-import exp_heatmap.utils as utils
+from exp_heatmap import utils
 
 
 def prepare(recode_file: str, zarr_dir: str) -> None:

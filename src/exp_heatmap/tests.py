@@ -5,9 +5,7 @@ import numpy as np
 import pandas as pd
 import sys
 
-import exp_heatmap.xp_utils as xp_utils
-import exp_heatmap.utils as utils
-import exp_heatmap.rank_tools as rank_tools
+from exp_heatmap import xp_utils, utils, rank_tools
 
 
 def run(
