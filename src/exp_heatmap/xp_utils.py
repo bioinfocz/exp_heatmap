@@ -40,10 +40,10 @@ def get_haplotypes(gt_array: allel.GenotypeArray, panel: pd.DataFrame, pop: str)
     Returns:
         Haplotype array for the specified population
     """
-    # get the indices of samples which belong to given population
+    # Get indices of samples belonging to the specified population
     indices_pop = panel.index[panel["pop"] == pop]
 
-    # get genotype data belonging only to given population
+    # Extract genotype data for the population
     gt_pop = gt_array.take(indices_pop, axis=1)
 
     return gt_pop.to_haplotypes()
@@ -62,13 +62,13 @@ def get_pop_allele_counts(gt: allel.GenotypeArray, panel: pd.DataFrame, pop: str
     Returns:
         Allele counts array for the specified population
     """
-    # get the indices of samples (individuals) which belong to pop
+    # Get indices of samples belonging to the specified population
     indices_pop = panel.index[panel["pop"] == pop]
 
-    # get genotype data belonging only to pop
+    # Extract genotype data for the population
     gt_pop = gt.take(indices_pop, axis=1)
 
-    # get the allel counts for population (input for pbs)
+    # Calculate allele counts for the population (input for PBS analysis)
     ac = gt_pop.count_alleles()
     return ac
 
@@ -84,15 +84,15 @@ def filter_by_AF(callset: Any, af_threshold: float) -> Tuple[allel.GenotypeChunk
         Tuple of (filtered_genotypes, filtered_positions) where variants
         have alternate allele frequency > af_threshold
     """
-    # Acess alternate allele frequencies
+    # Access alternate allele frequencies
     af = callset["variants/AF"][:]
 
     loc_variant_selection = af[:, 0] > af_threshold
 
-    # Acces the genotype data from zarr
+    # Access the genotype data from zarr
     gt_zarr = callset["calldata/GT"]
 
-    # Load the genotype as chunked array in case of big data
+    # Load the genotype as chunked array for memory efficiency
     gt = allel.GenotypeChunkedArray(gt_zarr)
     # gt = allel.GenotypeArray(gt_zarr)
 
@@ -121,7 +121,7 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
     print(f"Zarr samples: {len(zarr_samples_list)}")
     print(f"Panel samples: {len(panel_samples_list)}")
     
-    # Check if same number of samples
+    # Verify that both datasets have the same number of samples
     if len(zarr_samples_list) != len(panel_samples_list):
         print(f"\nERROR: Different number of samples!")
         print(f"Zarr has {len(zarr_samples_list)} samples, panel has {len(panel_samples_list)} samples")
@@ -142,7 +142,7 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
             print(f"Samples in panel but not in zarr: {missing_in_zarr}")
         sys.exit(1)
     
-    # Check if order is the same
+    # Verify that sample order matches between datasets
     order_matches = True
     mismatches = []
     
@@ -158,7 +158,7 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
         print(f"\nWARNING: Sample order differs!")
         print(f"Found {len(mismatches)} mismatches:")
         
-        # Show first 10 mismatches
+        # Display the first 10 mismatched positions for debugging
         for i, zarr_sample, panel_sample in mismatches[:10]:
             print(f"  Position {i+1}: Zarr='{zarr_sample}' vs Panel='{panel_sample}'")
         
