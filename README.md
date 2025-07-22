@@ -59,7 +59,7 @@ After installing the package, try to construct ExP heatmap in **three simple ste
 2. **Unpack** the zipped folder `chr2.xpehh.example/` in your working directory: `unzip chr2.xpehh.example.zip`
 3. **Run** the following command:
 ```bash
-exp_heatmap plot chr2.xpehh.example/ --begin 135287850 --end 136287850 --title "LCT gene" --output LCT_xpehh
+exp_heatmap plot chr2.xpehh.example/ --begin 136070087 --end 137070087 --title "LCT gene" --output LCT_xpehh
 ```
 The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder and create the ExP heatmap and save it as `LCT_xpehh.png` file.
 
