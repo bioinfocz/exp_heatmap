@@ -1,5 +1,4 @@
-import exp_heatmap.tests as tests
-import exp_heatmap.utils as utils
+from exp_heatmap import tests, utils
 
 
 def compute(zarr_dir: str, panel_file: str, output_dir: str, test: str):

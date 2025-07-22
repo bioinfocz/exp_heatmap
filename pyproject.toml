@@ -5,3 +5,46 @@ requires = [
 ]
 
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "exp_heatmap"
+version = "1.1.4"
+authors = [
+    {name = "Edvard Ehler"},
+    {name = "Ondřej Moravčík"}
+]
+maintainers = [
+    {name = "Adam Nógell", email = "adam.nogell@img.cas.cz"}
+]
+description = "Computing and drawing ExP heatmap for displaying complex cross-population data"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Bio-Informatics"
+]
+dependencies = [
+    "scikit-allel",
+    "zarr<3.0.0",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "seaborn"
+]
+
+[project.urls]
+Homepage = "https://github.com/bioinfocz/exp_heatmap"
+"Bug Tracker" = "https://github.com/bioinfocz/exp_heatmap/issues"
+
+[project.scripts]
+exp-selection = "exp_heatmap.cli:main"
+exp_heatmap = "exp_heatmap.cli:main"
+exp-heatmap = "exp_heatmap.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
