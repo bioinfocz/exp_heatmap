@@ -27,10 +27,6 @@ def run(
         d_tajima_d_size (int): Window size for Delta Tajima's D (number of SNPs).
                               Values between 10-20 work well. Increase if getting
                               empty results. Default is 13.
-    
-    Raises:
-        ValueError: If test type is not supported
-        FileNotFoundError: If input files don't exist
     """
     print(f"Loading panel file: {panel_file}")
     panel = pd.read_csv(panel_file, sep="\t", usecols=["sample", "pop", "super_pop"])
@@ -114,7 +110,7 @@ def run(
         results.append(result)
         masks.append(mask)
 
-     # Create combined NaN mask - True where any population pair has NaN
+    # Create combined NaN mask - True where any population pair has NaN
     combined_nan_mask = np.logical_or.reduce(masks)
     # Convert to boolean mask for valid positions (not NaN)
     valid_positions_mask = ~combined_nan_mask
