@@ -62,7 +62,7 @@ wget "https://zenodo.org/records/16364351/files/chr2_output.tar.gz"
 2. **Decompress** the downloaded folder in your working directory: `tar -xzf chr2_output.tar.gz`
 3. **Run** the following command:
 ```bash
-exp_heatmap plot chr2.xpehh.example/ --begin 136070087 --end 137070087 --title "LCT gene" --output LCT_xpehh
+exp_heatmap plot chr2_output/ --begin 136070087 --end 137070087 --title "LCT gene" --output LCT_xpehh
 ```
 The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder and create the ExP heatmap and save it as `LCT_xpehh.png` file.
 
