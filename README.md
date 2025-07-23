@@ -304,6 +304,24 @@ xxxx
 
 ## 6. Galery
 
+#### a) ...example 1
+
+#### b) ...example 2
+
+#### c) Displaying the same data with differently computed rank p-values
+The example below shows the XP-EHH test computed on the chr22, region of the ([ADM2 gene](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000128165;r=22:50481543-50486440)). While preparing the selection test with `create_plot_input()`, 
+we have used different options for computing rank p-values (2-tailed, ascending and descending).
+
+`create_plot_input(rank_pvalues="2-tailed")`
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: 2-tailed.png" width=800>
+
+`create_plot_input(rank_pvalues="ascending")`
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: ascending.png" width=800>
+
+`create_plot_input(rank_pvalues="descending")`
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: descending.png" width=800>
+
+
 
 ## 7. Licence and final remarks
 
@@ -318,6 +336,7 @@ If you are interested in using this method in your commercial software under ano
 # Contributors
 
 - Eda Ehler ([@EdaEhler](https://github.com/EdaEhler))
+- Adam Nógell ([@AdamNogell](https://github.com/AdamNogell))
 - Jan Pačes ([@hpaces](https://github.com/hpaces))
 - Mariana Šatrová ([@satrovam](https://github.com/satrovam))
 - Ondřej Moravčík ([@ondra-m](https://github.com/ondra-m))
