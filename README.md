@@ -142,11 +142,12 @@ exp_heatmap compute chr15_snps.recode.zarr genotypes.panel chr15_snps_output
 # Create a heatmap for the SLC24A5 gene region
 #
 # Parameters:
-# --begin 47924019 --end 48024019: SLC24A5 gene region (±500kb)
+# --begin 47924019 & --end 48024019: SLC24A5 gene region (±500kb)
 # --title "SLC24A5": Label for the output plot
+# --cmap gist_heat: color map used in plot
 # --out SLC24A5_heatmap: Output filename prefix
 echo "Generating heatmap for SLC24A5 gene region..."
-exp_heatmap plot chr15_snps_output --begin 47924019 --end 48924019 --title "SLC24A5" --out SLC24A5_heatmap
+exp_heatmap plot chr15_snps_output --begin 47924019 --end 48924019 --title "SLC24A5" --cmap gist_heat --out SLC24A5_heatmap
 
 echo "Workflow completed!"
 echo ""
