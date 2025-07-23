@@ -249,7 +249,8 @@ def plot_exp_heatmap(
     ylabel=False,
     xlabel=False,
     cbar_ticks=None,
-    rank_pvals_display_limit=None,
+    display_limit=None,
+    display_values="higher"
 ):
     """
     Read input DataFrame and create the ExP heatmap accordingly.
@@ -270,12 +271,17 @@ def plot_exp_heatmap(
                    pop3 vs pop1
                    pop3 vs pop2
     
-    rank_pvals_display_limit -- If defined, values lower than the given limit will be displayed as 0. Usefull for filtering out the noisy data
-                                and displaying only the most significant values, i.e. the first 100 SNPs that are under strongest selection.
-                                For example:
-                                You analysed 5,000,000 SNPs and want to display only 1000 the most significant ones. Set rank_pvals_display_limit to 
-                                -log(1000/5000000) = 3.698970004
-    
+
+    display_limit -- If defined, values lower/higher than the given limit will be displayed as 0. Keyword argument 'display_values' 
+                     defines if you want to keep the values higher or lower, than this set limit. Usefull for filtering out the noisy data
+                     and displaying only the most significant values, i.e. the first 100 SNPs that are under strongest selection.
+                     For example:
+                     You analysed 5,000,000 SNPs and want to display only 1000 the most significant ones. Set display_limit to 
+                     -log(1000/5000000) = 3.698970004
+
+    display_values -- 'higher' or 'lower', what values to keep to display when using the 'display_limit' option.
+                      display_values="higher" is suitable for rank p-values or distances.
+                      display_values="lower" is suited for displaying classical p-values (the lower, the more significant).
     """
 
     
@@ -390,13 +396,24 @@ def plot_exp_heatmap(
             )
 
     
-    # Apply the rank_pvals_display_limit
-    if rank_pvals_display_limit:
-        print()
-        print(f"Displaying only values above the given rank_pvals_display_limit {rank_pvals_display_limit}")
-        print()
-        
-        input_df[input_df < rank_pvals_display_limit] = 0
+    # Apply the display_limit
+    if display_limit:
+        if display_values == "higher":
+            print()
+            print(f"Displaying only values above the given display_limit: {display_limit}")
+            print()
+            
+            input_df[input_df < display_limit] = 0
+
+        elif display_values == "lower":
+            print()
+            print(f"Displaying only values below the given display_limit: {display_limit}")
+            print()
+            
+            input_df[input_df > display_limit] = 0
+
+        else:
+            raise ValueError(f"plot_exp_heatmap() parameter 'display_values' has unknown value '{display_values}'. The only expected options are 'higher' or 'lower'.")
     
     
 
