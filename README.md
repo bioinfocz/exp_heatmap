@@ -361,6 +361,26 @@ we have used different options for computing rank p-values (2-tailed, ascending 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: descending.png" width=800>
 
 
+#### d) Using `display_limit`, `display_values` and `cbar` parameters to filter and display the noisy data
+
+The same data as in previous [example](#c-displaying-the-same-data-with-differently-computed-rank-p-values)
+
+```python
+# data_to_plot is the prepared pandas df
+# begin, end - limiting the region to display
+# title - if output is not defined, the figure will be saved as title.png
+# cmap - custom colormap
+# display_limit - through manualy trying different values, this looks like a sweet-point - most of the random noise is off and the significant regions/populations are visible. Values <1.60 will be displayed as 0 (white)
+# display_values - we want to display values higher than the set display limit
+# cbar_vmin - to distinguish well between our displayed rank p-values, we have raised colorbar minimal values starting from 1.60 (same as display_limit)
+# cbar_vmax - in case we are not sure what is the maximum value in our data, we can just get is from the df.max() function. First max() will get the maximum value from every row, second max() function will get the highest value from all row maximums.
+# output - output file prefix, suffix set to .png by default
+
+plot_exp_heatmap(data_to_plot, begin=50910000, end=50950000, title="ADM2, chr22, XP-EHH, pvals: 2-tailed", cmap="expheatmap", display_limit=1.60, display_values="higher", cbar_vmin=1.60, cbar_vmax=data_to_plot.max().max(), output="ADM2_XP-EHH_display_limit")
+```
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2_XP-EHH_display_limit.png" width=800>
+
+
 
 ## 7. Licence and final remarks
 
