@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
+from bisect import bisect_left
 
 
 # 1000 Genomes populations
@@ -248,6 +249,8 @@ def plot_exp_heatmap(
     ylabel=False,
     xlabel=False,
     cbar_ticks=None,
+    display_limit=None,
+    display_values="higher"
 ):
     """
     Read input DataFrame and create the ExP heatmap accordingly.
@@ -267,13 +270,85 @@ def plot_exp_heatmap(
                    pop2 vs pop3
                    pop3 vs pop1
                    pop3 vs pop2
+    
+
+    display_limit -- If defined, values lower/higher than the given limit will be displayed as 0. Keyword argument 'display_values' 
+                     defines if you want to keep the values higher or lower, than this set limit. Usefull for filtering out the noisy data
+                     and displaying only the most significant values, i.e. the first 100 SNPs that are under strongest selection.
+                     For example:
+                     You analysed 5,000,000 SNPs and want to display only 1000 the most significant ones. Set display_limit to 
+                     -log(1000/5000000) = 3.698970004
+
+    display_values -- 'higher' or 'lower', what values to keep to display when using the 'display_limit' option.
+                      display_values="higher" is suitable for rank p-values or distances.
+                      display_values="lower" is suited for displaying classical p-values (the lower, the more significant).
     """
 
+    
+    # functions to solve the situation where given begin and end indexes are not in the data
+    def take_closest_begin(myList, myNumber):
+        """
+        Assumes myList is sorted. If in myList, returns the value,
+        else returns closest value after myNumber.
+
+        """
+
+        if myNumber in myList:
+            return myNumber
+
+        pos = bisect_left(myList, myNumber)
+        if pos == 0:
+            return myList[0]
+        if pos == len(myList):
+            raise ValueError("Your 'begin' position index was higher than the range of the input data")
+
+        after = myList[pos]
+
+        return after
+
+
+    def take_closest_end(myList, myNumber):
+        """
+        Assumes myList is sorted. If in myList, returns the value,
+        else, returns closest value before myNumber.
+
+        """
+
+        if myNumber in myList:
+            return myNumber
+
+        pos = bisect_left(myList, myNumber)
+        if pos == 0:
+            raise ValueError("Your 'end' position index was lower than the range of the input data")
+        if pos == len(myList):
+            return myList[-1]
+
+        before = myList[pos - 1]
+
+        return before
+    
+    
+    
+    input_df = input_df.copy()
+    
     print("Checking input")
     
     # cropping the input_df according to user defined range
-    input_df = input_df.loc[:, begin:end]
+    try: # given values are in the data (column index)
+        input_df = input_df.loc[:, begin:end]
     
+    except: # given values are not in the column index, choose the new closest ones
+        sorted_columns = sorted(list(data_to_plot.columns)) # sort columns (just to be sure)
+
+        new_begin = take_closest_begin(sorted_columns, begin) # take the closest value to the left from given begining point
+        new_end = take_closest_end(sorted_columns, end) # take the closest values the the right from given end point
+        
+        
+        input_df = input_df.loc[:, new_begin:new_end]
+        
+        print(f"WARNING: Given 'begin' and 'end' datapoints are not found in the input data. New closest datapoints were selected.\nbegin={new_begin}\nend={new_end}")
+        
+        
     # check the input data for number of populations and input_df shape
     if populations == "1000Genomes":
 
@@ -321,6 +396,26 @@ def plot_exp_heatmap(
             )
 
     
+    # Apply the display_limit
+    if display_limit:
+        if display_values == "higher":
+            print()
+            print(f"Displaying only values above the given display_limit: {display_limit}")
+            print()
+            
+            input_df[input_df < display_limit] = 0
+
+        elif display_values == "lower":
+            print()
+            print(f"Displaying only values below the given display_limit: {display_limit}")
+            print()
+            
+            input_df[input_df > display_limit] = 0
+
+        else:
+            raise ValueError(f"plot_exp_heatmap() parameter 'display_values' has unknown value '{display_values}'. The only expected options are 'higher' or 'lower'.")
+    
+    
 
     ########################
     # Color map definition #
@@ -360,9 +455,9 @@ def plot_exp_heatmap(
             input_df,
             yticklabels=populations,
             xticklabels=False,
-            vmin=1,
-            vmax=4.853,
-            cbar_kws={"ticks": [1.3, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]},
+            vmin=1 if cbar_vmin==None else cbar_vmin,
+            vmax=4.853 if cbar_vmax==None else cbar_vmax,
+            #cbar_kws={"ticks": [1.3, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]},
             ax=ax,
             cmap=cmap,
         )
@@ -548,3 +643,4 @@ def plot(xpehh_dir, begin, end, title, output, cmap="Blues"):
         output=output,
         xlabel="{:,} - {:,}".format(begin, end)
     )
+
