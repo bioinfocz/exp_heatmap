@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from exp_heatmap import prepare, compute, plot, __version__
 
@@ -81,4 +82,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("")
+        sys.exit(1)

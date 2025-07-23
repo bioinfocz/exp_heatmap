@@ -632,15 +632,17 @@ def plot(xpehh_dir, begin, end, title, output, cmap="Blues"):
     """
     create the plot function input data and print/save them
     """
-
-    data_to_plot = create_plot_input(xpehh_dir, begin=begin, end=end)
-    
-    plot_exp_heatmap(
-        data_to_plot, begin=data_to_plot.columns[0],
-        end=data_to_plot.columns[-1],
-        title=title,
-        cmap=cmap,
-        output=output,
-        xlabel="{:,} - {:,}".format(begin, end)
-    )
-
+    try:
+        data_to_plot = create_plot_input(xpehh_dir, begin=begin, end=end)
+        
+        plot_exp_heatmap(
+            data_to_plot, begin=data_to_plot.columns[0],
+            end=data_to_plot.columns[-1],
+            title=title,
+            cmap=cmap,
+            output=output,
+            xlabel="{:,} - {:,}".format(begin, end)
+        )
+    except KeyboardInterrupt:
+        print("")
+        sys.exit(1)

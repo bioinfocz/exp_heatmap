@@ -35,6 +35,9 @@ def prepare(recode_file: str, zarr_dir: str) -> None:
     # Convert VCF file to ZARR array
     try:
         allel.vcf_to_zarr(recode_file, zarr_dir, fields="*", log=sys.stdout)
+    except KeyboardInterrupt:
+        print("")
+        sys.exit(1)
     except Exception as e:
         print(f"Error converting VCF to ZARR: {e}")
         sys.exit(1)
