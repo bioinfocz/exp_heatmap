@@ -58,7 +58,7 @@ def main():
     plot_parser.add_argument(
         "input_dir", metavar="INPUT_DIR", help="Directory containing TSV files from 'exp_heatmap compute'"
     )
-    plot_parser.add_argument("--begin", type=int, required=True,
+    plot_parser.add_argument("--start", type=int, required=True,
         help="Beginning of displayed area (if this position is not in your input data, will start from the next closest position instead)")
     plot_parser.add_argument("--end", type=int, required=True,
         help="End of displayed area (if this position is not in your input data, will finish on the previous closest position instead)")
@@ -69,7 +69,7 @@ def main():
     plot_parser.set_defaults(
         func=lambda args: plot(
             args.input_dir,
-            begin=args.begin,
+            start=args.start,
             end=args.end,
             title=args.title,
             output=args.output,

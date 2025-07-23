@@ -47,14 +47,14 @@ superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
                     "AMR": ("CLM", "MXL", "PEL", "PUR",)}
 
 
-def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pvalues="2-tailed"):
+def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pvalues="2-tailed"):
     """
     This function creates an input pandas DataFrame that will subsequently be used as input for ExP heatmap plotting function
 
     input_dir -- directory, where the function expects the data to be found in a serie of *.tsv files for each population pair,
                  the names of these files should start with 'POP1_POP2' string
 
-    begin, end -- limit the X-axis (position), displayed area
+    start, end -- limit the X-axis (position), displayed area
 
     populations -- by default, the '1000Genomes' option, 26 populations from 1000 Genomes Project are expected. If your population/classes set is different,
                    provide an iterable with population/classes names. For example, with populations=['pop1', 'pop2', 'pop3'] this function will search the input directory (input_dir)
@@ -99,7 +99,7 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pva
 
     ##############################################
 
-    # reading the input files, saving only the regions between BEGIN and END to process further
+    # reading the input files, saving only the regions between START and END to process further
     index = 1
     for segment_file in segment_files:
         # segment_files is something like ACB_KHV.tsv or ACB_KHV.some_more_info.tsv
@@ -119,7 +119,7 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pva
 
             segments = pd.read_csv(segment_file, sep="\t")
             segments = segments[
-                (segments.variant_pos >= begin) & (segments.variant_pos <= end)
+                (segments.variant_pos >= start) & (segments.variant_pos <= end)
             ]
 
             df_list.append(segments)
@@ -236,7 +236,7 @@ def create_plot_input(input_dir, begin, end, populations="1000Genomes", rank_pva
 
 def plot_exp_heatmap(
     input_df,
-    begin,
+    start,
     end,
     title,
     output=None,
@@ -255,7 +255,7 @@ def plot_exp_heatmap(
     """
     Read input DataFrame and create the ExP heatmap accordingly.
     input_df -- input pandas DataFrame, data to display
-    begin, end -- limit the X-axis (position), displayed area
+    start, end -- limit the X-axis (position), displayed area
     title -- title of the graph
     cmap -- seaborn colormap, 'Blues' or 'crest' work well
     vertical_line -- if True, displays one line in the middle of the x-axis
@@ -285,8 +285,8 @@ def plot_exp_heatmap(
     """
 
     
-    # functions to solve the situation where given begin and end indexes are not in the data
-    def take_closest_begin(myList, myNumber):
+    # functions to solve the situation where given start and end indexes are not in the data
+    def take_closest_start(myList, myNumber):
         """
         Assumes myList is sorted. If in myList, returns the value,
         else returns closest value after myNumber.
@@ -300,7 +300,7 @@ def plot_exp_heatmap(
         if pos == 0:
             return myList[0]
         if pos == len(myList):
-            raise ValueError("Your 'begin' position index was higher than the range of the input data")
+            raise ValueError("Your 'start' position index was higher than the range of the input data")
 
         after = myList[pos]
 
@@ -335,18 +335,18 @@ def plot_exp_heatmap(
     
     # cropping the input_df according to user defined range
     try: # given values are in the data (column index)
-        input_df = input_df.loc[:, begin:end]
+        input_df = input_df.loc[:, start:end]
     
     except: # given values are not in the column index, choose the new closest ones
         sorted_columns = sorted(list(input_df.columns)) # sort columns (just to be sure)
 
-        new_begin = take_closest_begin(sorted_columns, begin) # take the closest value to the left from given begining point
+        new_start = take_closest_start(sorted_columns, start) # take the closest value to the left from given start point
         new_end = take_closest_end(sorted_columns, end) # take the closest values the the right from given end point
         
         
-        input_df = input_df.loc[:, new_begin:new_end]
+        input_df = input_df.loc[:, new_start:new_end]
         
-        print(f"WARNING: Given 'begin' and 'end' datapoints are not found in the input data. New closest datapoints were selected.\nbegin={new_begin}\nend={new_end}")
+        print(f"WARNING: Given 'start' and 'end' datapoints are not found in the input data. New closest datapoints were selected.\start={new_start}\nend={new_end}")
         
         
     # check the input data for number of populations and input_df shape
@@ -463,7 +463,7 @@ def plot_exp_heatmap(
         )
 
         if not title:
-            title = "{} - {}".format(begin, end)
+            title = "{} - {}".format(start, end)
 
         if not output:
             output = title
@@ -477,7 +477,7 @@ def plot_exp_heatmap(
         if xlabel:
             ax.set_xlabel(xlabel)
         else:
-            ax.set_xlabel("{:,} - {:,}".format(begin, end))
+            ax.set_xlabel("{:,} - {:,}".format(start, end))
 
     # draw custom exp heatmap with user-defined populations (number of pops, labels)
     else:
@@ -498,7 +498,7 @@ def plot_exp_heatmap(
         )
 
         if not title:
-            title = "{} - {}".format(begin, end)
+            title = "{} - {}".format(start, end)
 
         if not output:
             output = title
@@ -539,7 +539,7 @@ def plot_exp_heatmap(
 
         except:
             print("Could not read 'vertical_line', was expecting this 'vertical_line=([x1, label1], [x2, label2], [x3, label3]...)'.")
-            print("Vertical lines might be out of range of displayed graph are ('begin', 'end'), please double-check")
+            print("Vertical lines might be out of range of displayed graph are ('start', 'end'), please double-check")
             print(f"Got this input for 'vertical_line': {vertical_line}")
             print("---")
             print("No vertical line will be displayed")
@@ -628,20 +628,20 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
 
 
 
-def plot(xpehh_dir, begin, end, title, output, cmap="Blues"):
+def plot(xpehh_dir, start, end, title, output, cmap="Blues"):
     """
     create the plot function input data and print/save them
     """
     try:
-        data_to_plot = create_plot_input(xpehh_dir, begin=begin, end=end)
+        data_to_plot = create_plot_input(xpehh_dir, start=start, end=end)
         
         plot_exp_heatmap(
-            data_to_plot, begin=data_to_plot.columns[0],
+            data_to_plot, start=data_to_plot.columns[0],
             end=data_to_plot.columns[-1],
             title=title,
             cmap=cmap,
             output=output,
-            xlabel="{:,} - {:,}".format(begin, end)
+            xlabel="{:,} - {:,}".format(start, end)
         )
     except KeyboardInterrupt:
         print("")
