@@ -9,7 +9,6 @@ import pandas as pd
 from itertools import combinations
 from typing import List, Tuple, Any
 
-
 def create_pop_pairs(panel: pd.DataFrame) -> List[Tuple[str, str]]:
     """
     Create all unique population pairs from a population panel.
@@ -72,7 +71,7 @@ def get_pop_allele_counts(gt: allel.GenotypeArray, panel: pd.DataFrame, pop: str
     ac = gt_pop.count_alleles()
     return ac
 
-def filter_by_AF(callset: Any, af_threshold: float) -> Tuple[allel.GenotypeChunkedArray, allel.SortedIndex]:
+def filter_by_AF(callset: Any, af_threshold: float, chunked: bool = False) -> Tuple[allel.GenotypeChunkedArray, allel.SortedIndex]:
     """
     Filter variants by alternate allele frequency threshold.
     
@@ -84,17 +83,17 @@ def filter_by_AF(callset: Any, af_threshold: float) -> Tuple[allel.GenotypeChunk
         Tuple of (filtered_genotypes, filtered_positions) where variants
         have alternate allele frequency > af_threshold
     """
-    # Access alternate allele frequencies
     af = callset["variants/AF"][:]
-
     loc_variant_selection = af[:, 0] > af_threshold
-
-    # Access the genotype data from zarr
     gt_zarr = callset["calldata/GT"]
 
     # Load the genotype as chunked array for memory efficiency
-    gt = allel.GenotypeChunkedArray(gt_zarr)
-    # gt = allel.GenotypeArray(gt_zarr)
+    if chunked:
+        print("Using chunked array to avoid memory exhaustion")
+        gt = allel.GenotypeChunkedArray(gt_zarr)
+    else:
+        print("Attempting to load full array into memory")
+        gt = allel.GenotypeArray(gt_zarr)
 
     # Filter variants above the threshold
     gt_filtered = gt.compress(loc_variant_selection, axis=0)

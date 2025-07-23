@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from exp_heatmap import prepare, compute, plot, __version__
 
@@ -44,8 +45,11 @@ def main():
         "-t", "--test", choices=['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst'], 
         default="xpehh", help="Statistical test to compute (default: %(default)s)"
     )
+    compute_parser.add_argument(
+        "-c", "--chunked", action="store_true", help="Use chunked array to avoid memory exhaustion"
+    )
     compute_parser.set_defaults(
-        func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir, args.test)
+        func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir, args.test, args.chunked)
     )
 
 
@@ -78,4 +82,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("")
+        sys.exit(1)

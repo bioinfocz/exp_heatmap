@@ -14,6 +14,7 @@ def run(
     output_dir: str,
     test="xpehh",
     d_tajima_d_size: int = 13,
+    chunked: bool = False,
 ):
     """
     Computes selection tests for all population pairs.
@@ -35,7 +36,7 @@ def run(
     print(f"Loading zarr data: {zarr_dir}")
     callset = zarr.open_group(zarr_dir, mode="r")
 
-    gt, positions = xp_utils.filter_by_AF(callset, 0.05)
+    gt, positions = xp_utils.filter_by_AF(callset, 0.05, chunked)
     samples = callset["samples"][:]
     
     # Check the sample order
