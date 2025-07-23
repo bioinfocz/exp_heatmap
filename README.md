@@ -363,7 +363,7 @@ we have used different options for computing rank p-values (2-tailed, ascending 
 
 #### d) Using `display_limit`, `display_values` and `cbar` parameters to filter and display the noisy data
 
-The same data as in previous [example](#c-displaying-the-same-data-with-differently-computed-rank-p-values)
+The same data as in previous [example c)](#c-displaying-the-same-data-with-differently-computed-rank-p-values)
 
 ```python
 # data_to_plot is the prepared pandas df
