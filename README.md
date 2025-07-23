@@ -265,13 +265,6 @@ plot_exp_heatmap(
 )
 ```
 
-**Available superpopulations:**
-- `superpopulations["AFR"]`: African populations
-- `superpopulations["AMR"]`: Ad Mixed American populations  
-- `superpopulations["EAS"]`: East Asian populations
-- `superpopulations["EUR"]`: European populations
-- `superpopulations["SAS"]`: South Asian populations
-
 ## Workflow Examples
 
 ### Complete Analysis: SLC24A5 Gene
