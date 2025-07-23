@@ -491,7 +491,7 @@ def plot_exp_heatmap(
             yticklabels=populations,
             xticklabels=False,
             vmin=cbar_vmin,
-            vmax=cbar_vmin,
+            vmax=cbar_vmax,
             cbar_kws={"ticks": cbar_ticks},
             ax=ax,
             cmap=cmap,
