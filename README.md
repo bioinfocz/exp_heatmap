@@ -1,66 +1,73 @@
 # ExP Heatmap
 
-Welcome to the ExP Heatmap `python` package and command-line tool. Our software is focused on displaying multidimensional data, expecially the so-called cross-population data - differences/similarities/p-values/or any other parameters of your choice between several groups/populations. Our method allows the user to quickly and efficiently evaluate millions of p-values or test statistics in one figure.
+[![PyPI version](https://badge.fury.io/py/exp-heatmap.svg)](https://pypi.org/project/exp_heatmap/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This tool is being developed in the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/group/michal-kolar/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic, v. v. i.
+> A powerful Python package and command-line tool for visualizing multidimensional population genetics data through intuitive heatmaps.
 
+ExP Heatmap specializes in displaying cross-population data, including differences, similarities, p-values, and other statistical parameters between multiple groups or populations. This tool enables efficient evaluation of millions of statistical values in a single, comprehensive visualization.
 
-The ExP Heatmap manual is divided into following sections:
-1. [**Requirements and install**](#1-requirements-and-install)
+**Developed by the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/group/michal-kolar/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic**
 
-2. [**Simple example**](#2-simple-example)
+## Example: LCT Gene Analysis
 
-3. [**Workflow**](#3-workflow)
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
 
-4. [**Command-line tool**](#4-command-line-tool)
+*ExP heatmap of the human lactose (LCT) gene showing population differences between 26 populations from the 1000 Genomes Project, displaying adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test.*
 
-5. [**Python package**](#5-python-package)
+## Features
 
-6. [**Galery**](#6-galery)
+- **Multiple Statistical Tests**: Support for XPEHH, XP-NSL, Delta Tajima's D, and Hudson's Fst
+- **Flexible Input Formats**: Work with VCF files, pre-computed statistics, or ready-to-plot p-values
+- **Command-Line Interface**: Easy-to-use CLI for standard workflows
+- **Python API**: Full programmatic control for custom analyses
+- **Efficient Processing**: Zarr-based data storage for fast computation
+- **Customizable Visualization**: Multiple color schemes and display options
 
-7. [**Licence and final remarks**](#7-licence-and-final-remarks)
+## Table of Contents
 
-<br/>
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Usage](#-usage)
+  - [Command-Line Interface](#command-line-interface)
+  - [Python Package](#python-package)
+- [Workflow Examples](#-workflow-examples)
+- [Gallery](#-gallery)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-#### ExP heatmap example - LCT gene
-
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width=800>
-
-This is the ExP heatmap of human lactose (LCT) gene on chromosome 2 and its surrounding genomic region displaying population differences between 26 populations of 1000 Genomes Project, phase 3. Displayed values are the adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test.
-
-
-## 1. Requirements and install
+## Installation
 
 ### Requirements
 
-- `python` >= 3.8
-- `vcftools` for genomic data preparation (not needed if you just want just plot your data) ([repository](https://github.com/vcftools/vcftools))
-- space on disk (.vcf files are usually quite large)
+- Python ≥ 3.8
+- `vcftools` (for genomic data preparation - optional if using preprocessed data)
 
-### Install
-
-PyPI repository link ([exp_heatmap](https://pypi.org/project/exp_heatmap/))
+### Install from PyPI
 
 ```bash
 pip install exp_heatmap
 ```
 
+### Install from GitHub (latest version)
 
-Install the latest version directly from this GitHub
 ```bash
 pip install git+https://github.com/bioinfocz/exp_heatmap.git
 ```
-<br/>
 
-## 2. Simple example
+## Quick Start
 
-After installing the package, try to construct ExP heatmap in **three simple steps:**
-1. **Download** the prepared results of the extended haplotype homozygosity (XPEHH) selection test for the part of human chromosome 2, 1000 Genomes Project data either directly via [Zenodo](https://zenodo.org/records/16364351) or via command:
+Get started with ExP Heatmap in three simple steps:
+
+**Step 1**: Download the prepared results of the extended haplotype homozygosity (XPEHH) selection test for the part of human chromosome 2, 1000 Genomes Project data either directly via [Zenodo](https://zenodo.org/records/16364351) or via command:
 ```bash
 wget "https://zenodo.org/records/16364351/files/chr2_output.tar.gz"
 ```
-2. **Decompress** the downloaded folder in your working directory: `tar -xzf chr2_output.tar.gz`
-3. **Run** the following command:
+**Step 2**: Decompress the downloaded folder in your working directory: 
+```bash
+tar -xzf chr2_output.tar.gz
+```
+**Step 3**: Run the exp_heatmap plot command:
 ```bash
 exp_heatmap plot chr2_output/ --begin 136070087 --end 137070087 --title "LCT gene" --output LCT_xpehh
 ```
@@ -68,352 +75,305 @@ The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder 
 
 <br/>
 
+## Usage
 
-## 3. Workflow
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/SLC24A5_gene.png" width=800>
+ExP Heatmap follows a simple three-step workflow: **prepare** → **compute** → **plot**. Each step can be used independently depending on your data format.
 
-As a workflow example, we present an analysis of 1000 Genomes Project, phase 3 data of chromosome 15. It is focused on the [SLC24A5](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000188467;r=15:48120990-48142672) gene, known for its role in human skin pigmentation. It is also known to show strong selection signals, which makes it a suitable example.
+### Command-Line Interface
 
-The bash script below presents a complete functional workflow analysis, including high-level comments that describe the entire process.
+#### 1.  Data Preparation - `prepare`
 
-```bash
-#!/bin/bash
-
-#=============================================================================
-# exp_heatmap Example Workflow
-#=============================================================================
-# This script demonstrates the complete workflow for using exp_heatmap, a tool
-# for generating population genetics heatmaps from VCF (Variant Call Format) data.
-# 
-# The workflow covers:
-# 1. Data acquisition from the 1000 Genomes Project
-# 2. Data preprocessing and quality filtering
-# 3. Data preparation and format conversion
-# 4. Computation of population genetic statistics
-# 5. Visualization of genetic variation patterns
-#
-# Final output: A heatmap visualization showing genetic variation patterns
-# across different populations for the SLC24A5 gene region on chromosome 15.
-#=============================================================================
-
-
-#-----------------------------------------------------------------------------
-# STEP 1: Download genomic data from 1000 Genomes Project
-#-----------------------------------------------------------------------------
-# Download the VCF file for chromosome 15 from the 1000 Genomes Project
-# (Phase 3 data, GRCh37 reference genome build)
-echo "Downloading chromosome 15 VCF file from 1000 Genomes Project..."
-wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr15.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz" -O chr15.vcf.gz
-
-# Download the panel file containing sample-to-population mappings
-echo "Downloading population panel file..."
-wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
-
-#-----------------------------------------------------------------------------
-# STEP 2: Filter and preprocess genetic variants
-#-----------------------------------------------------------------------------
-# Use VCFtools to filter the raw VCF data:
-# - Remove insertions/deletions (indels) to focus only on SNPs
-# - Keep all INFO field annotations for downstream analysis
-# - Output: chr15_snps.recode.vcf (SNPs-only VCF file)
-echo "Filtering VCF to retain only SNPs (removing indels)..."
-vcftools --gzvcf chr15.vcf.gz --remove-indels --recode --recode-INFO-all --out chr15_snps
-
-#-----------------------------------------------------------------------------
-# STEP 3: Prepare data for exp_heatmap analysis
-#-----------------------------------------------------------------------------
-# Convert the VCF file to Zarr format for efficient data access
-echo "Converting VCF to Zarr format for efficient processing..."
-exp_heatmap prepare chr15_snps.recode.vcf chr15_snps.recode.zarr
-
-#-----------------------------------------------------------------------------
-# STEP 4: Compute population genetic statistics
-#-----------------------------------------------------------------------------
-# Calculate population genetics metrics across the chromosome
-# 
-# Inputs: Zarr-formatted genotype data + population panel
-# Output: Processed data ready for plotting
-echo "Computing population genetic statistics..."
-exp_heatmap compute chr15_snps.recode.zarr genotypes.panel chr15_snps_output
-
-#-----------------------------------------------------------------------------
-# STEP 5: Generate heatmap visualization
-#-----------------------------------------------------------------------------
-# Create a heatmap for the SLC24A5 gene region
-#
-# Parameters:
-# --begin 47924019 & --end 48024019: SLC24A5 gene region (±500kb)
-# --title "SLC24A5": Label for the output plot
-# --cmap gist_heat: color map used in plot
-# --out SLC24A5_heatmap: Output filename prefix
-echo "Generating heatmap for SLC24A5 gene region..."
-exp_heatmap plot chr15_snps_output --begin 47924019 --end 48924019 --title "SLC24A5" --cmap gist_heat --out SLC24A5_heatmap
-
-echo "Workflow completed!"
-echo ""
-echo "Expected outputs:"
-echo "- SLC24A5_heatmap.png: Main heatmap visualization"
-echo "- chr15_snps_output/: Directory with computed statistics"
-```
-<br/>
-
-## 4. Command-line tool
-
-After installing the `exp_heatmap` using `pip` as described above, you can use its basic functionality directly from the command line interface.
-
-### Get the data
-
-- VCF files (e.g. [1000 Genomes Project](https://www.internationalgenome.org/data) and [Phase 3, chr22](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000_genomes_project/release/20181203_biallelic_SNV/ALL.chr22.shapeit2_integrated_v1a.GRCh38.20181129.phased.vcf.gz))
-- Panel file (e.g. [1000 Genomes Project](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel))
-
-
-### Prepare the data
-
-&emsp;  **Extract only SNP**
-
-You can use a .vcf or .vcf.gz file
+>Convert VCF files to efficient Zarr format for faster computation.
 
 ```bash
-# we will use SNPs only, so we remove insertion/deletion polymorphisms
-# another option would be to use only biallelic SNPs (--min-alleles 2 --max-alleles 2),
-# probably with minor allele frequency above 5% (--maf 0.05)
-# ouput VCF will be named DATA.recode.vcf
-DATA="ALL.chr22_GRCh38.genotypes.20170504"
-
-
-# Gziped VCF
-vcftools --gzvcf $DATA.vcf.gz --remove-indels --recode --recode-INFO-all --out $DATA
-
-# Plain VCF
-vcftools --vcf $DATA.vcf --remove-indels --recode --recode-INFO-all --out $DATA
+exp_heatmap prepare <input.vcf> <output.zarr>
 ```
 
-&emsp;  **Prepare data for computing**
+#### 2. Statistical Analysis - `compute`
+
+>Calculate population genetic statistics across all genomic positions.
 
 ```bash
-# DATA.recode.vcf a vcf from previous step
-# DATA.zarr is path (folder) where zarr representation of the VCF input will be saved
-# this will vastly increase the speed of follow-up computations
-exp_heatmap prepare DATA.recode.vcf DATA.zarr
+exp_heatmap compute [OPTIONS] <zarr_dir> <panel_file> <output_dir>
 ```
 
+**Options:**
+- `-t, --test`: Statistical test to compute
+  - `xpehh`: Cross-population Extended Haplotype Homozygosity (default)
+  - `xpnsl`: Cross-population Number of Segregating sites by Length  
+  - `delta_tajima_d`: Delta Tajima's D
+  - `hudson_fst`: Hudson's Fst genetic distance
+- `-c, --chunked`: Use chunked processing to reduce memory usage
 
-### Compute pairwise values
+**Examples:**
+```bash
+# Compute XPEHH statistics (default)
+exp_heatmap compute data.zarr populations.panel results/
+
+# Compute XP-NSL with chunked processing
+exp_heatmap compute -t xpnsl -c data.zarr populations.panel results/
+
+# Compute Fst distances
+exp_heatmap compute -t hudson_fst data.zarr populations.panel results/
+```
+
+#### 3. Visualization - `plot`
+
+>Generate heatmap visualizations from computed statistics.
 
 ```bash
-# DATA.zarr a zarr data from previous step
-# DATA.output a path (folder) where the results will be saved
-# in this step, by default Cross-population extended haplotype homozygosity (XPEHH) score will be computed for all positions, together with their -log10 rank p-values.
-exp_heatmap compute DATA.zarr genotypes.panel DATA.output
+exp_heatmap plot [OPTIONS] <input_dir>
 ```
-Besides the default cross-population extended haplotype homozygosity (XPEHH) test, you can use this `exp_heatmap compute` with optional parameter `-t` and one of the keywords:
-- `xpehh` - computes cross-population extended haplotype homozygosity (XPEHH) test (default),
-- `xpnsl` - computes cross-population number of segregating sites by length (NSL) test,
-- `delta_tajima_d` - computes delta Tajima's D,
-- `hudson_fst` - computes pairwise genetic distance Fst (using the method od Hudson (1992)).
 
+**Arguments:**
+- `input_dir`: Directory containing TSV files from `compute` step
+
+**Options:**
+- `--start, --end`: Genomic coordinates for the region to display
+- `--mid`: Alternative way to specify region (center position)
+- `--title`: Plot title
+- `--output`: Output filename (without .png extension)
+- `--cmap`: Matplotlib colormap - [list of colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
+
+**Examples:**
 ```bash
-# computing the XP-NSL test
-exp_heatmap compute DATA.zarr genotypes.panel DATA.output -t xpnsl
+# Basic heatmap for a genomic region
+exp_heatmap plot results/ --start 136000000 --end 137000000 --title "LCT Gene Region"
+
+# Custom styling with different colormap
+exp_heatmap plot results/ --mid 136500000 --title "Analysis" --cmap viridis --output my_heatmap
 ```
 
+---
 
-### Display ExP heatmap
+### Python Package
 
-- `--begin`, `--end` (required)
-  - plot boundaries
-- `--title` (optional)
-  - name of the image
-- `--cmap` (optional)
-  - color schema
-  - [more informations at seaborn package](http://seaborn.pydata.org/tutorial/color_palettes.html)
-- `--output` (optional)
-  - png output path
+The Python API offers more flexibility and customization options. Choose the appropriate scenario based on your data format:
 
-```bash
-exp_heatmap plot DATA.output --begin BEING --end END --title TITLE --output NAME
-```
-<br/>
+#### Scenario A: Ready-to-Plot Data
 
-## 5. Python package
+**Use when:** You have pre-computed p-values in a TSV file.
 
-Besides using ExP Heatmap as a standalone command-line tool, more options and user-defined parameters' changes are available when ExP Heatmap is imported directly into your Python script.
-
-Test files used in these examples (p-values, test results, VCF files etc.) can be downloaded [HERE](http://genomat.img.cas.cz/). They are based on results of cross-population selection tests of the lactase ([LCT](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000115850;r=2:135787850-135837184)) gene area (
-chr2:135,787,850-135,837,184).
-
-Here we outline a solution to 3 possible and most common scenarios where the ExP is being used.
-Possible model scenarios:
-* **a) you have values ready to display**
-* **b) you have some kind of parameters/test results, need to compute the p-values and display them**
-* **c) you only have the input data (VCF), need to compute the parameters/tests, turn them into p-values and display them as ExP heatmap**
-
-
-### a) you have values ready to display 
-Your data are in a \*.tsv file, tab-delimited text file (table), where the results or p-values are stored in columns, first column is 'CHROM', second column 'POS', followed by X columns of pairwise parameters (i.e. rank p-values). For 1000 Genomes data, that would mean 325 columns of pair-wise p-values for 26 populations.
+**Data format:** TSV file with columns: `CHROM`, `POS`, followed by pairwise p-value columns for population comparisons.
 
 ```python
 from exp_heatmap.plot import plot_exp_heatmap
 import pandas as pd
 
-# input data in the form of pandas DataFrame, expected shape (x, 327)
-# 327 columns consisting of CHROM, POS and 325 columns of pairwise p-values
-# x represents the number of SNPs to display
-# column names are expected to include the 1000 Genomes population abbreviations
-data_to_plot = pd.read_csv("LCT_xpnsl_pvalues.csv", sep="\t")
+# Load your p-values data
+data = pd.read_csv("pvalues.tsv", sep="\t")
 
-
-plot_exp_heatmap(data_to_plot,
-                 begin=135287850,
-                 end=136287850,
-                 title="XP-NSL test on LCT gene in 1000 Genomes Project (phase 3) populations",
-                 cmap="Blues",
-                 output=False,  # enter the save file name here
-                 populations="1000Genomes",
-                 xlabel="LCT gene, 1 Mbp window, 2:135,287,850-136,287,850, GRCh38")
+# Create heatmap
+plot_exp_heatmap(
+    data,
+    begin=135287850,
+    end=136287850,
+    title="Population Differences in LCT Gene",
+    cmap="Blues",
+    output="lct_analysis",
+    populations="1000Genomes"  # Predefined population set
+)
 ```
 
-<br/>
+#### Scenario B: Statistical Results to P-values
 
-### b) you have some kind of parameters/test results, need to compute the p-values and display them
-
-Here, you will need to compute the p-values using a prepared function in `exp_heatmap` python package.
+**Use when:** You have computed statistical test results that need conversion to p-values.
 
 ```python
-from exp_heatmap.plot import plot_exp_heatmap, create_plot_input, superpopulations, prepare_cbar_params
+from exp_heatmap.plot import plot_exp_heatmap, create_plot_input
 
-# input data are in the form of pairwise population results per file
-# here, the results of XP-NSL test for populations of 1000 Genome Project dataset
-results_directory = "chr2_xpnsl_1000Genomes.test/"
+# Convert statistical results to ranked p-values
+data_to_plot = create_plot_input(
+    "results_directory/",      # Directory with test results
+    begin=135287850, 
+    end=136287850, 
+    populations="1000Genomes",
+    rank_pvalues="2-tailed"    # Options: "2-tailed", "ascending", "descending"
+)
 
-# compute ranked p-values and prepare data for ExP heatmap
-data_to_plot = create_plot_input("chr2_xpnsl_1000Genomes.test/", begin=135287850, end=136287850, populations="1000Genomes")
-
-
-plot_exp_heatmap(data_to_plot,
-                 begin=135287850,
-                 end=136287850,
-                 title="XP-NSL test on LCT gene in 1000 Genomes Project (phase 3) populations",
-                 cmap="Blues",
-                 output=False,  # enter the save file name here
-                 populations="1000Genomes",
-                 xlabel="LCT gene, 1 Mbp window, 2:135,287,850-136,287,850, GRCh38")
-
-
-#######################################################################################
-# you can tweak different paramaters in the ExP heatmap plot
-# prepare custom colorbar parameters
-
-cmin, cmax, cbar_ticks = prepare_cbar_params(data_to_plot, n_cbar_ticks=4)
-
-# display custom population set
-plot_exp_heatmap(data_to_plot,
-                 begin=135000000,
-                 end=137000000,
-                 title="XP-NSL test results in African populations",
-                 cmap="expheatmap",  # custom heatmap
-                 output="xpnsl_Africa",  # save results
-                 vertical_line=([135851073, "rs41525747"], [135851081, "rs41380347"], [135851176, "rs145946881"]), # 3 vertical lines marking SNPs with described selection pressure (https://doi.org/10.1093/gbe/evab065)
-                 populations=superpopulations["AFR"], # custom population set
-                 xlabel="LCT gene region, 2:135,000,000-137,000,000, GRCh38")
-
+# Create heatmap
+plot_exp_heatmap(
+    data_to_plot,
+    begin=135287850,
+    end=136287850,
+    title="XP-NSL Test Results",
+    cmap="expheatmap",         # Custom ExP colormap
+    output="xpnsl_results"
+)
 ```
 
-<br/>
+#### Scenario C: Complete VCF Workflow
 
-### c) you only have the input data (vcf)...
-
-...and need to compute the parameters/tests, turn them into p-values and display them as ExP heatmap.
-Here the process will differ depending on what kind test you want to run. Below we give different examples using common tools (`VCFtools`)
-and pythonic library `scikit-allel`.
+**Use when:** Starting from raw VCF files. Combine CLI commands with Python plotting:
 
 ```python
-XX VCF to zarr
-XX Compute test (different!)
-XX Display!
-XX
-XX
+import subprocess
+from exp_heatmap.plot import plot_exp_heatmap, create_plot_input
+
+# 1. Prepare data (using CLI)
+subprocess.run(["exp_heatmap", "prepare", "data_snps.recode.vcf", "data.zarr"])
+
+# 2. Compute statistics (using CLI) 
+subprocess.run(["exp_heatmap", "compute", "data.zarr", "populations.panel", "results/"])
+
+# 3. Create custom plots (using Python)
+data_to_plot = create_plot_input("results/", begin=47000000, end=49000000)
+plot_exp_heatmap(data_to_plot, begin=47000000, end=49000000, 
+                 title="Custom Analysis", output="custom_plot")
 ```
 
-<br/>
+#### Advanced Customization
 
-### d) custom population set
-xxxx
-
-
-## 6. Galery
-
-#### a) ...example 1
-
-#### b) ...example 2
-
-#### c) Displaying the same data with differently computed rank p-values
-The example below shows the XP-EHH test computed on the chr22, region of the ([ADM2 gene](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000128165;r=22:50481543-50486440)). While preparing the selection test with `create_plot_input()`, 
-we have used different options for computing rank p-values (2-tailed, ascending and descending).
-
-`create_plot_input(rank_pvalues="2-tailed")`
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: 2-tailed.png" width=800>
-
-`create_plot_input(rank_pvalues="ascending")`
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: ascending.png" width=800>
-
-`create_plot_input(rank_pvalues="descending")`
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: descending.png" width=800>
-
-
-#### d) Using `display_limit`, `display_values` and `cbar` parameters to filter and display the noisy data
-
-The same data as in previous [example c)](#c-displaying-the-same-data-with-differently-computed-rank-p-values)
+Fine-tune your visualizations with advanced options:
 
 ```python
-# data_to_plot is the prepared pandas df
-# begin, end - limiting the region to display
-# title - if output is not defined, the figure will be saved as title.png
-# cmap - custom colormap
-# display_limit - through manualy trying different values, this looks like a sweet-point - most of the random noise is off and the significant regions/populations are visible. Values <1.60 will be displayed as 0 (white)
-# display_values - we want to display values higher than the set display limit
-# cbar_vmin - to distinguish well between our displayed rank p-values, we have raised colorbar minimal values starting from 1.60 (same as display_limit)
-# cbar_vmax - in case we are not sure what is the maximum value in our data, we can just get is from the df.max() function. First max() will get the maximum value from every row, second max() function will get the highest value from all row maximums.
-# output - output file prefix, suffix set to .png by default
+from exp_heatmap.plot import plot_exp_heatmap, prepare_cbar_params, superpopulations
 
-plot_exp_heatmap(data_to_plot, begin=50910000, end=50950000, title="ADM2, chr22, XP-EHH, pvals: 2-tailed", cmap="expheatmap", display_limit=1.60, display_values="higher", cbar_vmin=1.60, cbar_vmax=data_to_plot.max().max(), output="ADM2_XP-EHH_display_limit")
+# Custom colorbar settings
+cmin, cmax, cbar_ticks = prepare_cbar_params(data_to_plot, n_cbar_ticks=6)
+
+# Advanced plot with multiple customizations
+plot_exp_heatmap(
+    data_to_plot,
+    begin=135000000,
+    end=137000000,
+    title="Selection Signals in African Populations",
+    
+    # Population filtering
+    populations=superpopulations["AFR"],  # Focus on African populations
+    # Available: ["AFR", "AMR", "EAS", "EUR", "SAS"] or custom list
+    
+    # Visual customizations
+    cmap="expheatmap",                    # Custom ExP colormap
+    display_limit=1.60,                   # Filter noise (values below limit = white)
+    display_values="higher",              # Show values above display_limit
+    
+    # Annotations
+    vertical_line=[                       # Mark important SNPs
+        [135851073, "rs41525747"],        # [position, label]
+        [135851081, "rs41380347"]
+    ],
+    
+    # Colorbar customization
+    cbar_vmin=cmin,
+    cbar_vmax=cmax,
+    cbar_ticks=cbar_ticks,
+    
+    # Output
+    output="african_populations_analysis",
+    xlabel="Custom region description"
+)
 ```
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2_XP-EHH_display_limit.png" width=800>
 
+**Available superpopulations:**
+- `superpopulations["AFR"]`: African populations
+- `superpopulations["AMR"]`: Ad Mixed American populations  
+- `superpopulations["EAS"]`: East Asian populations
+- `superpopulations["EUR"]`: European populations
+- `superpopulations["SAS"]`: South Asian populations
 
+## Workflow Examples
 
-## 7. Licence and final remarks
+### Complete Analysis: SLC24A5 Gene
 
-The ExP Heatmap package is available under the MIT License. ([link](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file "ExP Heatmap MIT licence"))
+This example demonstrates a full workflow analyzing the [SLC24A5](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000188467;r=15:48120990-48142672) gene, known for its role in human skin pigmentation using 1000 Genomes Project data. SLC24A5 is also known to show strong selection signals, which makes it a suitable example.
 
-If you are interested in using this method in your commercial software under another licence, please, contact us at edvard.ehler@img.cas.cz.
+```bash
+#!/bin/bash
 
+# Download 1000 Genomes data
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr15.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz" -O chr15.vcf.gz
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
 
+# Filter to SNPs only
+vcftools --gzvcf chr15.vcf.gz \
+    --remove-indels \
+    --recode \
+    --recode-INFO-all \
+    --out chr15_snps
 
-<br/>
+# Prepare data
+exp_heatmap prepare chr15_snps.recode.vcf chr15_snps.recode.zarr
 
-# Contributors
+# Compute statistics
+exp_heatmap compute chr15_snps.recode.zarr genotypes.panel chr15_snps_output
 
-- Eda Ehler ([@EdaEhler](https://github.com/EdaEhler))
-- Adam Nógell ([@AdamNogell](https://github.com/AdamNogell))
-- Jan Pačes ([@hpaces](https://github.com/hpaces))
-- Mariana Šatrová ([@satrovam](https://github.com/satrovam))
-- Ondřej Moravčík ([@ondra-m](https://github.com/ondra-m))
+# Generate heatmap for SLC24A5 region
+exp_heatmap plot chr15_snps_output \
+    --begin 47924019 \
+    --end 48924019 \
+    --title "SLC24A5" \
+    --cmap gist_heat \
+    --out SLC24A5_heatmap
+```
 
-# Acknowledgement
+## Gallery
+
+### Different P-value Computations
+
+The same XP-EHH test data for the ADM2 gene region, showing different p-value calculation methods:
+
+**Two-tailed p-values:**
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: 2-tailed.png" width="800" alt="Two-tailed p-values">
+
+**Ascending p-values:**
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: ascending.png" width="800" alt="Ascending p-values">
+
+**Descending p-values:**
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: descending.png" width="800" alt="Descending p-values">
+
+### Noise Filtering
+
+Using `display_limit` and `display_values` parameters to filter noisy data and highlight significant regions:
+
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2_XP-EHH_display_limit.png" width="800" alt="Filtered display">
+
+*Same data as above, but with display_limit=1.60 to filter noise and highlight significant signals.*
+
+## Contributing
+
+We welcome contributions! Feel free to contact us or submit issues or pull requests.
+
+### Development Setup
+
+```bash
+git clone https://github.com/bioinfocz/exp_heatmap.git
+cd exp_heatmap
+pip install -e .
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file) file for details.
+
+For commercial licensing under different terms, please contact: edvard.ehler@img.cas.cz
+
+## Contributors
+
+- **Edvard Ehler** ([@EdaEhler](https://github.com/EdaEhler)) - Lead Developer
+- **Adam Nógell** ([@AdamNogell](https://github.com/AdamNogell)) - Developer
+- **Jan Pačes** ([@hpaces](https://github.com/hpaces)) - Developer
+- **Mariana Šatrová** ([@satrovam](https://github.com/satrovam)) - Developer  
+- **Ondřej Moravčík** ([@ondra-m](https://github.com/ondra-m)) - Developer
+
+## Acknowledgments
+
+<div align="center">
 
 <a href="http://genomat.img.cas.cz">
-  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/genomat.png" width=100>
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/genomat.png" width="100" alt="GenoMat">
 </a>
-
----
-
+&nbsp;&nbsp;&nbsp;&nbsp;
 <a href="https://www.img.cas.cz/en">
-  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/img.png" width=100>
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/img.png" width="100" alt="IMG CAS">
 </a>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="https://www.elixir-czech.cz">
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/elixir.png" width="100" alt="ELIXIR">
+</a>
+
+</div>
 
 ---
 
-<a href="https://www.elixir-czech.cz">
-  <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/elixir.png" width=100>
-</a>
+*If you use ExP Heatmap in your research, please cite our paper [citation details will be added upon publication].*
