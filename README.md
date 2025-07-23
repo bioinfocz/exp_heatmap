@@ -55,8 +55,11 @@ pip install git+https://github.com/bioinfocz/exp_heatmap.git
 ## 2. Simple example
 
 After installing the package, try to construct ExP heatmap in **three simple steps:**
-1. **Download** the prepared results of the extended haplotype homozygosity (XPEHH) selection test for the part of human chromosome 2, 1000 Genomes Project data: [example results](https://github.com/bioinfocz/exp_heatmap/raw/master/assets/chr2.xpehh.example.zip)
-2. **Unpack** the zipped folder `chr2.xpehh.example/` in your working directory: `unzip chr2.xpehh.example.zip`
+1. **Download** the prepared results of the extended haplotype homozygosity (XPEHH) selection test for the part of human chromosome 2, 1000 Genomes Project data either directly via [Zenodo](https://zenodo.org/records/16364351) or via command:
+```bash
+wget "https://zenodo.org/records/16364351/files/chr2_output.tar.gz"
+```
+2. **Decompress** the downloaded folder in your working directory: `tar -xzf chr2_output.tar.gz`
 3. **Run** the following command:
 ```bash
 exp_heatmap plot chr2.xpehh.example/ --begin 136070087 --end 137070087 --title "LCT gene" --output LCT_xpehh
@@ -67,54 +70,89 @@ The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder 
 
 
 ## 3. Workflow
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/SLC24A5_gene.png" width=800>
 
-<img src="https://github.com/bioinfocz/exp_heatmap/blob/master/assets/ExP_process_schema.png" width=1100>
+As a workflow example, we present an analysis of 1000 Genomes Project, phase 3 data of chromosome 15. It is focused on the [SLC24A5](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000188467;r=15:48120990-48142672) gene, known for its role in human skin pigmentation. It is also known to show strong selection signals, which makes it a suitable example.
 
-As a workflow example we present an analysis of 1000 Genomes Project, phase 3 data of chromosome 22, chosen especially for its small size and thus reasonable fast computations. It is focused on ADM2 gene ([link](https://www.ensembl.org/Homo_sapiens/Gene/Phenotype?db=core;g=ENSG00000128165;r=22:50481543-50486440)), which is active especially in reproductive system, and angiogenesis and cardiovascular system in general.
+The bash script below presents a complete functional workflow analysis, including high-level comments that describe the entire process.
 
 ```bash
-################
-# GET THE DATA #
-################
-# Download chromosome 22 from 1000genomes ftp (GRch38 version)
-wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz" -O chr22.genotypes.vcf.gz
+#!/bin/bash
+
+#=============================================================================
+# exp_heatmap Example Workflow
+#=============================================================================
+# This script demonstrates the complete workflow for using exp_heatmap, a tool
+# for generating population genetics heatmaps from VCF (Variant Call Format) data.
+# 
+# The workflow covers:
+# 1. Data acquisition from the 1000 Genomes Project
+# 2. Data preprocessing and quality filtering
+# 3. Data preparation and format conversion
+# 4. Computation of population genetic statistics
+# 5. Visualization of genetic variation patterns
+#
+# Final output: A heatmap visualization showing genetic variation patterns
+# across different populations for the SLC24A5 gene region on chromosome 15.
+#=============================================================================
+
+
+#-----------------------------------------------------------------------------
+# STEP 1: Download genomic data from 1000 Genomes Project
+#-----------------------------------------------------------------------------
+# Download the VCF file for chromosome 15 from the 1000 Genomes Project
+# (Phase 3 data, GRCh37 reference genome build)
+echo "Downloading chromosome 15 VCF file from 1000 Genomes Project..."
+wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr15.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz" -O chr15.vcf.gz
+
+# Download the panel file containing sample-to-population mappings
+echo "Downloading population panel file..."
 wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
 
-# OR
+#-----------------------------------------------------------------------------
+# STEP 2: Filter and preprocess genetic variants
+#-----------------------------------------------------------------------------
+# Use VCFtools to filter the raw VCF data:
+# - Remove insertions/deletions (indels) to focus only on SNPs
+# - Keep all INFO field annotations for downstream analysis
+# - Output: chr15_snps.recode.vcf (SNPs-only VCF file)
+echo "Filtering VCF to retain only SNPs (removing indels)..."
+vcftools --gzvcf chr15.vcf.gz --remove-indels --recode --recode-INFO-all --out chr15_snps
 
-# The 1000 Genomes Project alternative ftp mirror (GRCh37 version);
-wget "https://ddbj.nig.ac.jp/public/mirror_database/1000genomes/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz" -O chr22.genotypes.vcf.gz
-wget "https://ddbj.nig.ac.jp/public/mirror_database/1000genomes/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
+#-----------------------------------------------------------------------------
+# STEP 3: Prepare data for exp_heatmap analysis
+#-----------------------------------------------------------------------------
+# Convert the VCF file to Zarr format for efficient data access
+echo "Converting VCF to Zarr format for efficient processing..."
+exp_heatmap prepare chr15_snps.recode.vcf chr15_snps.recode.zarr
 
-####################
-# PREPARE THE DATA #
-####################
-# Filter the VCF
-vcftools --gzvcf chr22.genotypes.vcf.gz \
-         --remove-indels \
-         --recode \
-         --recode-INFO-all \
-         --out chr22.genotypes
+#-----------------------------------------------------------------------------
+# STEP 4: Compute population genetic statistics
+#-----------------------------------------------------------------------------
+# Calculate population genetics metrics across the chromosome
+# 
+# Inputs: Zarr-formatted genotype data + population panel
+# Output: Processed data ready for plotting
+echo "Computing population genetic statistics..."
+exp_heatmap compute chr15_snps.recode.zarr genotypes.panel chr15_snps_output
 
-exp_heatmap prepare chr22.genotypes.recode.vcf chr22.genotypes.recode.zarr
+#-----------------------------------------------------------------------------
+# STEP 5: Generate heatmap visualization
+#-----------------------------------------------------------------------------
+# Create a heatmap for the SLC24A5 gene region
+#
+# Parameters:
+# --begin 47924019 --end 48024019: SLC24A5 gene region (±500kb)
+# --title "SLC24A5": Label for the output plot
+# --out SLC24A5_heatmap: Output filename prefix
+echo "Generating heatmap for SLC24A5 gene region..."
+exp_heatmap plot chr15_snps_output --begin 47924019 --end 48924019 --title "SLC24A5" --out SLC24A5_heatmap
 
-#################################################
-# COMPUTE PAIRWISE VALUES (default XP-EHH test) #
-#################################################
-exp_heatmap compute chr22.genotypes.recode.zarr genotypes.panel chr22.genotypes.output
-
-#######################
-# DISPLAY ExP HEATMAP #
-#######################
-# Plot heatmap
-exp_heatmap plot chr22.genotypes.output --begin 50481556 --end 50486440 --title ADM2 --output adm2_GRCh38
-
-# OR
-
-# use this if you used the GRCh37 version of the VCF input files.
-exp_heatmap plot chr22.genotypes.output --begin 50910000 --end 50950000 --title ADM2 --output adm2_GRCh37
-
-# The heatmap is saved as adm2_GRCh38.png or adm2_GRCh37.png, depending on which version of the plot function you are using.
+echo "Workflow completed!"
+echo ""
+echo "Expected outputs:"
+echo "- SLC24A5_heatmap.png: Main heatmap visualization"
+echo "- chr15_snps_output/: Directory with computed statistics"
 ```
 <br/>
 
