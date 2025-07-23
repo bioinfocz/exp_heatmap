@@ -269,6 +269,8 @@ plot_exp_heatmap(
 
 ### Complete Analysis: SLC24A5 Gene
 
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/SLC24A5_gene.png" width="800" alt="ExP heatmap of SLC24A5 gene">
+
 This example demonstrates a full workflow analyzing the [SLC24A5](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000188467;r=15:48120990-48142672) gene, known for its role in human skin pigmentation using 1000 Genomes Project data. SLC24A5 is also known to show strong selection signals, which makes it a suitable example.
 
 ```bash
