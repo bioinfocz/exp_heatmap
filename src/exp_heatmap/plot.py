@@ -338,7 +338,7 @@ def plot_exp_heatmap(
         input_df = input_df.loc[:, begin:end]
     
     except: # given values are not in the column index, choose the new closest ones
-        sorted_columns = sorted(list(data_to_plot.columns)) # sort columns (just to be sure)
+        sorted_columns = sorted(list(input_df.columns)) # sort columns (just to be sure)
 
         new_begin = take_closest_begin(sorted_columns, begin) # take the closest value to the left from given begining point
         new_end = take_closest_end(sorted_columns, end) # take the closest values the the right from given end point
