@@ -44,8 +44,11 @@ def main():
         "-t", "--test", choices=['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst'], 
         default="xpehh", help="Statistical test to compute (default: %(default)s)"
     )
+    compute_parser.add_argument(
+        "-c", "--chunked", action="store_true", help="Use chunked array to avoid memory exhaustion"
+    )
     compute_parser.set_defaults(
-        func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir, args.test)
+        func=lambda args: compute(args.zarr_dir, args.panel_file, args.output_dir, args.test, args.chunked)
     )
 
 
