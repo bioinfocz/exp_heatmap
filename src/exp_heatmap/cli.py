@@ -59,19 +59,19 @@ def main():
         "input_dir", metavar="INPUT_DIR", help="Directory containing TSV files from 'exp_heatmap compute'"
     )
     plot_parser.add_argument(
-        "--start", type=int, default=None, help="Start position for the displayed region. Uses nearest available position if exact match not found in the input data"
+        "-s", "--start", type=int, default=None, help="Start position for the displayed region. Uses nearest available position if exact match not found in the input data"
     )
     plot_parser.add_argument(
-        "--end", type=int, default=None, help="End position for the displayed region. Uses nearest available position if exact match not found in the input data"
+        "-e", "--end", type=int, default=None, help="End position for the displayed region. Uses nearest available position if exact match not found in the input data"
     )
     plot_parser.add_argument(
-        "--mid", type=int, default=None, help="Middle of displayed area. The start and end positions will be calculated"
+        "-m", "--mid", type=int, default=None, help="Middle of displayed area. The start and end positions will be calculated"
     )
     plot_parser.add_argument(
-        "--title", default=None, help="Title of the figure"
+        "-t", "--title", default=None, help="Title of the figure"
     )
     plot_parser.add_argument(
-        "--output", default="ExP_heatmap", help="The figure will be saved as OUTPUT + .png (default: %(default)s)"
+        "-o", "--output", default="ExP_heatmap", help="The figure will be saved as OUTPUT + .png (default: %(default)s)"
     )
     plot_parser.add_argument(
         "--cmap", default="Blues", help="Matplotlib colormap for heatmap visualization. Common options: Blues, Reds, Greens, viridis, plasma, inferno, magma, coolwarm, RdYlBu, Spectral, jet (default: %(default)s)"

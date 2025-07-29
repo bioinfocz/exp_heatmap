@@ -129,10 +129,10 @@ exp_heatmap plot [OPTIONS] <input_dir>
 - `input_dir`: Directory containing TSV files from `compute` step
 
 **Options:**
-- `--start, --end`: Genomic coordinates for the region to display
-- `--mid`: Alternative way to specify region (center position)
-- `--title`: Plot title
-- `--output`: Output filename (without .png extension)
+- `-s, --start & -e, --end`: Genomic coordinates for the region to display
+- `-m, --mid`: Alternative way to specify region (center position)
+- `-t, --title`: Plot title
+- `-o, -output`: Output filename (without .png extension)
 - `--cmap`: Matplotlib colormap - [list of colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
 
 **Examples:**
