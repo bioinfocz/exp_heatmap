@@ -86,7 +86,7 @@ ExP Heatmap follows a simple three-step workflow: **prepare** â†’ **compute** â†
 >Convert VCF files to efficient Zarr format for faster computation.
 
 ```bash
-exp_heatmap prepare <input.vcf> <output.zarr>
+exp_heatmap prepare <input.vcf> <output_dir.zarr>
 ```
 
 #### 2. Statistical Analysis - `compute`
@@ -94,7 +94,7 @@ exp_heatmap prepare <input.vcf> <output.zarr>
 >Calculate population genetic statistics across all genomic positions.
 
 ```bash
-exp_heatmap compute [OPTIONS] <zarr_dir> <panel_file> <output_dir>
+exp_heatmap compute [OPTIONS] <input_dir.zarr> <panel_file> <output_dir>
 ```
 
 **Options:**
@@ -108,13 +108,13 @@ exp_heatmap compute [OPTIONS] <zarr_dir> <panel_file> <output_dir>
 **Examples:**
 ```bash
 # Compute XPEHH statistics (default)
-exp_heatmap compute data.zarr populations.panel results/
+exp_heatmap compute data.zarr/ populations.panel results/
 
 # Compute XP-NSL with chunked processing
-exp_heatmap compute -t xpnsl -c data.zarr populations.panel results/
+exp_heatmap compute -t xpnsl -c data.zarr/ populations.panel results/
 
 # Compute Fst distances
-exp_heatmap compute -t hudson_fst data.zarr populations.panel results/
+exp_heatmap compute -t hudson_fst data.zarr/ populations.panel results/
 ```
 
 #### 3. Visualization - `plot`
