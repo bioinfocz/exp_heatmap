@@ -59,22 +59,22 @@ def main():
         "input_dir", metavar="INPUT_DIR", help="Directory containing TSV files from 'exp_heatmap compute'"
     )
     plot_parser.add_argument(
-        "-s", "--start", type=int, default=None, help="Start position for the displayed region. Uses nearest available position if exact match not found in the input data"
+        "-s", "--start", type=int, default=None, help=f"Start position for the displayed region. Uses nearest available position if exact match not found in the input data [USE WITH -e]"
     )
     plot_parser.add_argument(
-        "-e", "--end", type=int, default=None, help="End position for the displayed region. Uses nearest available position if exact match not found in the input data"
+        "-e", "--end", type=int, default=None, help="End position for the displayed region. Uses nearest available position if exact match not found in the input data [USE WITH -s]"
     )
     plot_parser.add_argument(
-        "-m", "--mid", type=int, default=None, help="Middle of displayed area. The start and end positions will be calculated"
+        "-m", "--mid", type=int, default=None, help="Middle of the displayed area. The start and end positions will be calculated (mid ± 500 kb)"
     )
     plot_parser.add_argument(
-        "-t", "--title", default=None, help="Title of the figure"
+        "-t", "--title", default=None, help="Title of the heatmap"
     )
     plot_parser.add_argument(
-        "-o", "--output", default="ExP_heatmap", help="The figure will be saved as OUTPUT + .png (default: %(default)s)"
+        "-o", "--output", default="ExP_heatmap", help="The heatmap will be saved as OUTPUT + .png (default: %(default)s)"
     )
     plot_parser.add_argument(
-        "--cmap", default="Blues", help="Matplotlib colormap for heatmap visualization. Common options: Blues, Reds, Greens, viridis, plasma, inferno, magma, coolwarm, RdYlBu, Spectral, jet (default: %(default)s)"
+        "--cmap", default="Blues", help="Matplotlib colormap for heatmap visualization (default: %(default)s)"
     )
 
     def plot_wrapper(args):
