@@ -6,13 +6,13 @@ from exp_heatmap import prepare, compute, plot, __version__
 def main():
     parser = argparse.ArgumentParser(
         prog="exp_heatmap",
-        description="Generate heatmaps from population genetics data using VCF files",
+        usage="%(prog)s <command> [options]",
         epilog="For more information, see the documentation at https://github.com/bioinfocz/exp_heatmap/"
     )
     parser.add_argument(
         '-v', '--version', action='version', version=f'%(prog)s {__version__}'
     )
-    subparser = parser.add_subparsers()
+    subparser = parser.add_subparsers(title='Available commands', metavar=' ')
 
     parser.set_defaults(func=lambda _: parser.print_help())
 
