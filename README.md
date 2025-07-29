@@ -9,7 +9,7 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
 
-*ExP heatmap of the human lactose (LCT) gene showing population differences between 26 populations from the 1000 Genomes Project, displaying adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test. Create your own LCT heatmap with the [Quick Start](#-quick-start) Guide*
+*ExP heatmap of the human lactose (LCT) gene showing population differences between 26 populations from the 1000 Genomes Project, displaying adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test. Create your own LCT heatmap with the [Quick Start](#quick-start) Guide*
 
 **Developed by the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/group/michal-kolar/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic**
 
@@ -24,15 +24,15 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
 
 ## Table of Contents
 
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Usage](#-usage)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
   - [Command-Line Interface](#command-line-interface)
   - [Python Package](#python-package)
-- [Workflow Examples](#-workflow-examples)
-- [Gallery](#-gallery)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Workflow Examples](#workflow-examples)
+- [Gallery](#gallery)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Installation
 
