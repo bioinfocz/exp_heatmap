@@ -346,7 +346,7 @@ def plot_exp_heatmap(
         
         input_df = input_df.loc[:, new_start:new_end]
         
-        print(f"WARNING: Given 'start' and 'end' datapoints are not found in the input data. New closest datapoints were selected.\start={new_start}\nend={new_end}")
+        print(f"WARNING: Given 'start' and 'end' datapoints are not found in the input data. New closest datapoints were selected.\nstart={new_start}\nend={new_end}")
         
         
     # check the input data for number of populations and input_df shape
