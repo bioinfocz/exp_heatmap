@@ -31,7 +31,8 @@ dependencies = [
     "numpy",
     "pandas",
     "matplotlib",
-    "seaborn"
+    "seaborn",
+    "click"
 ]
 
 [project.urls]
