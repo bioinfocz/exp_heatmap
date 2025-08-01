@@ -24,7 +24,7 @@ def prepare_cmd(vcf_file, output):
 @click.argument('zarr_dir', type=click.Path(exists=True, readable=True, file_okay=False), required=True, metavar='<zarr_dir>')
 @click.argument('panel_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<panel_file>')
 @click.option('-o', '--output', type=click.Path(), default='output', show_default=True, help='Directory for output files')
-@click.option('-t', '--test', type=click.Choice(['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst'], case_sensitive=False), default='xpehh', show_default=True, help='Statistical test to compute')
+@click.option('-t', '--test', type=click.Choice(['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst']), default='xpehh', show_default=True, help='Statistical test to compute')
 @click.option('-c', '--chunked', is_flag=True, help='Use chunked array to avoid memory exhaustion')
 def compute_cmd(zarr_dir, panel_file, output, test, chunked):
     """
