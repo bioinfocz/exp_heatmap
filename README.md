@@ -67,7 +67,7 @@ tar -xzf chr2_output.tar.gz
 ```
 **Step 3**: Run the exp_heatmap plot command:
 ```bash
-exp_heatmap plot chr2_output/ --begin 136070087 --end 137070087 --title "LCT gene" --output LCT_xpehh
+exp_heatmap plot chr2_output/ --start 136070087 --end 137070087 --title "LCT gene" --output LCT_xpehh
 ```
 The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder and create the ExP heatmap and save it as `LCT_xpehh.png` file.
 
@@ -84,36 +84,29 @@ ExP Heatmap follows a simple three-step workflow: **prepare** → **compute** �
 >Convert VCF files to efficient Zarr format for faster computation.
 
 ```bash
-exp_heatmap prepare <input.vcf> <output_dir.zarr>
+exp_heatmap prepare [OPTIONS] <vcf_file>
 ```
+
+- `<vcf_file> [PATH]`: Recoded VCF file
+- `-o, --output [PATH]`: Directory for output files
 
 #### 2. Statistical Analysis - `compute`
 
 >Calculate population genetic statistics across all genomic positions.
 
 ```bash
-exp_heatmap compute [OPTIONS] <input_dir.zarr> <panel_file> <output_dir>
+exp_heatmap compute [OPTIONS] <zarr_dir> <panel_file>
 ```
 
-**Options:**
+`<zarr_dir> [PATH]`: Directory with ZARR files from `prepare` step
+`<panel_file>[PATH]`: Population panel file
+- `-o, --output`: Directory for output files
 - `-t, --test`: Statistical test to compute
   - `xpehh`: Cross-population Extended Haplotype Homozygosity (default)
   - `xpnsl`: Cross-population Number of Segregating sites by Length  
   - `delta_tajima_d`: Delta Tajima's D
   - `hudson_fst`: Hudson's Fst genetic distance
-- `-c, --chunked`: Use chunked processing to reduce memory usage
-
-**Examples:**
-```bash
-# Compute XPEHH statistics (default)
-exp_heatmap compute data.zarr/ populations.panel results/
-
-# Compute XP-NSL with chunked processing
-exp_heatmap compute -t xpnsl -c data.zarr/ populations.panel results/
-
-# Compute Fst distances
-exp_heatmap compute -t hudson_fst data.zarr/ populations.panel results/
-```
+- `-c, --chunked`: Use chunked array to avoid memory exhaustion
 
 #### 3. Visualization - `plot`
 
@@ -123,24 +116,12 @@ exp_heatmap compute -t hudson_fst data.zarr/ populations.panel results/
 exp_heatmap plot [OPTIONS] <input_dir>
 ```
 
-**Arguments:**
-- `input_dir`: Directory containing TSV files from `compute` step
-
-**Options:**
-- `-s, --start & -e, --end`: Genomic coordinates for the region to display
-- `-m, --mid`: Alternative way to specify region (center position)
-- `-t, --title`: Plot title
+- `<input_dir>`: Directory with TSV files from `compute` step
+- `-s, --start & -e, --end`: Genomic coordinates for the region to display. Uses nearest available position if exact match not found in the input data.
+- `-m, --mid`: Alternative way to specify region. The start and end positions will be calculated (mid ± 500 kb)
+- `-t, --title`: Title of the heatmap
 - `-o, -output`: Output filename (without .png extension)
-- `--cmap`: Matplotlib colormap - [list of colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
-
-**Examples:**
-```bash
-# Basic heatmap for a genomic region
-exp_heatmap plot results/ --start 136000000 --end 137000000 --title "LCT Gene Region"
-
-# Custom styling with different colormap
-exp_heatmap plot results/ --mid 136500000 --title "Analysis" --cmap viridis --output my_heatmap
-```
+- `-c, --cmap`: Matplotlib colormap - [list of colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
 
 ---
 
