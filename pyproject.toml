@@ -40,9 +40,9 @@ Homepage = "https://github.com/bioinfocz/exp_heatmap"
 "Bug Tracker" = "https://github.com/bioinfocz/exp_heatmap/issues"
 
 [project.scripts]
-exp-selection = "exp_heatmap.cli:main"
-exp_heatmap = "exp_heatmap.cli:main"
-exp-heatmap = "exp_heatmap.cli:main"
+exp-selection = "exp_heatmap.cli:cli"
+exp_heatmap = "exp_heatmap.cli:cli"
+exp-heatmap = "exp_heatmap.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["src"]
