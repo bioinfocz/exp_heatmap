@@ -1,15 +1,14 @@
 import os
 import sys
-
 import seaborn as sns
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
 from bisect import bisect_left
+from tqdm import tqdm
 
-
-# 1000 Genomes populations
+# 1000 Genomes Project population codes
 populations_1000genomes = (
     "ACB",  # AFR (superpopulations)
     "ASW",
@@ -39,7 +38,7 @@ populations_1000genomes = (
     "PUR",
 )
 
-# 1000 Genomes super-populations
+# 1000 Genomes super-population groupings
 superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
                     "SAS": ("BEB", "GIH", "ITU", "PJL", "STU"),
                     "EAS": ("CDX", "CHB", "CHS", "JPT", "KHV"),
@@ -65,83 +64,41 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         pd.DataFrame: Formatted data for heatmap plotting.
     """
     
-    
     df_list = []
     pop_id_list = []
-    different_dfs = False
-
-
-    # if not using 1000Genomes, use the custom populations' list to sort the data
-    if populations=="1000Genomes":
-        population_sorter = populations_1000genomes
-        
-    else:
-        population_sorter = populations
-    
-    
-    
+    population_sorter = populations_1000genomes if populations=="1000Genomes" else populations
     segment_files = glob.glob(os.path.join(input_dir, "*.tsv"))
-    
-
-    ##############################################
-
-    # reading the input files, saving only the regions between START and END to process further
     index = 1
-    for segment_file in segment_files:
-        # segment_files is something like ACB_KHV.tsv or ACB_KHV.some_more_info.tsv
+    
+    # Load population pair files between start and end and check if the populations are in the population_sorter
+    for segment_file in tqdm(segment_files, desc="Loading population pair files"):
         pop_pair = os.path.splitext(os.path.basename(segment_file))[0].split(".")[0]
-        
-        # test, if file names (p1, p2) are in the 'populations' a.k.a 'population_sorter'
         p1, p2 = pop_pair.split("_")
         
-        if all(x in population_sorter for x in (p1,p2)):
+        if all(x in population_sorter for x in (p1, p2)):
             pop_id_list.append(pop_pair)
 
-            print(
-                "[{}/{}] Loading {} from {}".format(
-                    index, len(segment_files), pop_pair, segment_file
-                )
-            )
-
             segments = pd.read_csv(segment_file, sep="\t")
-            segments = segments[
-                (segments.variant_pos >= start) & (segments.variant_pos <= end)
-            ]
+            segments = segments[(segments.variant_pos >= start) & (segments.variant_pos <= end)]
 
             df_list.append(segments)
 
-            index += 1
-            
         else:
-            print(
-                "[{}/{}] ERROR Loading {} from {}. {} or {} not in provided 'populations' list.".format(
-                    index, len(segment_files), pop_pair, segment_file, p1, p2
-                )
-            )
-                
-            return p1, p2, population_sorter
+            print(f"[{index}/{len(segment_files)}] ERROR Loading {pop_pair} from {segment_file}. {p1} or {p2} not in provided population list.")
             
-
-    # check that they all have the same dimensions AND variant_pos
+        index += 1
+            
+    # Validate the dimensions and variant_pos in each dataframe
     df_shape = df_list[0].shape
     variant_positions = df_list[0].variant_pos.values
 
-    print("Transforming data matrix in preparation to plot heatmap")
-
     for i in range(len(df_list)):
         if df_list[i].shape != df_shape:
-            print("the shapes dont match in df " + str(i))
-            different_dfs = True
-            break
+            raise ValueError(f"the shapes dont match in df {i}")
         if not np.array_equal(df_list[i].variant_pos.values, variant_positions):
-            print("the variant_positions dont match in df " + str(i))
-            different_dfs = True
-            break
+            raise ValueError(f"the variant_positions dont match in df {i}")
 
-    if different_dfs:
-        sys.exit(1)
-
-    # select only variant_pos and -log10_p_value and transpose each df
+    # Select variant_pos and -log10_p_value and transpose each df
     transp_list = []
 
     for df, pop_pair in zip(df_list, pop_id_list):
@@ -160,80 +117,54 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         else:
             raise ValueError(f"Unknown value for 'rank_pvalues' parameter in create_plot_input(). Expected values are: 'ascending', 'descending' or '2-tailed', got '{rank_pvalues}'")
             
-        
-        
-        # select the appropriate ranks that are significant for pop1_pop2 (pop1 is under selection)
+        # Extract and transpose p-values for pop1_pop2 (pop1 under selection)
         left_df = df[["variant_pos", pvalues_column1]].copy()
         left_df.rename(columns={pvalues_column1: pop_pair}, inplace=True)
         left_df = left_df.set_index("variant_pos").T
         transp_list.append(left_df)
 
-        # select the apropriate ranks that are significant for pop2_pop1 (pop2 is under selection)
-        reverse_pop_pair = "_".join(
-            pop_pair.split("_")[::-1]
-        )  # change name pop1_pop2 to pop2_pop1
-
+        # Extract and transpose p-values for pop2_pop1 (pop2 under selection)
+        reverse_pop_pair = "_".join(pop_pair.split("_")[::-1])
         right_df = df[["variant_pos", pvalues_column2]].copy()
-        right_df.rename(
-            columns={pvalues_column2: reverse_pop_pair}, inplace=True
-        )
+        right_df.rename(columns={pvalues_column2: reverse_pop_pair}, inplace=True)
         right_df = right_df.set_index("variant_pos").T
         transp_list.append(right_df)
 
-    # concatenate all the dfs together
-    big_df = pd.concat(transp_list, ignore_index=False)
-
-    print("Sorting data by super populations")
-
-    # add temporary columns with pop1 and pop2, I am gonna sort the df according to those
-    pop_labels = big_df.index.values  # select the pop1_pop2 names
-
-    first_pop = [pop.split("_")[0] for pop in pop_labels]  # pop1
-    second_pop = [pop.split("_")[1] for pop in pop_labels]  # pop2
-
-    big_df["first_pop"] = first_pop
-    big_df["second_pop"] = second_pop
-
-    # set pop1 to be a categorical column with value order defined by sorter
-    big_df.first_pop = big_df.first_pop.astype("category")
-    big_df.first_pop = big_df.first_pop.cat.set_categories(population_sorter)
-
-    # set pop2 to be a categorical column with value order defined by sorter
-    big_df.second_pop = big_df.second_pop.astype("category")
-    big_df.second_pop = big_df.second_pop.cat.set_categories(population_sorter)
-
-    # sort df by pop1 and withing pop1 by pop2
-    big_df.sort_values(["first_pop", "second_pop"], inplace=True)
-
-    # drop the temporary columns
-    big_df.drop(["first_pop", "second_pop"], axis=1, inplace=True)
+    # Concatenate all transposed DataFrames into a single DataFrame
+    concat_df = pd.concat(transp_list, ignore_index=False)
     
-    # set index name
-    big_df.index.name = "pop_pairs"
-    
-    # label it just by the pop1 (which is gonna be printed with plot ticks)
-    #pop_labels = big_df.index.values
-    #pop_labels = [pop.split("_")[0] for pop in pop_labels]
-    #big_df.index = pop_labels
+    pop_labels = concat_df.index.values
+    first_pop = [pop.split("_")[0] for pop in pop_labels]
+    second_pop = [pop.split("_")[1] for pop in pop_labels]
+    concat_df["first_pop"] = first_pop
+    concat_df["second_pop"] = second_pop
 
-    return big_df
+    concat_df.first_pop = concat_df.first_pop.astype("category")
+    concat_df.first_pop = concat_df.first_pop.cat.set_categories(population_sorter)
+    concat_df.second_pop = concat_df.second_pop.astype("category")
+    concat_df.second_pop = concat_df.second_pop.cat.set_categories(population_sorter)
 
+    # Clean up the DataFrame
+    concat_df.sort_values(["first_pop", "second_pop"], inplace=True)
+    concat_df.drop(["first_pop", "second_pop"], axis=1, inplace=True)
+    concat_df.index.name = "pop_pairs"
 
+    return concat_df
 
 def plot_exp_heatmap(
     input_df,
     start,
     end,
-    title,
-    output=None,
+    title=None,
+    output="ExP_heatmap",
     output_suffix="png",
-    cmap=None,
+    cmap="Blues",
     populations="1000Genomes",
     vertical_line=True,
     cbar_vmin=None,
     cbar_vmax=None,
-    ylabel=False,
-    xlabel=False,
+    ylabel=None,
+    xlabel=None,
     cbar_ticks=None,
     display_limit=None,
     display_values="higher"
@@ -282,168 +213,92 @@ def plot_exp_heatmap(
     The Matplotlib axis object and saves the heatmap to file
     """
 
-    
-    # functions to solve the situation where given start and end indexes are not in the data
-    def take_closest_start(myList, myNumber):
+    # Helper functions to handle cases where start/end positions are not in the data
+    def take_closest_start(sorted_list, target):
         """
         Given a sorted list, return the value equal to target if present,
         otherwise return the smallest value in the list that is >= target.
         If target is greater than all elements, raise ValueError.
         """
-
-        if myNumber in myList:
-            return myNumber
-
-        pos = bisect_left(myList, myNumber)
-        if pos == 0:
-            return myList[0]
-        if pos == len(myList):
+        if not sorted_list:
+            raise ValueError("Input list is empty")
+        pos = bisect_left(sorted_list, target)
+        if pos < len(sorted_list) and sorted_list[pos] == target:
+            return target
+        if pos == len(sorted_list):
             raise ValueError("Your 'start' position index was higher than the range of the input data")
+        return sorted_list[pos]
 
-        after = myList[pos]
-
-        return after
-
-
-    def take_closest_end(myList, myNumber):
+    def take_closest_end(sorted_list, target):
         """
         Given a sorted list, return the value equal to target if present,
         otherwise return the largest value in the list that is <= target.
         If target is less than all elements, raise ValueError.
         """
-
-        if myNumber in myList:
-            return myNumber
-
-        pos = bisect_left(myList, myNumber)
+        if not sorted_list:
+            raise ValueError("Input list is empty")
+        pos = bisect_left(sorted_list, target)
+        if pos < len(sorted_list) and sorted_list[pos] == target:
+            return target
         if pos == 0:
             raise ValueError("Your 'end' position index was lower than the range of the input data")
-        if pos == len(myList):
-            return myList[-1]
-
-        before = myList[pos - 1]
-
-        return before
-    
-    
+        return sorted_list[pos - 1]
     
     input_df = input_df.copy()
     
-    print("Checking input")
-    
-    # cropping the input_df according to user defined range
-    try: # given values are in the data (column index)
+    # Crop the input_df according to user defined range
+    try: # Given values are in the data (column index)
         input_df = input_df.loc[:, start:end]
-    
-    except: # given values are not in the column index, choose the new closest ones
-        sorted_columns = sorted(list(input_df.columns)) # sort columns (just to be sure)
-
-        new_start = take_closest_start(sorted_columns, start) # take the closest value to the left from given start point
-        new_end = take_closest_end(sorted_columns, end) # take the closest values the the right from given end point
-        
-        
+    except: # Given values are not in the column index, choose the new closest ones
+        sorted_columns = sorted(list(input_df.columns))
+        new_start = take_closest_start(sorted_columns, start)
+        new_end = take_closest_end(sorted_columns, end)
         input_df = input_df.loc[:, new_start:new_end]
         
         print(f"WARNING: Given 'start' and 'end' datapoints are not found in the input data. New closest datapoints were selected.\nstart={new_start}\nend={new_end}")
         
-        
-    # check the input data for number of populations and input_df shape
+    # Check the input data for number of populations and input_df shape
     if populations == "1000Genomes":
-
-        print("- expecting 1000 Genomes Project, phase 3 input data, 26 populations")
-        print("- expecting 650 population pairs...", end="")
-
-        if input_df.shape[0] == 650:
-            print("CHECK\n")
-
+        print("\nInput data: 1000 Genomes Project, phase 3 (26 populations expected)")
+        print("Expecting 650 population pairwise comparisons: ", end="")
+        if input_df.shape[0] != 650:
+            raise ValueError(f"With selected populations='1000Genomes' option, the input_df was expected to have 650 rows, actual shape was: {input_df.shape[0]} rows, {input_df.shape[1]} columns")
         else:
-            print("ERROR")
-            raise ValueError(
-                "With selected populations='1000Genomes' option, the input_df was expected to have 650 rows, actual shape was: {} rows, {} columns".format(
-                    input_df.shape[0], input_df.shape[1]
-                )
-            )
+            print("✓\n")
 
     else:
-
-        n_populations = len(populations)
-        print("- custom {} populations entered:".format(str(n_populations)))
-        for i in populations:
-            print(i, end="  ")
-
-        print()
-        print(
-            "- expecting {} population pairs...".format(
-                str(n_populations * (n_populations - 1))
-            ),
-            end="",
-        )
-
-        if input_df.shape[0] == (n_populations * (n_populations - 1)):
-            print("CHECK\n")
-
+        expected_pop_pairs = len(populations) * (len(populations) - 1)
+        print(f"\n Input data: {len(populations)} custom populations")
+        print(f"Expecting {expected_pop_pairs} population pairs: ", end="")
+        if input_df.shape[0] == expected_pop_pairs:
+            print("✓\n")
         else:
-            print("ERROR")
-            raise ValueError(
-                "With selected populations={} option, the input_df was expected to have {} rows, actual shape was: {} rows, {} columns".format(
-                    populations,
-                    n_populations * (n_populations - 1),
-                    input_df.shape[0],
-                    input_df.shape[1],
-                )
-            )
+            raise ValueError(f"With selected populations={populations} option, the input_df was expected to have {expected_pop_pairs} rows, actual shape was: {input_df.shape[0]} rows, {input_df.shape[1]} columns")
 
-    
-    # Apply the display_limit
+    # Apply the display_limit if selected
     if display_limit:
         if display_values == "higher":
-            print()
-            print(f"Displaying only values above the given display_limit: {display_limit}")
-            print()
-            
+            print(f"\nDisplaying only values above the given display_limit: {display_limit}")
             input_df[input_df < display_limit] = 0
-
-        elif display_values == "lower":
-            print()
-            print(f"Displaying only values below the given display_limit: {display_limit}")
-            print()
             
+        elif display_values == "lower":
+            print(f"\nDisplaying only values below the given display_limit: {display_limit}")
             input_df[input_df > display_limit] = 0
-
+            
         else:
             raise ValueError(f"plot_exp_heatmap() parameter 'display_values' has unknown value '{display_values}'. The only expected options are 'higher' or 'lower'.")
     
-    
-
-    ########################
-    # Color map definition #
-    ########################
-
-    # custom colormap assembly
+    # Custom expheatmap colormap
     if cmap == "expheatmap":
-        
         from matplotlib import cm
         import matplotlib as mpl
 
-        cmap = cm.gist_ncar_r(np.arange(256))  # just a np array from cmap
-        cmap[0] = [1.0, 1.0, 1.0, 1.0]  # change the lowest values in colormap to white
+        cmap = cm.gist_ncar_r(np.arange(256))
+        cmap[0] = [1.0, 1.0, 1.0, 1.0]
         cmap[-1] = [0, 0, 0.302, 1.0]
-        # create cmap object from a list of colors (RGB)
-        cmap = mpl.colors.ListedColormap(cmap, name='expheatmap_cmap',
-                                             N=cmap.shape[0])
+        cmap = mpl.colors.ListedColormap(cmap, name='expheatmap_cmap', N=cmap.shape[0])
 
-    # default colormap
-    if not cmap:
-        cmap = "Blues"
-
-    
-
-    #########################
-    # create the ExP figure #
-    #########################
-    print("Creating heatmap")
-
-    # draw default exp heatmap with 26 populations from 1000 Genomes Project
+    # Default heatmap from 1000 Genomes Project data
     if populations == "1000Genomes":
         populations = populations_1000genomes
         
@@ -455,33 +310,17 @@ def plot_exp_heatmap(
             xticklabels=False,
             vmin=1 if cbar_vmin==None else cbar_vmin,
             vmax=4.853 if cbar_vmax==None else cbar_vmax,
-            #cbar_kws={"ticks": [1.3, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]},
             ax=ax,
             cmap=cmap,
         )
 
-        if not title:
-            title = "{} - {}".format(start, end)
+        ax.set_title(title)            
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel("population pairings\n\n    AMR   |     EUR    |     EAS    |    SAS     |       AFR          ")
 
-        if not output:
-            output = title
-
-        ax.set_title(title)
-        ax.set_ylabel(
-            "population pairings\n\n    AMR   |     EUR    |     EAS    |    SAS     |       AFR          "
-        )
-
-        # custom or default x-axis label
-        if xlabel:
-            ax.set_xlabel(xlabel)
-        else:
-            ax.set_xlabel("{:,} - {:,}".format(start, end))
-
-    # draw custom exp heatmap with user-defined populations (number of pops, labels)
+    # Custom heatmap with user-defined populations
     else:
-        
-        # need to set up figure size for large population sample-sets
-        # here the default size (15,5) is increased by 1 inch for every 1000 SNPs (x axis) and by 1 inch for every 900 population pairs (y axis) in input_df
+        # Adjust figure size for large population sample-sets
         fig, ax = plt.subplots(figsize=(15 + (input_df.shape[1] // 1000), 5 + (input_df.shape[0] // 900)))
         
         sns.heatmap(
@@ -495,89 +334,50 @@ def plot_exp_heatmap(
             cmap=cmap,
         )
 
-        if not title:
-            title = "{} - {}".format(start, end)
-
-        if not output:
-            output = title
-
         ax.set_title(title)
         ax.set_ylabel(ylabel)
         ax.set_xlabel(xlabel)
         
-    # set the y-axis tics and labels
-    y_axis_len = len(populations) * (len(populations) - 1)  # length of the input data, number of df row
-    y_labels_pos = list(np.arange(0, y_axis_len, step=(len(populations)-1)))  # arange positions in steps
-    y_labels_pos.append(y_axis_len) # add also the last one
+    # Set the y-axis tics and labels
+    y_axis_len = len(populations) * (len(populations) - 1)
+    y_labels_pos = list(np.arange(0, y_axis_len, step=(len(populations)-1)))
+    y_labels_pos.append(y_axis_len)
     ax.set_yticks(y_labels_pos)
-    ax.set_yticks(np.arange(y_labels_pos[0] + ((len(populations)-1) / 2), y_labels_pos[-1], step=(len(populations)-1)),
-                  minor=True) # position of minor yticks - just between the major one
-    ax.tick_params(axis="y", which="minor", length=0) # set minor yaxis ticks to zero length
-
+    ax.set_yticks(np.arange(y_labels_pos[0] + ((len(populations)-1) / 2), y_labels_pos[-1], step=(len(populations)-1)), minor=True)
+    ax.tick_params(axis="y", which="minor", length=0)
     ax.set_yticklabels(populations, minor=True)
 
-    
-
-    # optionally add vertical line in the middle of the figure, or else as defined
-    try:  # test if vertical line is iterable --> draw more vertical lines
-        iterator = iter(vertical_line)
-
-        # vertical_line=([pos1, label1], [pos2, label2], [pos3, label3]...)
-
-        try:
-            list_of_columns = input_df.columns.to_list()
+    # Add vertical line if specified
+    if vertical_line is True: # Single vertical line in the middle
+        middle = int(input_df.shape[1] / 2)
+        ax.axvline(x=middle, linewidth=1, color="grey")
+        
+    elif vertical_line and hasattr(vertical_line, '__iter__') and not isinstance(vertical_line, str): # Multiple vertical lines with labels
+        list_of_columns = input_df.columns.to_list()
+        positions_indices = []
+        labels = []
+        
+        for item in vertical_line:
+            if not isinstance(item, (tuple, list)) or len(item) != 2:
+                raise ValueError(f"Each vertical line item must be a (position, label) tuple, got: {item}")
             
-            for (pos, label) in vertical_line:
-                ax.axvline(x=list_of_columns.index(pos), label=label, linewidth=1, color="grey")
-                
-            # I will get the list of positions, but the heatmap x-axis is indexed from 0
-            # so I need to turn the positions (non-consecutive, as they are SNPs!!) into indices of column labels
-            ax.set_xticks([list_of_columns.index(i[0]) for i in vertical_line])  # what column index is the user-defined x position of the vline?
-            ax.set_xticklabels([i[1] for i in vertical_line])  # labels
-
-        except:
-            print("Could not read 'vertical_line', was expecting this 'vertical_line=([x1, label1], [x2, label2], [x3, label3]...)'.")
-            print("Vertical lines might be out of range of displayed graph are ('start', 'end'), please double-check")
-            print(f"Got this input for 'vertical_line': {vertical_line}")
-            print("---")
-            print("No vertical line will be displayed")
-            print()
-
-
-
-    
-    except TypeError:
-        # not iterable
-        if vertical_line: # just one verticle line in the middle
-
-            middle = int(input_df.shape[1] / 2)
-            ax.axvline(x=middle, linewidth=1, color="grey")
-
-        else:
-            print("Could not read 'vertical_line', was expecting this 'vertical_line=([x1, label1], [x2, label2], [x3, label3]...)'.")
-            print("No vertical line will be displayed")
-            print()
-
-
-    
-
-    print("Savig heatmap")
-
-
-    if output:
-        print()
-        print(f"ExP heatmap saved into {output}.{output_suffix}")
+            pos, label = item
+            try:
+                col_index = list_of_columns.index(pos)
+                positions_indices.append(col_index)
+                labels.append(label)
+                ax.axvline(x=col_index, linewidth=1, color="grey")
+            except ValueError:
+                print(f"Warning: Position {pos} not found in data columns, skipping this vertical line")
+                continue
         
-        ax.figure.savefig(f"{output}.{output_suffix}", dpi=400, bbox_inches="tight")
-        
-    else:
-        plt.show()
-        
+        # Set x-ticks and labels for the valid positions
+        if positions_indices:
+            ax.set_xticks(positions_indices)
+            ax.set_xticklabels(labels)
     
-    #plt.close(fig)
-
-    
-    
+    ax.figure.savefig(f"{output}.{output_suffix}", dpi=400, bbox_inches="tight")
+    print(f"ExP heatmap saved into {output}.{output_suffix}")
     return ax
     
 
@@ -609,48 +409,36 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
         - cbar_ticks (list): List of evenly spaced tick values for the colorbar
    
     """
-    
-    import numpy as np
     from math import floor
     
-    
-    # target min max cbar values
     cbar_min = 0
     cbar_max = 0
-    
-    # min max values in data
     data_min = data_df.min().min()
     data_max = data_df.max().max()
     
-    
-    # deciding min cbar values
+    # Determine the colorbar minimum and maximum bounds
     if data_min < 0.5:
-        cbar_min = 0
-        
+        cbar_min = 0    
     elif data_min < 1:
         cbar_min = 0.5
-        
     else:
         cbar_min = floor(data_min)
         
-        
-    # deciding max cbar values
     if data_max < 1:
         cbar_max = 1
-        
     else:
         cbar_max = floor(data_max + 1)
         
-    # cbar ticks; adjust the cmax value by minimal amount to get the clear cmax value from np.arange function
+    # Generate evenly spaced tick marks for the colorbar
     cbar_ticks = np.arange(cbar_min, cbar_max + 0.001, step=(cbar_max - cbar_min)/(n_cbar_ticks-1))
     
     return cbar_min, cbar_max, list(cbar_ticks)
 
 
 
-def plot(input_dir, start, end, title, output, cmap="Blues"):
+def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
     """
-    Generate and save an ExP heatmap.
+    Generate and save an ExP heatmap from XP-EHH analysis results.
 
     This function serves as a high-level wrapper that processes a directory of 
     XP-EHH (Cross-Population Extended Haplotype Homozygosity) results and creates 
@@ -659,9 +447,10 @@ def plot(input_dir, start, end, title, output, cmap="Blues"):
 
     Parameters
     ----------
-    input_dir : str
+    xpehh_dir : str
         Path to directory containing XP-EHH results as .tsv files.
-        Files should be named in the format 'POP1_POP2.*.tsv'
+        Files should be named in the format 'POP1_POP2.*.tsv' where POP1 and POP2 
+        are population identifiers from the 1000 Genomes Project.
     start : int
         Start genomic position (inclusive) for the region to visualize.
         Positions are typically in base pairs along a chromosome.
@@ -680,7 +469,8 @@ def plot(input_dir, start, end, title, output, cmap="Blues"):
     Returns
     -------
     None
-        The function saves the heatmap.
+        The function saves the heatmap to disk but does not return any value.
+        Output file is saved as '{output}.png' with 400 DPI resolution.
 
     Notes
     -----
