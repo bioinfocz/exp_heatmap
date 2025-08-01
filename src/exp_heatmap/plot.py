@@ -49,34 +49,20 @@ superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
 
 def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pvalues="2-tailed"):
     """
-    This function creates an input pandas DataFrame that will subsequently be used as input for ExP heatmap plotting function
+    Generate a pandas DataFrame for plotting from a directory of pairwise population .tsv files.
 
-    input_dir -- directory, where the function expects the data to be found in a serie of *.tsv files for each population pair,
-                 the names of these files should start with 'POP1_POP2' string
+    Parameters:
+        input_dir (str): Directory containing .tsv files named as 'POP1_POP2.*.tsv' for each population pair.
+        start (int): Start genomic position (X-axis lower bound).
+        end (int): End genomic position (X-axis upper bound).
+        populations (iterable or "1000Genomes"): List of population names to include and order in the heatmap. If not using 1000 Genomes, provide a custom iterable.
+        rank_pvalues (str): Determines which p-value column to use:
+            - "ascending": Use "-log10_p_value_ascending".
+            - "descending": Use "-log10_p_value_descending" (default).
+            - "2-tailed": For pop1_pop2, use ascending; for pop2_pop1, use descending.
 
-    start, end -- limit the X-axis (position), displayed area
-
-    populations -- by default, the '1000Genomes' option, 26 populations from 1000 Genomes Project are expected. If your population/classes set is different,
-                   provide an iterable with population/classes names. For example, with populations=['pop1', 'pop2', 'pop3'] this function will search the input directory (input_dir)
-                   for *.tsv files with all combinations of pairwise values, named pop1_pop2.*.tsv, pop1_pop3.*.tsv, pop2_pop1.*.tsv etc.
-                   
-                   Populations in the final image output will be sorted according the their order in this iterable ('populations')
-
-                   The output 'big_df' DataFrame with following 6 rows of pairwise values will be created:
-                   pop1 vs pop2
-                   pop1 vs pop3
-                   pop2 vs pop1
-                   pop2 vs pop3
-                   pop3 vs pop1
-                   pop3 vs pop2
-
-    rank_pvalues -- which test results/pvalues are the most significant. In selection tests, usually the highest test values are the most interesting ones.
-                    In this situation the results' ranks for rank pvalues are computed in descending order (highest first, lowest ranks).
-                    Possible values: "ascending" -> "-log10_p_value_ascending" column will be used to create the ExP heatmap
-                                     "descending" -> "-log10_p_value_descending" column will be used to create the Exp heatmap (default)
-                                     "2-tailed" -> in pop1_pop2 pair, for pop1_pop2 the "-log10_p_value_ascending" column will be used;
-                                                    for pop2_pop1 pair the "-log10_p_value_descending" column will be used
-    
+    Returns:
+        pd.DataFrame: Formatted data for heatmap plotting.
     """
     
     
@@ -253,44 +239,56 @@ def plot_exp_heatmap(
     display_values="higher"
 ):
     """
-    Read input DataFrame and create the ExP heatmap accordingly.
-    input_df -- input pandas DataFrame, data to display
-    start, end -- limit the X-axis (position), displayed area
-    title -- title of the graph
-    cmap -- seaborn colormap, 'Blues' or 'crest' work well
-    vertical_line -- if True, displays one line in the middle of the x-axis
-                     if vertical_line=([x1, label1], [x2, label2], [x3, label3]...), display multiple vlines with different labels
-    output -- ouput file, will be saved with *.png suffix
-    populations -- by default, the '1000Genomes' option, 26 populations from 1000 Genomes Project are expected. If your population/classes set is different,
-                   provide an iterable with population/classes names. For example, with populations=['pop1', 'pop2', 'pop3'] this function expects input_df
-                   with 6 rows of pairwise values:
-                   pop1 vs pop2
-                   pop1 vs pop3
-                   pop2 vs pop1
-                   pop2 vs pop3
-                   pop3 vs pop1
-                   pop3 vs pop2
-    
+    Generate an ExP heatmap from a pandas DataFrame of pairwise statistics.
 
-    display_limit -- If defined, values lower/higher than the given limit will be displayed as 0. Keyword argument 'display_values' 
-                     defines if you want to keep the values higher or lower, than this set limit. Usefull for filtering out the noisy data
-                     and displaying only the most significant values, i.e. the first 100 SNPs that are under strongest selection.
-                     For example:
-                     You analysed 5,000,000 SNPs and want to display only 1000 the most significant ones. Set display_limit to 
-                     -log(1000/5000000) = 3.698970004
+    Parameters
+    ----------
+    input_df : pandas.DataFrame
+        Input data containing pairwise statistics or p-values to visualize.
+    start : int
+        Start genomic position for the x-axis (region to display).
+    end : int
+        End genomic position for the x-axis (region to display).
+    title : str, optional
+        Title of the heatmap.
+    output : str, optional
+        Output filename (default: ExP_heatmap).
+    output_suffix : str, optional
+        File extension for the output (default: "png").
+    cmap : str, optional
+        Colormap for the heatmap (default Blues).
+    populations : str or iterable, optional
+        Population set to use. By default, expects "1000Genomes" (26 populations).
+        For custom populations, provide an iterable of names. The input_df
+        should contain all pairwise combinations in both directions.
+    vertical_line : bool or list, optional
+        If True, draws a vertical line at the center of the x-axis.
+        If a list of (position, label) tuples is provided, draws multiple vertical lines with labels.
+    cbar_vmin, cbar_vmax : float, optional
+        Minimum and maximum values for the colorbar.
+    ylabel, xlabel : str, optional
+        Custom y-axis/x-axis labels.
+    cbar_ticks : list, optional
+        Custom ticks for the colorbar.
+    display_limit : float, optional
+        If set, values above or below this threshold are set to zero, depending on `display_values`.
+        Useful for highlighting only the most significant results (e.g., top 1000 SNPs).
+    display_values : {'higher', 'lower'}, optional
+        Determines which values to retain when applying `display_limit`.
+        Use "higher" for rank p-values or distances (default), "lower" for classical p-values.
 
-    display_values -- 'higher' or 'lower', what values to keep to display when using the 'display_limit' option.
-                      display_values="higher" is suitable for rank p-values or distances.
-                      display_values="lower" is suited for displaying classical p-values (the lower, the more significant).
+    Returns
+    -------
+    The Matplotlib axis object and saves the heatmap to file
     """
 
     
     # functions to solve the situation where given start and end indexes are not in the data
     def take_closest_start(myList, myNumber):
         """
-        Assumes myList is sorted. If in myList, returns the value,
-        else returns closest value after myNumber.
-
+        Given a sorted list, return the value equal to target if present,
+        otherwise return the smallest value in the list that is >= target.
+        If target is greater than all elements, raise ValueError.
         """
 
         if myNumber in myList:
@@ -309,9 +307,9 @@ def plot_exp_heatmap(
 
     def take_closest_end(myList, myNumber):
         """
-        Assumes myList is sorted. If in myList, returns the value,
-        else, returns closest value before myNumber.
-
+        Given a sorted list, return the value equal to target if present,
+        otherwise return the largest value in the list that is <= target.
+        If target is less than all elements, raise ValueError.
         """
 
         if myNumber in myList:
@@ -586,8 +584,30 @@ def plot_exp_heatmap(
     
 def prepare_cbar_params(data_df, n_cbar_ticks=4):
     """
-    Gets the pandas.DataFrame (i.e. data_to_plot) with the data you want to display with your custom plot_exp_heatmap function,
-    returns cbar_vmin, cbar_vmax and cbar_ticks.
+    Calculate optimal colorbar parameters for heatmap visualization.
+    
+    This function analyzes the data range and automatically determines appropriate
+    minimum and maximum values for the colorbar, along with evenly spaced tick marks.
+    The colorbar bounds are intelligently chosen to provide good visual contrast
+    while encompassing the full data range.
+    
+    Parameters
+    ----------
+    data_df : pandas.DataFrame
+        Input DataFrame containing the data values to be visualized in the heatmap.
+        All numeric values in the DataFrame are considered for range calculation.
+    n_cbar_ticks : int, optional
+        Number of tick marks to display on the colorbar (default: 4).
+        Must be at least 2 to show minimum and maximum values.
+    
+    Returns
+    -------
+    tuple of (float, float, list)
+        A tuple containing:
+        - cbar_vmin (float): Minimum value for the colorbar scale
+        - cbar_vmax (float): Maximum value for the colorbar scale  
+        - cbar_ticks (list): List of evenly spaced tick values for the colorbar
+   
     """
     
     import numpy as np
@@ -595,49 +615,86 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
     
     
     # target min max cbar values
-    cmin = 0
-    cmax = 0
+    cbar_min = 0
+    cbar_max = 0
     
     # min max values in data
-    dmin = data_df.min().min()
-    dmax = data_df.max().max()
+    data_min = data_df.min().min()
+    data_max = data_df.max().max()
     
     
     # deciding min cbar values
-    if dmin < 0.5:
-        cmin = 0
+    if data_min < 0.5:
+        cbar_min = 0
         
-    elif dmin < 1:
-        cmin = 0.5
+    elif data_min < 1:
+        cbar_min = 0.5
         
     else:
-        cmin = floor(dmin)
+        cbar_min = floor(data_min)
         
         
     # deciding max cbar values
-    if dmax < 1:
-        cmax = 1
+    if data_max < 1:
+        cbar_max = 1
         
     else:
-        cmax = floor(dmax + 1)
+        cbar_max = floor(data_max + 1)
         
     # cbar ticks; adjust the cmax value by minimal amount to get the clear cmax value from np.arange function
-    cbar_ticks = np.arange(cmin, cmax + 0.001, step=(cmax - cmin)/(n_cbar_ticks-1))
+    cbar_ticks = np.arange(cbar_min, cbar_max + 0.001, step=(cbar_max - cbar_min)/(n_cbar_ticks-1))
     
-    return cmin, cmax, list(cbar_ticks)
+    return cbar_min, cbar_max, list(cbar_ticks)
 
 
 
-def plot(xpehh_dir, start, end, title, output, cmap="Blues"):
+def plot(input_dir, start, end, title, output, cmap="Blues"):
     """
-    create the plot function input data and print/save them
+    Generate and save an ExP heatmap.
+
+    This function serves as a high-level wrapper that processes a directory of 
+    XP-EHH (Cross-Population Extended Haplotype Homozygosity) results and creates 
+    a publication-ready heatmap visualization. It combines data loading, processing, 
+    and plotting into a single convenient function call.
+
+    Parameters
+    ----------
+    input_dir : str
+        Path to directory containing XP-EHH results as .tsv files.
+        Files should be named in the format 'POP1_POP2.*.tsv'
+    start : int
+        Start genomic position (inclusive) for the region to visualize.
+        Positions are typically in base pairs along a chromosome.
+    end : int
+        End genomic position (inclusive) for the region to visualize.
+        Must be greater than start position.
+    title : str
+        Main title for the heatmap plot.
+    output : str
+        Output filename (without extension) for saving the heatmap.
+        The plot will be saved as '{output}.png' by default.
+    cmap : str, optional
+        Matplotlib colormap name for the heatmap visualization (default: "Blues").
+        Can also use "expheatmap" for a custom colormap optimized for this analysis.
+
+    Returns
+    -------
+    None
+        The function saves the heatmap.
+
+    Notes
+    -----
+    This function assumes 1000 Genomes Project population structure and expects
+    650 pairwise population comparisons. The function will automatically handle
+    cases where the exact start/end positions are not present in the data by
+    selecting the closest available positions.
     """
     try:
-        data_to_plot = create_plot_input(xpehh_dir, start=start, end=end)
+        plot_input = create_plot_input(input_dir, start=start, end=end)
         
         plot_exp_heatmap(
-            data_to_plot, start=data_to_plot.columns[0],
-            end=data_to_plot.columns[-1],
+            plot_input, start=plot_input.columns[0],
+            end=plot_input.columns[-1],
             title=title,
             cmap=cmap,
             output=output,
