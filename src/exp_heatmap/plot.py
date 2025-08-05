@@ -8,43 +8,13 @@ import glob
 from bisect import bisect_left
 from tqdm import tqdm
 
-# 1000 Genomes Project population codes
-populations_1000genomes = (
-    "ACB",  # AFR (superpopulations)
-    "ASW",
-    "ESN",
-    "GWD",
-    "LWK",
-    "MSL",
-    "YRI",
-    "BEB",  # SAS
-    "GIH",
-    "ITU",
-    "PJL",
-    "STU",
-    "CDX",  # EAS
-    "CHB",
-    "CHS",
-    "JPT",
-    "KHV",
-    "CEU",  # EUR
-    "FIN",
-    "GBR",
-    "IBS",
-    "TSI",
-    "CLM",  # AMR
-    "MXL",
-    "PEL",
-    "PUR",
-)
-
-# 1000 Genomes super-population groupings
+# 1000 Genomes Project data
+populations_1000genomes = ("ACB","ASW","ESN","GWD","LWK","MSL","YRI","BEB","GIH","ITU","PJL","STU","CDX","CHB","CHS","JPT","KHV","CEU","FIN","GBR","IBS","TSI","CLM","MXL","PEL","PUR")
 superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
                     "SAS": ("BEB", "GIH", "ITU", "PJL", "STU"),
                     "EAS": ("CDX", "CHB", "CHS", "JPT", "KHV"),
                     "EUR": ("CEU", "FIN", "GBR", "IBS", "TSI"),
                     "AMR": ("CLM", "MXL", "PEL", "PUR",)}
-
 
 def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pvalues="2-tailed"):
     """
