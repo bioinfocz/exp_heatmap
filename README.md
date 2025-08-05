@@ -1,7 +1,6 @@
 # ExP Heatmap
 
 [![PyPI version](https://badge.fury.io/py/exp-heatmap.svg)](https://pypi.org/project/exp_heatmap/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > A powerful Python package and command-line tool for visualizing multidimensional population genetics data through intuitive heatmaps.
 
