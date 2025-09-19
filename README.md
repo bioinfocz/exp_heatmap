@@ -317,7 +317,7 @@ pip install -e .
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file) file for details.
+This project is licensed under Custom Non-Commercial License based on the MIT License - see the [LICENSE](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file) file for details.
 
 For commercial licensing under different terms, please contact: edvard.ehler@img.cas.cz
 
