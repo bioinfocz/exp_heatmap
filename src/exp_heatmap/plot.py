@@ -279,7 +279,7 @@ def plot_exp_heatmap(
             yticklabels=populations,
             xticklabels=False,
             vmin=1.301 if cbar_vmin==None else cbar_vmin,
-            vmax=4.853 if cbar_vmax==None else cbar_vmax,
+            vmax=4.833 if cbar_vmax==None else cbar_vmax,
             ax=ax,
             cmap=cmap,
         )
