@@ -66,7 +66,7 @@ tar -xzf chr2_output.tar.gz
 ```
 **Step 3**: Run the exp_heatmap plot command:
 ```bash
-exp_heatmap plot chr2_output/ --start 136070087 --end 137070087 --title "LCT gene" --output LCT_xpehh
+exp_heatmap plot chr2_output/ --start 136108646 --end 137108646 --title "LCT gene" --output LCT_xpehh
 ```
 The `exp_heatmap` package will read the files from `chr2.xpehh.example/` folder and create the ExP heatmap and save it as `LCT_xpehh.png` file.
 
