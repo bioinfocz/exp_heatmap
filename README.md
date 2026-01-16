@@ -4,22 +4,26 @@
 
 > A powerful Python package and command-line tool for visualizing multidimensional population genetics data through intuitive heatmaps.
 
-ExP Heatmap specializes in displaying cross-population data, including differences, similarities, p-values, and other statistical parameters between multiple groups or populations. This tool enables efficient evaluation of millions of statistical values in a single, comprehensive visualization.
+ExP Heatmap specializes in displaying cross-population data, including differences, similarities, empirical rank scores, and other statistical parameters between multiple groups or populations. This tool enables efficient evaluation of millions of statistical values in a single, comprehensive visualization.
 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
 
-*ExP heatmap of the human lactose (LCT) gene showing population differences between 26 populations from the 1000 Genomes Project, displaying adjusted rank p-values for cross-population extended haplotype homozygosity (XPEHH) selection test. Create your own LCT heatmap with the [Quick Start](#quick-start) Guide*
+*ExP heatmap of the human lactose (LCT) gene showing population differences between 26 populations from the 1000 Genomes Project, displaying empirical rank scores for cross-population extended haplotype homozygosity (XPEHH) selection test. Create your own LCT heatmap with the [Quick Start](#quick-start) Guide*
 
 **Developed by the [Laboratory of Genomics and Bioinformatics](https://www.img.cas.cz/group/michal-kolar/), Institute of Molecular Genetics of the Academy of Sciences of the Czech Republic**
 
 ## Features
 
 - **Multiple Statistical Tests**: Support for XPEHH, XP-NSL, Delta Tajima's D, and Hudson's Fst
-- **Flexible Input Formats**: Work with VCF files, pre-computed statistics, or ready-to-plot p-values
+- **Flexible Input Formats**: Work with VCF files, pre-computed statistics, or ready-to-plot data
 - **Command-Line Interface**: Easy-to-use CLI for standard workflows
 - **Python API**: Full programmatic control for custom analyses
 - **Efficient Processing**: Zarr-based data storage for fast computation
-- **Customizable Visualization**: Multiple color schemes and display options
+- **Customizable Visualization**: Multiple color schemes, resolution options, and display settings
+- **Interactive Mode**: Plotly-based HTML visualizations with zoom, pan, and hover tooltips
+- **Row Clustering**: Hierarchical clustering to reveal patterns across population pairs
+- **Superpopulation Annotations**: Color-coded bars indicating continental ancestry groups
+- **Performance Benchmarking**: Built-in tools for measuring runtime and memory usage
 
 ## Table of Contents
 
@@ -28,8 +32,10 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
 - [Usage](#usage)
   - [Command-Line Interface](#command-line-interface)
   - [Python Package](#python-package)
+- [Advanced Features](#advanced-features)
 - [Workflow Examples](#workflow-examples)
 - [Gallery](#gallery)
+- [Statistical Methodology](#statistical-methodology)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -50,6 +56,13 @@ pip install exp_heatmap
 
 ```bash
 pip install git+https://github.com/bioinfocz/exp_heatmap.git
+```
+
+### Optional Dependencies
+
+For interactive visualizations:
+```bash
+pip install plotly
 ```
 
 ## Quick Start
@@ -116,11 +129,28 @@ exp_heatmap plot [OPTIONS] <input_dir>
 ```
 
 - `<input_dir>`: Directory with TSV files from `compute` step
-- `-s, --start & -e, --end`: Genomic coordinates for the region to display. Uses nearest available position if exact match not found in the input data.
-- `-m, --mid`: Alternative way to specify region. The start and end positions will be calculated (mid ± 500 kb)
+- `-s, --start & -e, --end`: Genomic coordinates for the region to display
+- `-m, --mid`: Alternative way to specify region (mid ± 500 kb)
 - `-t, --title`: Title of the heatmap
-- `-o, -output`: Output filename (without .png extension)
+- `-o, --output`: Output filename (without extension)
 - `-c, --cmap`: Matplotlib colormap - [list of colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
+- `--dpi`: Resolution of output image (default: 400)
+- `--figsize`: Figure size as "WIDTH,HEIGHT" in inches
+- `--cluster-rows`: Cluster rows by similarity for pattern discovery
+- `--no-superpop-colors`: Disable superpopulation color annotation bar
+- `--interactive`: Generate interactive HTML visualization (requires plotly)
+
+#### 4. Performance Benchmarking - `benchmark`
+
+>Measure runtime and memory usage across the pipeline.
+
+```bash
+exp_heatmap benchmark <vcf_file> <panel_file> -s <start> -e <end> [OPTIONS]
+```
+
+- `-o, --output`: Output prefix for benchmark files
+- `-t, --test`: Statistical test to benchmark
+- `--report`: Save benchmark report to file
 
 ---
 
@@ -130,21 +160,21 @@ The Python API offers more flexibility and customization options. Choose the app
 
 #### Scenario A: Ready-to-Plot Data
 
-**Use when:** You have pre-computed p-values in a TSV file.
+**Use when:** You have pre-computed rank scores in a TSV file.
 
-**Data format:** TSV file with columns: `CHROM`, `POS`, followed by pairwise p-value columns for population comparisons.
+**Data format:** TSV file with columns: `CHROM`, `POS`, followed by pairwise columns for population comparisons.
 
 ```python
 from exp_heatmap.plot import plot_exp_heatmap
 import pandas as pd
 
-# Load your p-values data
-data = pd.read_csv("pvalues.tsv", sep="\t")
+# Load your data
+data = pd.read_csv("rank_scores.tsv", sep="\t")
 
 # Create heatmap
 plot_exp_heatmap(
     data,
-    begin=135287850,
+    start=135287850,
     end=136287850,
     title="Population Differences in LCT Gene",
     cmap="Blues",
@@ -153,17 +183,17 @@ plot_exp_heatmap(
 )
 ```
 
-#### Scenario B: Statistical Results to P-values
+#### Scenario B: Statistical Results to Rank Scores
 
-**Use when:** You have computed statistical test results that need conversion to p-values.
+**Use when:** You have computed statistical test results that need conversion to rank scores.
 
 ```python
 from exp_heatmap.plot import plot_exp_heatmap, create_plot_input
 
-# Convert statistical results to ranked p-values
+# Convert statistical results to empirical rank scores
 data_to_plot = create_plot_input(
     "results_directory/",      # Directory with test results
-    begin=135287850, 
+    start=135287850, 
     end=136287850, 
     populations="1000Genomes",
     rank_pvalues="2-tailed"    # Options: "2-tailed", "ascending", "descending"
@@ -172,7 +202,7 @@ data_to_plot = create_plot_input(
 # Create heatmap
 plot_exp_heatmap(
     data_to_plot,
-    begin=135287850,
+    start=135287850,
     end=136287850,
     title="XP-NSL Test Results",
     cmap="expheatmap",         # Custom ExP colormap
@@ -195,12 +225,95 @@ subprocess.run(["exp_heatmap", "prepare", "data_snps.recode.vcf", "data.zarr"])
 subprocess.run(["exp_heatmap", "compute", "data.zarr", "populations.panel", "results/"])
 
 # 3. Create custom plots (using Python)
-data_to_plot = create_plot_input("results/", begin=47000000, end=49000000)
-plot_exp_heatmap(data_to_plot, begin=47000000, end=49000000, 
+data_to_plot = create_plot_input("results/", start=47000000, end=49000000)
+plot_exp_heatmap(data_to_plot, start=47000000, end=49000000, 
                  title="Custom Analysis", output="custom_plot")
 ```
 
-#### Advanced Customization
+---
+
+## Advanced Features
+
+### Interactive Visualizations
+
+Generate HTML-based interactive heatmaps with zoom, pan, and hover tooltips:
+
+```python
+from exp_heatmap.interactive import plot_interactive
+
+# Create interactive HTML visualization
+plot_interactive(
+    "results_directory/",
+    start=135287850,
+    end=136287850,
+    title="Interactive LCT Analysis",
+    output="lct_interactive"  # Saves as lct_interactive.html
+)
+```
+
+Or via CLI:
+```bash
+exp_heatmap plot results/ --start 135287850 --end 136287850 --interactive --output lct_interactive
+```
+
+### Row Clustering
+
+Cluster population pairs by similarity to reveal hidden patterns:
+
+```python
+from exp_heatmap.plot import plot_exp_heatmap, cluster_rows
+
+# Cluster rows before plotting
+clustered_data = cluster_rows(data_to_plot, method='average', metric='euclidean')
+plot_exp_heatmap(clustered_data, ...)
+
+# Or use the built-in parameter
+plot_exp_heatmap(data_to_plot, cluster_rows_by='euclidean', ...)
+```
+
+### Superpopulation Summaries
+
+Collapse data to superpopulation-level summaries:
+
+```python
+from exp_heatmap.plot import summarize_by_superpopulation
+
+# Aggregate by superpopulation
+summary_data = summarize_by_superpopulation(data_to_plot, agg_func='mean')
+```
+
+### Top Regions Extraction
+
+Automatically identify top-scoring genomic regions:
+
+```python
+from exp_heatmap.plot import extract_top_regions
+
+# Find top 50 selection signal regions
+top_regions = extract_top_regions(data_to_plot, n_top=50, window_size=10000)
+print(top_regions)
+```
+
+### Performance Benchmarking
+
+Measure and report pipeline performance:
+
+```python
+from exp_heatmap.benchmark import run_full_benchmark, generate_benchmark_report
+
+# Run complete benchmark
+results = run_full_benchmark(
+    vcf_file="data.vcf",
+    panel_file="populations.panel",
+    start=135000000,
+    end=137000000
+)
+
+# Generate report
+report = generate_benchmark_report(results, output_file="benchmark_report.txt")
+```
+
+### Advanced Customization
 
 Fine-tune your visualizations with advanced options:
 
@@ -213,7 +326,7 @@ cmin, cmax, cbar_ticks = prepare_cbar_params(data_to_plot, n_cbar_ticks=6)
 # Advanced plot with multiple customizations
 plot_exp_heatmap(
     data_to_plot,
-    begin=135000000,
+    start=135000000,
     end=137000000,
     title="Selection Signals in African Populations",
     
@@ -225,12 +338,15 @@ plot_exp_heatmap(
     cmap="expheatmap",                    # Custom ExP colormap
     display_limit=1.60,                   # Filter noise (values below limit = white)
     display_values="higher",              # Show values above display_limit
+    dpi=600,                              # High resolution output
+    figsize=(20, 8),                      # Custom figure size
     
     # Annotations
     vertical_line=[                       # Mark important SNPs
         [135851073, "rs41525747"],        # [position, label]
         [135851081, "rs41380347"]
     ],
+    show_superpop_colors=True,            # Show superpopulation color bar
     
     # Colorbar customization
     cbar_vmin=cmin,
@@ -273,27 +389,27 @@ exp_heatmap compute chr15_snps.recode.zarr genotypes.panel chr15_snps_output
 
 # Generate heatmap for SLC24A5 region
 exp_heatmap plot chr15_snps_output \
-    --begin 47924019 \
+    --start 47924019 \
     --end 48924019 \
     --title "SLC24A5" \
     --cmap gist_heat \
-    --out SLC24A5_heatmap
+    --output SLC24A5_heatmap
 ```
 
 ## Gallery
 
-### Different P-value Computations
+### Different Rank Score Computations
 
-The same XP-EHH test data for the ADM2 gene region, showing different p-value calculation methods:
+The same XP-EHH test data for the ADM2 gene region, showing different rank score calculation methods:
 
-**Two-tailed p-values:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: 2-tailed.png" width="800" alt="Two-tailed p-values">
+**Two-tailed rank scores:**
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: 2-tailed.png" width="800" alt="Two-tailed rank scores">
 
-**Ascending p-values:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: ascending.png" width="800" alt="Ascending p-values">
+**Ascending rank scores:**
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: ascending.png" width="800" alt="Ascending rank scores">
 
-**Descending p-values:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: descending.png" width="800" alt="Descending p-values">
+**Descending rank scores:**
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2, chr22, XP-EHH, pvals: descending.png" width="800" alt="Descending rank scores">
 
 ### Noise Filtering
 
@@ -302,6 +418,21 @@ Using `display_limit` and `display_values` parameters to filter noisy data and h
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2_XP-EHH_display_limit.png" width="800" alt="Filtered display">
 
 *Same data as above, but with display_limit=1.60 to filter noise and highlight significant signals.*
+
+## Statistical Methodology
+
+### Empirical Rank Scores
+
+ExP Heatmap uses **empirical rank scores** (not classical p-values) to visualize selection signals. The transformation works as follows:
+
+1. **Null hypothesis**: Under no selection, test statistics are uniformly distributed across the genome
+2. **Reference distribution**: Genome-wide empirical distribution of the test statistic
+3. **Transformation**: `rank_score = -log10(rank / total_variants)`
+4. **Tie handling**: Equal values receive the same rank (standard competition ranking)
+
+This approach provides a genome-wide percentile ranking that is suitable for identifying outliers and comparing relative signal strength across the genome. Higher values indicate more extreme (potentially selected) variants.
+
+**Important**: These are empirical rank scores representing relative extremity, not classical p-values for formal hypothesis testing. The scores are useful for visualization and discovery but should be validated with appropriate statistical methods for formal inference.
 
 ## Contributing
 
@@ -317,7 +448,9 @@ pip install -e .
 
 ## License
 
-This project is licensed under Custom Non-Commercial License based on the MIT License - see the [LICENSE](https://github.com/bioinfocz/exp_heatmap?tab=MIT-1-ov-file) file for details.
+This project is licensed under a Custom Non-Commercial License based on the MIT License - see the [LICENSE](https://github.com/bioinfocz/exp_heatmap/blob/master/LICENSE) file for details.
+
+**Note**: This is NOT the standard MIT License. Commercial use requires explicit written permission from the authors.
 
 For commercial licensing under different terms, please contact: edvard.ehler@img.cas.cz
 

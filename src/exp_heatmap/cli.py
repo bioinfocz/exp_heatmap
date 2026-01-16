@@ -40,9 +40,14 @@ def compute_cmd(zarr_dir, panel_file, output, test, chunked):
 @click.option('-e', '--end', type=int, help='End position for the displayed region.')
 @click.option('-m', '--mid', type=int, help='Middle of the displayed area. The start and end positions will be calculated (mid ± 500 kb)')
 @click.option('-t', '--title', type=str, help='Title of the heatmap')
-@click.option('-o', '--output', type=click.Path(), default='ExP_heatmap',show_default=True, help='The output heatmap')
+@click.option('-o', '--output', type=click.Path(), default='ExP_heatmap', show_default=True, help='The output heatmap')
 @click.option('-c', '--cmap', type=str, default='Blues', show_default=True, help='Matplotlib colormap for heatmap visualization')
-def plot_cmd(input_dir, start, end, mid, title, output, cmap):
+@click.option('--dpi', type=int, default=400, show_default=True, help='Resolution of output image in DPI')
+@click.option('--figsize', type=str, default=None, help='Figure size as "WIDTH,HEIGHT" in inches (e.g., "20,8")')
+@click.option('--cluster-rows', is_flag=True, help='Cluster rows by similarity for pattern discovery')
+@click.option('--no-superpop-colors', is_flag=True, help='Disable superpopulation color annotation bar')
+@click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization (requires plotly)')
+def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, cluster_rows, no_superpop_colors, interactive):
     """
     <input_dir>  PATH  Directory with TSV files from 'exp_heatmap compute'
     
@@ -51,7 +56,7 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap):
     start_end_provided = start is not None and end is not None
     mid_provided = mid is not None
     
-    #Check for invalid combinations of arguments
+    # Check for invalid combinations of arguments
     if (start is None) != (end is None):
         raise click.UsageError("--start and --end must be used together")
     if not start_end_provided and not mid_provided:
@@ -59,8 +64,82 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap):
     if start_end_provided and mid_provided:
         raise click.UsageError("Cannot use both (--start and --end) and --mid at the same time")
     
+    # Parse figsize if provided
+    parsed_figsize = None
+    if figsize:
+        try:
+            parts = figsize.split(',')
+            parsed_figsize = (float(parts[0]), float(parts[1]))
+        except (ValueError, IndexError):
+            raise click.UsageError("--figsize must be in format 'WIDTH,HEIGHT' (e.g., '20,8')")
+    
     start_pos, end_pos = (mid - 500000, mid + 500000) if mid_provided else (start, end)
-    plot(input_dir, start=start_pos, end=end_pos, title=title, output=output, cmap=cmap)
+    
+    if interactive:
+        # Use interactive Plotly visualization
+        try:
+            from exp_heatmap.interactive import plot_interactive
+            plot_interactive(
+                input_dir,
+                start=start_pos,
+                end=end_pos,
+                title=title,
+                output=output,
+                colorscale=cmap if cmap != 'expheatmap' else 'Blues'
+            )
+        except ImportError as e:
+            raise click.UsageError(
+                "Interactive mode requires plotly. Install with: pip install plotly"
+            )
+    else:
+        # Use standard matplotlib visualization
+        plot(
+            input_dir, 
+            start=start_pos, 
+            end=end_pos, 
+            title=title, 
+            output=output, 
+            cmap=cmap,
+            dpi=dpi,
+            figsize=parsed_figsize,
+            cluster_rows=cluster_rows,
+            show_superpop_colors=not no_superpop_colors
+        )
+
+# benchmark command
+@cli.command(name='benchmark', short_help='Run performance benchmarks', context_settings=CONTEXT_SETTINGS)
+@click.argument('vcf_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<vcf_file>')
+@click.argument('panel_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<panel_file>')
+@click.option('-s', '--start', type=int, required=True, help='Start position for plot benchmark')
+@click.option('-e', '--end', type=int, required=True, help='End position for plot benchmark')
+@click.option('-o', '--output', type=click.Path(), default='benchmark', show_default=True, help='Output prefix for benchmark files')
+@click.option('-t', '--test', type=click.Choice(['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst']), default='xpehh', show_default=True, help='Statistical test to benchmark')
+@click.option('-c', '--chunked', is_flag=True, help='Use chunked array during compute')
+@click.option('--report', type=click.Path(), default=None, help='Save benchmark report to file')
+def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, report):
+    """
+    <vcf_file>  PATH  VCF file for benchmarking
+    <panel_file>  PATH  Population panel file
+    
+    Run performance benchmarks on the full ExP Heatmap pipeline.
+    """
+    from exp_heatmap.benchmark import run_full_benchmark, generate_benchmark_report
+    
+    results = run_full_benchmark(
+        vcf_file=vcf_file,
+        panel_file=panel_file,
+        start=start,
+        end=end,
+        output_prefix=output,
+        test=test,
+        chunked=chunked
+    )
+    
+    if report:
+        generate_benchmark_report(results, output_file=report)
+    else:
+        print("\n" + generate_benchmark_report(results))
+
 
 if __name__ == "__main__":
     cli()

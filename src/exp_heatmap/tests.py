@@ -136,16 +136,18 @@ def run(
         # add results to the dataframe with coordinates
         df[test] = result_data
 
-        # Compute ascending and descending log10 rank p-values
+        # Compute ascending and descending log10 rank scores
+        # Note: These are empirical rank scores, not classical p-values
         for ascending in [True, False]:
             df.sort_values(by=test, inplace=True, ascending=ascending)
             test_results = df[test].values
             ranks = rank_tools.compute_ranks(test_results)
-            rank_p_vals = rank_tools.compute_rank_p_vals(ranks)
-            log_10_p_vals = rank_tools.compute_log_10_p_vals(rank_p_vals)
+            rank_scores = rank_tools.compute_empirical_rank_scores(ranks)
+            log10_rank_scores = rank_tools.compute_log10_rank_scores(rank_scores)
 
             suffix = "ascending" if ascending else "descending"
-            df[f"-log10_p_value_{suffix}"] = log_10_p_vals
+            # Column names kept for backward compatibility with existing data files
+            df[f"-log10_p_value_{suffix}"] = log10_rank_scores
 
         df.sort_values(by="variant_pos", inplace=True, ascending=True)
 

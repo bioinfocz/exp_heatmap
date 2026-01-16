@@ -16,6 +16,21 @@ superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
                     "EUR": ("CEU", "FIN", "GBR", "IBS", "TSI"),
                     "AMR": ("CLM", "MXL", "PEL", "PUR",)}
 
+# Superpopulation colors for annotation bars
+superpopulation_colors = {
+    "AFR": "#E41A1C",  # Red
+    "SAS": "#377EB8",  # Blue
+    "EAS": "#4DAF4A",  # Green
+    "EUR": "#984EA3",  # Purple
+    "AMR": "#FF7F00",  # Orange
+}
+
+# Mapping from population to superpopulation
+pop_to_superpop = {}
+for superpop, pops in superpopulations.items():
+    for pop in pops:
+        pop_to_superpop[pop] = superpop
+
 def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pvalues="2-tailed"):
     """
     Generate a pandas DataFrame for plotting from a directory of pairwise population .tsv files.
@@ -25,10 +40,13 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         start (int): Start genomic position (X-axis lower bound).
         end (int): End genomic position (X-axis upper bound).
         populations (iterable or "1000Genomes"): List of population names to include and order in the heatmap. If not using 1000 Genomes, provide a custom iterable.
-        rank_pvalues (str): Determines which p-value column to use:
-            - "ascending": Use "-log10_p_value_ascending".
-            - "descending": Use "-log10_p_value_descending" (default).
-            - "2-tailed": For pop1_pop2, use ascending; for pop2_pop1, use descending.
+        rank_pvalues (str): Determines which rank score column to use:
+            - "ascending": Use "-log10_p_value_ascending" (empirical rank scores, ascending sort).
+            - "descending": Use "-log10_p_value_descending" (empirical rank scores, descending sort).
+            - "2-tailed": For pop1_pop2, use descending; for pop2_pop1, use ascending.
+            
+            Note: Despite the column names containing "p_value", these are empirical rank scores
+            (genome-wide percentile ranks transformed to -log10 scale), not classical p-values.
 
     Returns:
         pd.DataFrame: Formatted data for heatmap plotting.
@@ -87,6 +105,9 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         else:
             raise ValueError(f"Unknown value for 'rank_pvalues' parameter in create_plot_input(). Expected values are: 'ascending', 'descending' or '2-tailed', got '{rank_pvalues}'")
             
+        # Note: Column names contain "p_value" for backward compatibility,
+        # but these are empirical rank scores, not classical p-values
+            
         # Extract and transpose p-values for pop1_pop2 (pop1 under selection)
         left_df = df[["variant_pos", pvalues_column1]].copy()
         left_df.rename(columns={pvalues_column1: pop_pair}, inplace=True)
@@ -121,6 +142,172 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
 
     return concat_df
 
+def cluster_rows(input_df, method='average', metric='euclidean'):
+    """
+    Cluster rows of the heatmap data by similarity.
+    
+    This function performs hierarchical clustering on the population pair rows
+    to group similar patterns together, which can reveal structure not apparent
+    in the default alphabetical/superpopulation ordering.
+    
+    Parameters
+    ----------
+    input_df : pandas.DataFrame
+        Input DataFrame with population pairs as rows and genomic positions as columns.
+    method : str, optional
+        Linkage method for hierarchical clustering. Options: 'single', 'complete',
+        'average' (default), 'weighted', 'centroid', 'median', 'ward'.
+    metric : str, optional
+        Distance metric for clustering. Options: 'euclidean' (default), 'correlation',
+        'cosine', 'cityblock', etc. See scipy.spatial.distance.pdist for full list.
+        
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with rows reordered according to hierarchical clustering.
+    """
+    from scipy.cluster.hierarchy import linkage, leaves_list
+    from scipy.spatial.distance import pdist
+    
+    # Handle NaN values by filling with column mean
+    df_filled = input_df.fillna(input_df.mean())
+    
+    # Compute pairwise distances and linkage
+    distances = pdist(df_filled.values, metric=metric)
+    linkage_matrix = linkage(distances, method=method)
+    
+    # Get the order of rows from clustering
+    row_order = leaves_list(linkage_matrix)
+    
+    # Reorder the DataFrame
+    return input_df.iloc[row_order]
+
+
+def summarize_by_superpopulation(input_df, populations="1000Genomes", agg_func='mean'):
+    """
+    Collapse population pair rows to superpopulation-level summaries.
+    
+    This function aggregates the data by superpopulation pairs, reducing the
+    number of rows from n*(n-1) population pairs to m*(m-1) superpopulation pairs,
+    where m is the number of superpopulations (5 for 1000 Genomes).
+    
+    Parameters
+    ----------
+    input_df : pandas.DataFrame
+        Input DataFrame with population pairs as rows (index format: "POP1_POP2").
+    populations : str or iterable, optional
+        Population set. Default "1000Genomes" uses the standard 26 populations.
+    agg_func : str or callable, optional
+        Aggregation function: 'mean' (default), 'median', 'max', 'min', or callable.
+        
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with superpopulation pairs as rows, aggregated values as data.
+    """
+    if populations != "1000Genomes":
+        raise ValueError("summarize_by_superpopulation currently only supports 1000Genomes populations")
+    
+    # Add superpopulation columns based on row index
+    df = input_df.copy()
+    pop_pairs = df.index.tolist()
+    
+    superpop1 = []
+    superpop2 = []
+    for pair in pop_pairs:
+        p1, p2 = pair.split("_")
+        superpop1.append(pop_to_superpop.get(p1, "Unknown"))
+        superpop2.append(pop_to_superpop.get(p2, "Unknown"))
+    
+    df['superpop1'] = superpop1
+    df['superpop2'] = superpop2
+    
+    # Group by superpopulation pairs and aggregate
+    grouped = df.groupby(['superpop1', 'superpop2']).agg(agg_func)
+    
+    # Create new index in format "SUPERPOP1_SUPERPOP2"
+    grouped.index = [f"{sp1}_{sp2}" for sp1, sp2 in grouped.index]
+    grouped.index.name = "superpop_pairs"
+    
+    return grouped
+
+
+def extract_top_regions(input_df, n_top=100, window_size=10000, min_gap=5000):
+    """
+    Extract the top-scoring genomic regions from the heatmap data.
+    
+    This function identifies genomic windows with the highest aggregate scores
+    across all population pairs, useful for automated discovery of selection signals.
+    
+    Parameters
+    ----------
+    input_df : pandas.DataFrame
+        Input DataFrame with population pairs as rows and genomic positions as columns.
+    n_top : int, optional
+        Number of top regions to return (default: 100).
+    window_size : int, optional
+        Size of genomic windows in base pairs (default: 10000).
+    min_gap : int, optional
+        Minimum gap between reported regions to avoid overlapping hits (default: 5000).
+        
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with columns: 'start', 'end', 'center', 'mean_score', 'max_score',
+        'top_population_pair', sorted by mean_score descending.
+    """
+    positions = input_df.columns.tolist()
+    
+    # Calculate mean score across all population pairs for each position
+    position_scores = input_df.mean(axis=0)
+    
+    results = []
+    used_positions = set()
+    
+    # Sort positions by score
+    sorted_positions = position_scores.sort_values(ascending=False)
+    
+    for pos in sorted_positions.index:
+        # Skip if too close to already-selected region
+        if any(abs(pos - used) < min_gap for used in used_positions):
+            continue
+            
+        # Define window around this position
+        window_start = pos - window_size // 2
+        window_end = pos + window_size // 2
+        
+        # Get positions within window
+        window_positions = [p for p in positions if window_start <= p <= window_end]
+        if not window_positions:
+            continue
+            
+        # Calculate statistics for this window
+        window_data = input_df[window_positions]
+        mean_score = window_data.values.mean()
+        max_score = window_data.values.max()
+        
+        # Find top population pair in this window
+        pair_means = window_data.mean(axis=1)
+        top_pair = pair_means.idxmax()
+        
+        results.append({
+            'start': min(window_positions),
+            'end': max(window_positions),
+            'center': pos,
+            'mean_score': mean_score,
+            'max_score': max_score,
+            'top_population_pair': top_pair,
+            'n_variants': len(window_positions)
+        })
+        
+        used_positions.add(pos)
+        
+        if len(results) >= n_top:
+            break
+    
+    return pd.DataFrame(results)
+
+
 def plot_exp_heatmap(
     input_df,
     start,
@@ -137,7 +324,12 @@ def plot_exp_heatmap(
     xlabel=None,
     cbar_ticks=None,
     display_limit=None,
-    display_values="higher"
+    display_values="higher",
+    show_superpop_colors=True,
+    dpi=400,
+    figsize=None,
+    cluster_rows_by=None,
+    row_order=None
 ):
     """
     Generate an ExP heatmap from a pandas DataFrame of pairwise statistics.
@@ -145,7 +337,7 @@ def plot_exp_heatmap(
     Parameters
     ----------
     input_df : pandas.DataFrame
-        Input data containing pairwise statistics or p-values to visualize.
+        Input data containing pairwise statistics or rank scores to visualize.
     start : int
         Start genomic position for the x-axis (region to display).
     end : int
@@ -176,11 +368,28 @@ def plot_exp_heatmap(
         Useful for highlighting only the most significant results (e.g., top 1000 SNPs).
     display_values : {'higher', 'lower'}, optional
         Determines which values to retain when applying `display_limit`.
-        Use "higher" for rank p-values or distances (default), "lower" for classical p-values.
+        Use "higher" for rank scores or distances (default), "lower" for classical p-values.
+    show_superpop_colors : bool, optional
+        If True (default), adds colored annotation bars on the left side of the heatmap
+        indicating superpopulation groupings. Only applies to 1000Genomes populations.
+    dpi : int, optional
+        Resolution of the output image in dots per inch (default: 400).
+    figsize : tuple, optional
+        Figure size as (width, height) in inches. If None, uses automatic sizing.
+    cluster_rows_by : str, optional
+        If set, cluster rows by similarity before plotting. Options:
+        - 'euclidean': Cluster using Euclidean distance
+        - 'correlation': Cluster using correlation distance
+        - None (default): Keep original row order
+        Note: When clustering is enabled, superpopulation color bars are disabled.
+    row_order : list, optional
+        Custom row order as a list of population pair names (e.g., ['ACB_ASW', 'ACB_BEB', ...]).
+        If provided, rows will be reordered accordingly. Overrides cluster_rows_by.
 
     Returns
     -------
-    The Matplotlib axis object and saves the heatmap to file
+    matplotlib.axes.Axes
+        The Matplotlib axis object. Also saves the heatmap to file.
     """
 
     # Helper functions to handle cases where start/end positions are not in the data
@@ -258,6 +467,24 @@ def plot_exp_heatmap(
         else:
             raise ValueError(f"plot_exp_heatmap() parameter 'display_values' has unknown value '{display_values}'. The only expected options are 'higher' or 'lower'.")
     
+    # Apply custom row ordering or clustering
+    if row_order is not None:
+        # Custom row order provided
+        try:
+            input_df = input_df.loc[row_order]
+            print(f"Applied custom row ordering with {len(row_order)} rows")
+            # Disable superpop colors when using custom ordering
+            show_superpop_colors = False
+        except KeyError as e:
+            raise ValueError(f"Some row names in row_order not found in data: {e}")
+    elif cluster_rows_by is not None:
+        # Cluster rows by similarity
+        print(f"Clustering rows by {cluster_rows_by} distance...")
+        input_df = cluster_rows(input_df, metric=cluster_rows_by)
+        print("Row clustering complete")
+        # Disable superpop colors when clustering (order no longer matches superpops)
+        show_superpop_colors = False
+    
     # Custom expheatmap colormap
     if cmap == "expheatmap":
         from matplotlib import cm
@@ -268,34 +495,52 @@ def plot_exp_heatmap(
         cmap[-1] = [0, 0, 0.302, 1.0]
         cmap = mpl.colors.ListedColormap(cmap, name='expheatmap_cmap', N=cmap.shape[0])
 
-    # Default heatmap from 1000 Genomes Project data
-    if populations == "1000Genomes":
+    # Determine if we're using 1000 Genomes populations
+    is_1000genomes = populations == "1000Genomes"
+    if is_1000genomes:
         populations = populations_1000genomes
-        
-        fig, ax = plt.subplots(figsize=(15, 5))
-        
+
+    # Calculate figure size
+    if figsize is None:
+        if is_1000genomes:
+            base_width = 15
+            base_height = 5
+        else:
+            base_width = 15 + (input_df.shape[1] // 1000)
+            base_height = 5 + (input_df.shape[0] // 900)
+        # Add extra width for superpopulation color bar if enabled
+        if show_superpop_colors and is_1000genomes:
+            base_width += 0.5
+        figsize = (base_width, base_height)
+
+    # Create figure with optional superpopulation color annotation
+    if show_superpop_colors and is_1000genomes:
+        # Create figure with GridSpec for heatmap and color bar
+        fig = plt.figure(figsize=figsize)
+        from matplotlib.gridspec import GridSpec
+        gs = GridSpec(1, 2, width_ratios=[0.02, 1], wspace=0.02)
+        ax_colors = fig.add_subplot(gs[0])
+        ax = fig.add_subplot(gs[1])
+    else:
+        fig, ax = plt.subplots(figsize=figsize)
+        ax_colors = None
+
+    # Plot the main heatmap
+    if is_1000genomes:
         sns.heatmap(
             input_df,
-            yticklabels=populations,
+            yticklabels=False,  # We'll set these manually
             xticklabels=False,
-            vmin=1.301 if cbar_vmin==None else cbar_vmin,
-            vmax=4.833 if cbar_vmax==None else cbar_vmax,
+            vmin=1.301 if cbar_vmin is None else cbar_vmin,
+            vmax=4.833 if cbar_vmax is None else cbar_vmax,
             ax=ax,
             cmap=cmap,
+            cbar_kws={"ticks": cbar_ticks} if cbar_ticks else None,
         )
-
-        ax.set_title(title)            
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel("population pairings\n\n    AMR   |     EUR    |     EAS    |    SAS     |       AFR          ")
-
-    # Custom heatmap with user-defined populations
     else:
-        # Adjust figure size for large population sample-sets
-        fig, ax = plt.subplots(figsize=(15 + (input_df.shape[1] // 1000), 5 + (input_df.shape[0] // 900)))
-        
         sns.heatmap(
             input_df,
-            yticklabels=populations,
+            yticklabels=False,  # We'll set these manually
             xticklabels=False,
             vmin=cbar_vmin,
             vmax=cbar_vmax,
@@ -304,18 +549,75 @@ def plot_exp_heatmap(
             cmap=cmap,
         )
 
-        ax.set_title(title)
-        ax.set_ylabel(ylabel)
-        ax.set_xlabel(xlabel)
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
         
-    # Set the y-axis tics and labels
+    # Set the y-axis ticks and labels with improved visibility
     y_axis_len = len(populations) * (len(populations) - 1)
-    y_labels_pos = list(np.arange(0, y_axis_len, step=(len(populations)-1)))
+    n_pops = len(populations)
+    
+    # Major ticks at population group boundaries
+    y_labels_pos = list(np.arange(0, y_axis_len, step=(n_pops - 1)))
     y_labels_pos.append(y_axis_len)
     ax.set_yticks(y_labels_pos)
-    ax.set_yticks(np.arange(y_labels_pos[0] + ((len(populations)-1) / 2), y_labels_pos[-1], step=(len(populations)-1)), minor=True)
+    ax.set_yticklabels([])  # No labels on major ticks (just gridlines)
+    
+    # Minor ticks at center of each population group for labels
+    minor_tick_positions = np.arange(
+        y_labels_pos[0] + ((n_pops - 1) / 2), 
+        y_labels_pos[-1], 
+        step=(n_pops - 1)
+    )
+    ax.set_yticks(minor_tick_positions, minor=True)
     ax.tick_params(axis="y", which="minor", length=0)
-    ax.set_yticklabels(populations, minor=True)
+    
+    # Set y-axis labels with appropriate font size for visibility
+    fontsize = max(4, min(8, 200 // n_pops))  # Scale font size based on number of populations
+    ax.set_yticklabels(populations, minor=True, fontsize=fontsize)
+    
+    # Add superpopulation color annotation bar
+    if ax_colors is not None and is_1000genomes:
+        # Create color array for each row (population pair)
+        row_colors = []
+        for pop in populations:
+            superpop = pop_to_superpop.get(pop, "Unknown")
+            color = superpopulation_colors.get(superpop, "#808080")
+            # Each population has (n_pops - 1) rows in the heatmap
+            row_colors.extend([color] * (n_pops - 1))
+        
+        # Plot color bar
+        color_data = np.array(row_colors).reshape(-1, 1)
+        from matplotlib.colors import ListedColormap
+        unique_colors = list(superpopulation_colors.values())
+        ax_colors.imshow(
+            np.arange(len(row_colors)).reshape(-1, 1),
+            aspect='auto',
+            cmap=ListedColormap(row_colors),
+            interpolation='nearest'
+        )
+        ax_colors.set_xticks([])
+        ax_colors.set_yticks([])
+        ax_colors.set_ylabel("population pairings", fontsize=9)
+        
+        # Add superpopulation legend
+        from matplotlib.patches import Patch
+        legend_elements = [
+            Patch(facecolor=superpopulation_colors[sp], label=sp)
+            for sp in ["AFR", "SAS", "EAS", "EUR", "AMR"]
+        ]
+        ax_colors.legend(
+            handles=legend_elements, 
+            loc='upper left', 
+            bbox_to_anchor=(-2.5, 1.0),
+            fontsize=6,
+            frameon=False,
+            title="Superpop",
+            title_fontsize=7
+        )
+    elif ylabel:
+        ax.set_ylabel(ylabel)
+    elif is_1000genomes:
+        ax.set_ylabel("population pairings")
 
     # Add vertical line if specified
     if vertical_line is True: # Single vertical line in the middle
@@ -346,7 +648,7 @@ def plot_exp_heatmap(
             ax.set_xticks(positions_indices)
             ax.set_xticklabels(labels)
     
-    ax.figure.savefig(f"{output}.{output_suffix}", dpi=400, bbox_inches="tight")
+    ax.figure.savefig(f"{output}.{output_suffix}", dpi=dpi, bbox_inches="tight")
     print(f"ExP heatmap saved into {output}.{output_suffix}")
     return ax
     
@@ -406,7 +708,8 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
 
 
 
-def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
+def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues", 
+         dpi=400, figsize=None, cluster_rows=False, show_superpop_colors=True):
     """
     Generate and save an ExP heatmap from XP-EHH analysis results.
 
@@ -417,7 +720,7 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
 
     Parameters
     ----------
-    xpehh_dir : str
+    input_dir : str
         Path to directory containing XP-EHH results as .tsv files.
         Files should be named in the format 'POP1_POP2.*.tsv' where POP1 and POP2 
         are population identifiers from the 1000 Genomes Project.
@@ -435,12 +738,19 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
     cmap : str, optional
         Matplotlib colormap name for the heatmap visualization (default: "Blues").
         Can also use "expheatmap" for a custom colormap optimized for this analysis.
+    dpi : int, optional
+        Resolution of the output image in dots per inch (default: 400).
+    figsize : tuple, optional
+        Figure size as (width, height) in inches. If None, uses automatic sizing.
+    cluster_rows : bool, optional
+        If True, cluster rows by similarity before plotting (default: False).
+    show_superpop_colors : bool, optional
+        If True (default), show superpopulation color annotation bar.
 
     Returns
     -------
-    None
-        The function saves the heatmap to disk but does not return any value.
-        Output file is saved as '{output}.png' with 400 DPI resolution.
+    matplotlib.axes.Axes
+        The Matplotlib axis object.
 
     Notes
     -----
@@ -452,13 +762,17 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
     try:
         plot_input = create_plot_input(input_dir, start=start, end=end)
         
-        plot_exp_heatmap(
+        return plot_exp_heatmap(
             plot_input, start=plot_input.columns[0],
             end=plot_input.columns[-1],
             title=title,
             cmap=cmap,
             output=output,
-            xlabel="{:,} - {:,}".format(start, end)
+            xlabel="{:,} - {:,}".format(start, end),
+            dpi=dpi,
+            figsize=figsize,
+            cluster_rows_by='euclidean' if cluster_rows else None,
+            show_superpop_colors=show_superpop_colors
         )
     except KeyboardInterrupt:
         print("")
