@@ -12,7 +12,7 @@ def cli():
 # prepare command
 @cli.command(name='prepare', short_help='Convert VCF file to ZARR format', context_settings=CONTEXT_SETTINGS)
 @click.argument('vcf_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<vcf_file>')
-@click.option('-o', '--output', type=click.Path(), default='zarr_output', show_default=True, help='Directory for ZARR files')
+@click.option('-o', '--out', 'output', type=click.Path(), default='zarr_output', show_default=True, help='Directory for ZARR files')
 def prepare_cmd(vcf_file, output):
     """
     <vcf_file>  PATH  Recoded VCF file
@@ -23,7 +23,7 @@ def prepare_cmd(vcf_file, output):
 @cli.command(name='compute', short_help='Compute population genetics statistics', context_settings=CONTEXT_SETTINGS)
 @click.argument('zarr_dir', type=click.Path(exists=True, readable=True, file_okay=False), required=True, metavar='<zarr_dir>')
 @click.argument('panel_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<panel_file>')
-@click.option('-o', '--output', type=click.Path(), default='output', show_default=True, help='Directory for output files')
+@click.option('-o', '--out', 'output', type=click.Path(), default='output', show_default=True, help='Directory for output files')
 @click.option('-t', '--test', type=click.Choice(['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst']), default='xpehh', show_default=True, help='Statistical test to compute')
 @click.option('-c', '--chunked', is_flag=True, help='Use chunked array to avoid memory exhaustion')
 def compute_cmd(zarr_dir, panel_file, output, test, chunked):
@@ -40,7 +40,7 @@ def compute_cmd(zarr_dir, panel_file, output, test, chunked):
 @click.option('-e', '--end', type=int, help='End position for the displayed region.')
 @click.option('-m', '--mid', type=int, help='Middle of the displayed area. The start and end positions will be calculated (mid ± 500 kb)')
 @click.option('-t', '--title', type=str, help='Title of the heatmap')
-@click.option('-o', '--output', type=click.Path(), default='ExP_heatmap', show_default=True, help='The output heatmap')
+@click.option('-o', '--out', 'output', type=click.Path(), default='ExP_heatmap', show_default=True, help='The output heatmap')
 @click.option('-c', '--cmap', type=str, default='Blues', show_default=True, help='Matplotlib colormap for heatmap visualization')
 @click.option('--dpi', type=int, default=400, show_default=True, help='Resolution of output image in DPI')
 @click.option('--figsize', type=str, default=None, help='Figure size as "WIDTH,HEIGHT" in inches (e.g., "20,8")')
@@ -112,7 +112,7 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, clus
 @click.argument('panel_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<panel_file>')
 @click.option('-s', '--start', type=int, required=True, help='Start position for plot benchmark')
 @click.option('-e', '--end', type=int, required=True, help='End position for plot benchmark')
-@click.option('-o', '--output', type=click.Path(), default='benchmark', show_default=True, help='Output prefix for benchmark files')
+@click.option('-o', '--out', 'output', type=click.Path(), default='benchmark', show_default=True, help='Output prefix for benchmark files')
 @click.option('-t', '--test', type=click.Choice(['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst']), default='xpehh', show_default=True, help='Statistical test to benchmark')
 @click.option('-c', '--chunked', is_flag=True, help='Use chunked array during compute')
 @click.option('--report', type=click.Path(), default=None, help='Save benchmark report to file')

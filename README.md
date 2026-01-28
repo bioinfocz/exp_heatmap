@@ -80,7 +80,7 @@ tar -xzf chr2_output.tar.gz
 ```
 **Step 3**: Run the exp_heatmap plot command:
 ```bash
-exp_heatmap plot chr2_output/ --start 136108646 --end 137108646 --title "LCT gene" --output LCT_xpehh
+exp_heatmap plot chr2_output/ --start 136108646 --end 137108646 --title "LCT gene" --out LCT_xpehh
 ```
 The `exp_heatmap` package will read the files from `chr2_output/` folder and create the ExP heatmap and save it as `LCT_xpehh.png` file.
 
@@ -101,7 +101,7 @@ exp_heatmap prepare [OPTIONS] <vcf_file>
 ```
 
 - `<vcf_file> [PATH]`: Recoded VCF file
-- `-o, --output [PATH]`: Directory for output files
+- `-o, --out [PATH]`: Directory for output files
 
 #### 2. Statistical Analysis - `compute`
 
@@ -113,7 +113,7 @@ exp_heatmap compute [OPTIONS] <zarr_dir> <panel_file>
 
 `<zarr_dir> [PATH]`: Directory with ZARR files from `prepare` step
 `<panel_file>[PATH]`: Population panel file
-- `-o, --output`: Directory for output files
+- `-o, --out`: Directory for output files
 - `-t, --test`: Statistical test to compute
   - `xpehh`: Cross-population Extended Haplotype Homozygosity (default)
   - `xpnsl`: Cross-population Number of Segregating sites by Length  
@@ -133,7 +133,7 @@ exp_heatmap plot [OPTIONS] <input_dir>
 - `-s, --start & -e, --end`: Genomic coordinates for the region to display
 - `-m, --mid`: Alternative way to specify region (mid ± 500 kb)
 - `-t, --title`: Title of the heatmap
-- `-o, --output`: Output filename (without extension)
+- `-o, --out`: Output filename (without extension)
 - `-c, --cmap`: Matplotlib colormap - [list of colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
 TODO: ADD THE POINTS BELOW ONLY IF IMPLEMENTED INTO PROD
 - `--dpi`: Resolution of output image (default: 400)
@@ -151,7 +151,7 @@ TODO: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 exp_heatmap benchmark <vcf_file> <panel_file> -s <start> -e <end> [OPTIONS]
 ```
 
-- `-o, --output`: Output prefix for benchmark files
+- `-o, --out`: Output prefix for benchmark files
 - `-t, --test`: Statistical test to benchmark
 - `--report`: Save benchmark report to file
 
@@ -256,7 +256,7 @@ plot_interactive(
 
 Or via CLI:
 ```bash
-exp_heatmap plot results/ --start 135287850 --end 136287850 --interactive --output lct_interactive
+exp_heatmap plot results/ --start 135287850 --end 136287850 --interactive --out lct_interactive
 ```
 
 ### Row Clustering
@@ -399,7 +399,7 @@ exp_heatmap plot chr15_snps_output \
     --end 48924019 \
     --title "SLC24A5" \
     --cmap gist_heat \
-    --output SLC24A5_heatmap
+    --out SLC24A5_heatmap
 ```
 
 ## Gallery
