@@ -4,7 +4,7 @@
 
 > A powerful Python package and command-line tool for visualizing multidimensional population genetics data through intuitive heatmaps.
 
-ExP Heatmap specializes in displaying cross-population data, including differences, similarities, empirical rank scores, and other statistical parameters between multiple groups or populations. This tool enables efficient evaluation of millions of statistical values in a single, comprehensive visualization.
+ExP Heatmap specializes in displaying cross-population data, including differences, similarities, p-values, and other statistical parameters between multiple groups or populations. This tool enables efficient evaluation of millions of statistical values in a single, comprehensive visualization.
 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
 
@@ -20,6 +20,7 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
 - **Python API**: Full programmatic control for custom analyses
 - **Efficient Processing**: Zarr-based data storage for fast computation
 - **Customizable Visualization**: Multiple color schemes, resolution options, and display settings
+TODO: ADD THE POINTS BELOW ONLY IF IMPLEMENTED INTO PROD
 - **Interactive Mode**: Plotly-based HTML visualizations with zoom, pan, and hover tooltips
 - **Row Clustering**: Hierarchical clustering to reveal patterns across population pairs
 - **Superpopulation Annotations**: Color-coded bars indicating continental ancestry groups
@@ -57,7 +58,7 @@ pip install exp_heatmap
 ```bash
 pip install git+https://github.com/bioinfocz/exp_heatmap.git
 ```
-
+TODO: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 ### Optional Dependencies
 
 For interactive visualizations:
@@ -134,12 +135,14 @@ exp_heatmap plot [OPTIONS] <input_dir>
 - `-t, --title`: Title of the heatmap
 - `-o, --output`: Output filename (without extension)
 - `-c, --cmap`: Matplotlib colormap - [list of colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
+TODO: ADD THE POINTS BELOW ONLY IF IMPLEMENTED INTO PROD
 - `--dpi`: Resolution of output image (default: 400)
 - `--figsize`: Figure size as "WIDTH,HEIGHT" in inches
 - `--cluster-rows`: Cluster rows by similarity for pattern discovery
 - `--no-superpop-colors`: Disable superpopulation color annotation bar
 - `--interactive`: Generate interactive HTML visualization (requires plotly)
 
+TODO: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 #### 4. Performance Benchmarking - `benchmark`
 
 >Measure runtime and memory usage across the pipeline.
@@ -229,7 +232,7 @@ data_to_plot = create_plot_input("results/", start=47000000, end=49000000)
 plot_exp_heatmap(data_to_plot, start=47000000, end=49000000, 
                  title="Custom Analysis", output="custom_plot")
 ```
-
+TODOSTART: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 ---
 
 ## Advanced Features
@@ -312,6 +315,7 @@ results = run_full_benchmark(
 # Generate report
 report = generate_benchmark_report(results, output_file="benchmark_report.txt")
 ```
+TODOEND: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 
 ### Advanced Customization
 
@@ -338,6 +342,7 @@ plot_exp_heatmap(
     cmap="expheatmap",                    # Custom ExP colormap
     display_limit=1.60,                   # Filter noise (values below limit = white)
     display_values="higher",              # Show values above display_limit
+    TODO: ADD THE VALUES BELOW ONLY IF IMPLEMENTED INTO PROD
     dpi=600,                              # High resolution output
     figsize=(20, 8),                      # Custom figure size
     
@@ -346,6 +351,7 @@ plot_exp_heatmap(
         [135851073, "rs41525747"],        # [position, label]
         [135851081, "rs41380347"]
     ],
+    TODO: ADD THE VALUE BELOW ONLY IF IMPLEMENTED INTO PROD
     show_superpop_colors=True,            # Show superpopulation color bar
     
     # Colorbar customization
@@ -418,21 +424,6 @@ Using `display_limit` and `display_values` parameters to filter noisy data and h
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/ADM2_XP-EHH_display_limit.png" width="800" alt="Filtered display">
 
 *Same data as above, but with display_limit=1.60 to filter noise and highlight significant signals.*
-
-## Statistical Methodology
-
-### Empirical Rank Scores
-
-ExP Heatmap uses **empirical rank scores** (not classical p-values) to visualize selection signals. The transformation works as follows:
-
-1. **Null hypothesis**: Under no selection, test statistics are uniformly distributed across the genome
-2. **Reference distribution**: Genome-wide empirical distribution of the test statistic
-3. **Transformation**: `rank_score = -log10(rank / total_variants)`
-4. **Tie handling**: Equal values receive the same rank (standard competition ranking)
-
-This approach provides a genome-wide percentile ranking that is suitable for identifying outliers and comparing relative signal strength across the genome. Higher values indicate more extreme (potentially selected) variants.
-
-**Important**: These are empirical rank scores representing relative extremity, not classical p-values for formal hypothesis testing. The scores are useful for visualization and discovery but should be validated with appropriate statistical methods for formal inference.
 
 ## Contributing
 
