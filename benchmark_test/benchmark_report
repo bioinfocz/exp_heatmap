@@ -1,0 +1,45 @@
+ExP Heatmap Benchmark Report
+==================================================
+
+Summary
+------------------------------
+Total Runtime: 1934.26 seconds
+Peak Memory Usage: 10555.0 MB
+
+Step-by-Step Results
+------------------------------
+
+PREPARE:
+  Runtime: 131.345 seconds
+  CPU Time: 132.314 seconds
+  Peak Memory: 681.8 MB
+  Throughput: 8401.92 variants/second
+  Memory Efficiency: 617.84 MB/million_variants
+  vcf_file_size_mb: 10692.949979782104
+  n_variants: 1103547.0
+
+COMPUTE:
+  Runtime: 1794.245 seconds
+  CPU Time: 4128.548 seconds
+  Peak Memory: 10555.0 MB
+  Throughput: 0.18 pairs/second
+  Memory Efficiency: 9564.57 MB/million_variants
+  n_variants: 1103547.0
+  test: xpehh
+  n_populations: 26.0
+  n_samples: 2504.0
+  n_pairs: 325.0
+  chunked: False
+  seconds_per_pair: 5.521
+  variants_x_pairs: 358652775.0
+
+PLOT:
+  Runtime: 8.667 seconds
+  CPU Time: 8.657 seconds
+  Peak Memory: 58.6 MB
+  Throughput: 57688.11 bp/second
+  Memory Efficiency: 117.21 MB/megabase
+  n_files: 325.0
+  region_size_bp: 500000.0
+  start: 40000000.0
+  end: 40500000.0
