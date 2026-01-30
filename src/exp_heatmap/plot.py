@@ -123,7 +123,7 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         raise ValueError(
             f"No data found in the requested genomic region ({start:,} - {end:,}). "
             f"The data in '{input_dir}' contains positions from {_first_file_range[0]:,} to {_first_file_range[1]:,}. "
-            f"Please specify a region within this range using --start/--end or --mid."
+            f"Please specify a region that overlaps with this range using --start/--end or --mid."
         )
     
     pop_labels = concat_df.index.values
@@ -538,24 +538,13 @@ def plot_exp_heatmap(
     y_axis_len = len(populations) * (len(populations) - 1)
     n_pops = len(populations)
     
-    # Major ticks at population group boundaries
-    y_labels_pos = list(np.arange(0, y_axis_len, step=(n_pops - 1)))
-    y_labels_pos.append(y_axis_len)
-    ax.set_yticks(y_labels_pos)
-    ax.set_yticklabels([])  # No labels on major ticks (just gridlines)
-    
-    # Minor ticks at center of each population group for labels
-    minor_tick_positions = np.arange(
-        y_labels_pos[0] + ((n_pops - 1) / 2), 
-        y_labels_pos[-1], 
-        step=(n_pops - 1)
-    )
-    ax.set_yticks(minor_tick_positions, minor=True)
-    ax.tick_params(axis="y", which="minor", length=0)
+    # Place ticks at the center of each population group (aligned with labels)
+    tick_positions = np.arange((n_pops - 1) / 2, y_axis_len, step=(n_pops - 1))
+    ax.set_yticks(tick_positions)
     
     # Set y-axis labels with appropriate font size for visibility
     fontsize = max(4, min(8, 200 // n_pops))  # Scale font size based on number of populations
-    ax.set_yticklabels(populations, minor=True, fontsize=fontsize)
+    ax.set_yticklabels(populations, fontsize=fontsize)
     
     if ylabel:
         ax.set_ylabel(ylabel)
