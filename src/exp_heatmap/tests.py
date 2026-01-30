@@ -153,5 +153,3 @@ def run(
 
         # Save only positions without NaN values
         df[valid_positions_mask].to_csv(result_path, index=False, sep="\t")
-
-        print(f"Results saved to: {result_path}")
