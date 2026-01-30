@@ -42,11 +42,13 @@ def compute_cmd(zarr_dir, panel_file, output, test, chunked):
 @click.option('-t', '--title', type=str, help='Title of the heatmap')
 @click.option('-o', '--out', 'output', type=click.Path(), default='ExP_heatmap', show_default=True, help='The output heatmap')
 @click.option('-c', '--cmap', type=str, default='Blues', show_default=True, help='Matplotlib colormap for heatmap visualization')
+#TODO: ADD THE OPTIONS BELOW ONLY IF IMPLEMENTED INTO PROD
 @click.option('--dpi', type=int, default=400, show_default=True, help='Resolution of output image in DPI')
 @click.option('--figsize', type=str, default=None, help='Figure size as "WIDTH,HEIGHT" in inches (e.g., "20,8")')
 @click.option('--cluster-rows', is_flag=True, help='Cluster rows by similarity for pattern discovery')
 @click.option('--no-superpop-colors', is_flag=True, help='Disable superpopulation color annotation bar')
 @click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization (requires plotly)')
+
 def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, cluster_rows, no_superpop_colors, interactive):
     """
     <input_dir>  PATH  Directory with TSV files from 'exp_heatmap compute'
@@ -64,6 +66,9 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, clus
     if start_end_provided and mid_provided:
         raise click.UsageError("Cannot use both (--start and --end) and --mid at the same time")
     
+    start_pos, end_pos = (mid - 500000, mid + 500000) if mid_provided else (start, end)
+    
+    #TODO: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
     # Parse figsize if provided
     parsed_figsize = None
     if figsize:
@@ -72,8 +77,6 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, clus
             parsed_figsize = (float(parts[0]), float(parts[1]))
         except (ValueError, IndexError):
             raise click.UsageError("--figsize must be in format 'WIDTH,HEIGHT' (e.g., '20,8')")
-    
-    start_pos, end_pos = (mid - 500000, mid + 500000) if mid_provided else (start, end)
     
     if interactive:
         # Use interactive Plotly visualization
