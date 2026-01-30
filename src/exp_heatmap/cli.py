@@ -96,18 +96,21 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, clus
             )
     else:
         # Use standard matplotlib visualization
-        plot(
-            input_dir, 
-            start=start_pos, 
-            end=end_pos, 
-            title=title, 
-            output=output, 
-            cmap=cmap,
-            dpi=dpi,
-            figsize=parsed_figsize,
-            cluster_rows=cluster_rows,
-            show_superpop_colors=not no_superpop_colors
-        )
+        try:
+            plot(
+                input_dir, 
+                start=start_pos, 
+                end=end_pos, 
+                title=title, 
+                output=output, 
+                cmap=cmap,
+                dpi=dpi,
+                figsize=parsed_figsize,
+                cluster_rows=cluster_rows,
+                show_superpop_colors=not no_superpop_colors
+            )
+        except ValueError as e:
+            raise click.ClickException(str(e))
 
 # benchmark command
 @cli.command(name='benchmark', short_help='Run performance benchmarks', context_settings=CONTEXT_SETTINGS)

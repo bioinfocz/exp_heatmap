@@ -51,7 +51,6 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
     Returns:
         pd.DataFrame: Formatted data for heatmap plotting.
     """
-    
     df_list = []
     pop_id_list = []
     population_sorter = populations_1000genomes if populations=="1000Genomes" else populations
@@ -59,6 +58,7 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
     index = 1
     
     # Load population pair files between start and end and check if the populations are in the population_sorter
+    _first_file_range = None
     for segment_file in tqdm(segment_files, desc="Loading population pair files"):
         pop_pair = os.path.splitext(os.path.basename(segment_file))[0].split(".")[0]
         p1, p2 = pop_pair.split("_")
@@ -67,6 +67,8 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
             pop_id_list.append(pop_pair)
 
             segments = pd.read_csv(segment_file, sep="\t")
+            if _first_file_range is None:
+                _first_file_range = (int(segments.variant_pos.min()), int(segments.variant_pos.max()))
             segments = segments[(segments.variant_pos >= start) & (segments.variant_pos <= end)]
 
             df_list.append(segments)
@@ -123,6 +125,14 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
 
     # Concatenate all transposed DataFrames into a single DataFrame
     concat_df = pd.concat(transp_list, ignore_index=False)
+    
+    # Validate that data was found in the requested region
+    if concat_df.empty or len(concat_df.columns) == 0:
+        raise ValueError(
+            f"No data found in the requested genomic region ({start:,} - {end:,}). "
+            f"The data in '{input_dir}' contains positions from {_first_file_range[0]:,} to {_first_file_range[1]:,}. "
+            f"Please specify a region within this range using --start/--end or --mid."
+        )
     
     pop_labels = concat_df.index.values
     first_pop = [pop.split("_")[0] for pop in pop_labels]
