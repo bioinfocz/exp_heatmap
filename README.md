@@ -58,13 +58,6 @@ pip install exp_heatmap
 ```bash
 pip install git+https://github.com/bioinfocz/exp_heatmap.git
 ```
-TODO: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
-### Optional Dependencies
-
-For interactive visualizations:
-```bash
-pip install plotly
-```
 
 ## Quick Start
 
@@ -140,7 +133,7 @@ TODO: ADD THE POINTS BELOW ONLY IF IMPLEMENTED INTO PROD
 - `--figsize`: Figure size as "WIDTH,HEIGHT" in inches
 - `--cluster-rows`: Cluster rows by similarity for pattern discovery
 - `--no-superpop-colors`: Disable superpopulation color annotation bar
-- `--interactive`: Generate interactive HTML visualization (requires plotly)
+- `--interactive`: Generate interactive HTML visualization
 
 TODO: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 #### 4. Performance Benchmarking - `benchmark`

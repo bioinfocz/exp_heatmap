@@ -11,11 +11,6 @@ from . import rank_tools
 #TODO: ADD THE MODULE BELOW ONLY IF IMPLEMENTED INTO PROD
 
 from . import benchmark
-
-# Interactive module (optional, requires plotly)
-try:
-    from . import interactive
-except ImportError:
-    pass  # plotly not installed
+from . import interactive
 
 __version__ = "1.2.0"

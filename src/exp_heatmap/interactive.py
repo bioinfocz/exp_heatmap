@@ -10,13 +10,8 @@ import pandas as pd
 import numpy as np
 from typing import Optional, Tuple, Union
 
-# Check for plotly availability
-try:
-    import plotly.graph_objects as go
-    from plotly.subplots import make_subplots
-    PLOTLY_AVAILABLE = True
-except ImportError:
-    PLOTLY_AVAILABLE = False
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 from exp_heatmap.plot import (
     populations_1000genomes, 
@@ -24,15 +19,6 @@ from exp_heatmap.plot import (
     pop_to_superpop,
     create_plot_input
 )
-
-
-def check_plotly():
-    """Check if plotly is available and raise informative error if not."""
-    if not PLOTLY_AVAILABLE:
-        raise ImportError(
-            "Plotly is required for interactive visualizations. "
-            "Install it with: pip install plotly"
-        )
 
 
 def plot_interactive_heatmap(
@@ -95,8 +81,6 @@ def plot_interactive_heatmap(
     plotly.graph_objects.Figure
         Interactive Plotly figure object. Also saves to HTML file.
     """
-    check_plotly()
-    
     input_df = input_df.copy()
     
     # Filter to specified region
@@ -356,8 +340,6 @@ def plot_interactive(
     plotly.graph_objects.Figure
         Interactive Plotly figure object.
     """
-    check_plotly()
-    
     # Load and prepare data
     plot_input = create_plot_input(input_dir, start=start, end=end)
     
@@ -405,8 +387,6 @@ def create_comparison_view(
     plotly.graph_objects.Figure
         Interactive comparison figure.
     """
-    check_plotly()
-    
     # Extract regions
     cols1 = [c for c in input_df.columns if region1[0] <= c <= region1[1]]
     cols2 = [c for c in input_df.columns if region2[0] <= c <= region2[1]]
@@ -504,8 +484,6 @@ def create_population_focus_view(
     plotly.graph_objects.Figure
         Interactive figure focused on one population.
     """
-    check_plotly()
-    
     # Filter to rows containing the focus population
     mask = input_df.index.str.contains(focus_population)
     filtered_df = input_df[mask]

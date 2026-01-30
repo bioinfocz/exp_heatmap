@@ -32,7 +32,8 @@ dependencies = [
     "pandas",
     "matplotlib",
     "seaborn",
-    "click"
+    "click",
+    "plotly"
 ]
 
 [project.urls]

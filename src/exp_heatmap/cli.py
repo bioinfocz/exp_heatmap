@@ -42,7 +42,6 @@ def compute_cmd(zarr_dir, panel_file, output, test, chunked):
 @click.option('-t', '--title', type=str, help='Title of the heatmap')
 @click.option('-o', '--out', 'output', type=click.Path(), default='ExP_heatmap', show_default=True, help='The output heatmap')
 @click.option('-c', '--cmap', type=str, default='Blues', show_default=True, help='Matplotlib colormap for heatmap visualization')
-#TODO: ADD THE OPTIONS BELOW ONLY IF IMPLEMENTED INTO PROD
 @click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization (requires plotly)')
 
 def plot_cmd(input_dir, start, end, mid, title, output, cmap, interactive):
