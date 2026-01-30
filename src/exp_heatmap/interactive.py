@@ -6,15 +6,13 @@ that enable zooming, panning, and hover tooltips for detailed exploration
 of cross-population genomic data.
 """
 
-import os
 import pandas as pd
 import numpy as np
-from typing import Optional, List, Tuple, Union
+from typing import Optional, Tuple, Union
 
 # Check for plotly availability
 try:
     import plotly.graph_objects as go
-    import plotly.express as px
     from plotly.subplots import make_subplots
     PLOTLY_AVAILABLE = True
 except ImportError:
@@ -23,7 +21,6 @@ except ImportError:
 from exp_heatmap.plot import (
     populations_1000genomes, 
     superpopulations,
-    superpopulation_colors,
     pop_to_superpop,
     create_plot_input
 )
@@ -50,8 +47,8 @@ def plot_interactive_heatmap(
     zmax: Optional[float] = None,
     display_limit: Optional[float] = None,
     display_values: str = "higher",
-    height: int = 800,
-    width: int = 1200,
+    height: int = 600,
+    width: int = 1500,
     show_superpop_annotations: bool = True
 ) -> 'go.Figure':
     """
@@ -87,9 +84,9 @@ def plot_interactive_heatmap(
     display_values : str, optional
         'higher' or 'lower' - which values to retain when using display_limit.
     height : int, optional
-        Height of the figure in pixels (default: 800).
+        Height of the figure in pixels (default: 600).
     width : int, optional
-        Width of the figure in pixels (default: 1200).
+        Width of the figure in pixels (default: 1500).
     show_superpop_annotations : bool, optional
         If True, add superpopulation group annotations on y-axis.
         
@@ -163,41 +160,108 @@ def plot_interactive_heatmap(
     ))
     
     # Add superpopulation annotations if enabled and using 1000 Genomes
+    # This matches the static heatmap style with labels on the right side
     if show_superpop_annotations and is_1000genomes:
         n_pops = len(populations)
         n_pairs_per_pop = n_pops - 1
+        total_rows = len(input_df)
         
-        # Add horizontal lines between superpopulation groups
+        # Calculate superpopulation boundaries
+        # Data order: AFR populations first (ACB, ASW, ...), then SAS, EAS, EUR, AMR (ending with PUR)
+        # With autorange='reversed' on y-axis, first row (ACB) will be at TOP
+        superpop_order = ["AFR", "SAS", "EAS", "EUR", "AMR"]
         superpop_boundaries = []
-        current_pos = 0
-        for superpop in ["AFR", "SAS", "EAS", "EUR", "AMR"]:
+        current_row = 0
+        for superpop in superpop_order:
             pops_in_superpop = len(superpopulations[superpop])
-            superpop_size = pops_in_superpop * n_pairs_per_pop
+            superpop_rows = pops_in_superpop * n_pairs_per_pop
             superpop_boundaries.append({
                 'name': superpop,
-                'start': current_pos,
-                'end': current_pos + superpop_size,
-                'mid': current_pos + superpop_size / 2
+                'start_row': current_row,
+                'end_row': current_row + superpop_rows,
+                'mid_row': current_row + superpop_rows / 2
             })
-            current_pos += superpop_size
+            current_row += superpop_rows
         
-        # Add annotations for superpopulation groups
+        # Add annotations for superpopulation groups on the right side
+        # With autorange='reversed', row 0 is at top (y=1 in paper), row total_rows-1 is at bottom (y=0)
         annotations = []
         for boundary in superpop_boundaries:
+            # Convert row position to paper coordinates
+            # Row 0 at top = y_paper=1, row total_rows at bottom = y_paper=0
+            y_paper = 1.0 - (boundary['mid_row'] / total_rows)
             annotations.append(dict(
-                x=-0.02,
-                y=boundary['mid'] / len(input_df),
+                x=1.02,  # Right side of the plot
+                y=y_paper,
                 xref='paper',
                 yref='paper',
                 text=boundary['name'],
                 showarrow=False,
-                font=dict(size=10, color=superpopulation_colors[boundary['name']]),
-                textangle=-90
+                font=dict(size=10, color='black'),
+                textangle=90  # Rotate 90° so text reads top-to-bottom (like matplotlib rotation=270)
             ))
         
-        fig.update_layout(annotations=annotations)
+        # Add horizontal separator lines between superpopulation groups
+        shapes = []
+        for i, boundary in enumerate(superpop_boundaries[:-1]):  # Skip last boundary
+            boundary_row_idx = boundary['end_row']
+            if boundary_row_idx < total_rows:
+                # Get the row name at the boundary
+                boundary_row_name = input_df.index[boundary_row_idx]
+                shapes.append(dict(
+                    type='line',
+                    x0=0,
+                    x1=1,
+                    y0=boundary_row_name,
+                    y1=boundary_row_name,
+                    xref='paper',
+                    yref='y',
+                    line=dict(color='#CCCCCC', width=1)
+                ))
+        
+        fig.update_layout(annotations=annotations, shapes=shapes)
     
-    # Update layout
+    # Update layout - match static heatmap style
+    # For 1000Genomes, show population labels on the left y-axis (like static version)
+    if is_1000genomes:
+        n_pops = len(populations)
+        n_pairs_per_pop = n_pops - 1  # 25 for 1000Genomes
+        
+        # Calculate tick positions at the center of each population's row group
+        # Static version uses: np.arange((n_pops - 1) / 2, y_axis_len, step=(n_pops - 1))
+        # This gives positions: 12.5, 37.5, 62.5, ... (center of each 25-row group)
+        # For Plotly categorical axis, we use the row name at the integer center position
+        # In Plotly heatmap with categorical y-axis, the first row (index 0) is at the TOP
+        # which matches seaborn's behavior. So we don't need to reverse anything.
+        tickvals = []
+        ticktext = []
+        for i, pop in enumerate(populations):
+            # Center row index for this population (rounded to nearest integer)
+            # Formula: i * n_pairs_per_pop + (n_pairs_per_pop) / 2
+            # For i=0: 0 + 12.5 = 12, for i=1: 25 + 12.5 = 37, etc.
+            center_row_idx = int(i * n_pairs_per_pop + (n_pairs_per_pop) / 2)
+            if center_row_idx < len(input_df):
+                tickvals.append(input_df.index[center_row_idx])
+                ticktext.append(pop)
+        
+        yaxis_config = dict(
+            title="",
+            showgrid=False,
+            tickmode='array',
+            tickvals=tickvals,
+            ticktext=ticktext,
+            tickfont=dict(size=6),
+            side='left',
+            autorange='reversed'  # Reverse y-axis so first row (ACB) is at top, like seaborn
+        )
+    else:
+        yaxis_config = dict(
+            title="",
+            showgrid=False,
+            tickfont=dict(size=6) if len(input_df) > 100 else dict(size=8),
+            autorange='reversed'  # Reverse y-axis so first row is at top, like seaborn
+        )
+    
     fig.update_layout(
         title=dict(
             text=title or "ExP Heatmap (Interactive)",
@@ -205,29 +269,54 @@ def plot_interactive_heatmap(
             xanchor='center'
         ),
         xaxis=dict(
-            title=f"Genomic Position ({start:,} - {end:,})",
+            title=f"{start:,} - {end:,}",
             tickformat=",d",
             showgrid=False
         ),
-        yaxis=dict(
-            title="Population Pairs",
-            showgrid=False,
-            tickfont=dict(size=6) if len(input_df) > 100 else dict(size=8)
-        ),
+        yaxis=yaxis_config,
         height=height,
         width=width,
-        margin=dict(l=100, r=50, t=80, b=80)
+        margin=dict(l=100, r=50, t=80, b=80),
+        # Disable the default drag-to-select behavior that grays out unselected regions
+        dragmode='zoom'
     )
     
-    # Add range slider for x-axis
+    # Add range slider for x-axis (this provides the selection highlighting)
     fig.update_xaxes(
         rangeslider=dict(visible=True, thickness=0.05),
         type="linear"
     )
     
-    # Save to HTML
+    # Save to HTML with centering CSS
     output_file = f"{output}.html"
-    fig.write_html(output_file, include_plotlyjs=True, full_html=True)
+    
+    # Custom HTML template to center the plot
+    centering_css = """
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #f5f5f5;
+        }
+        .plotly-graph-div {
+            margin: auto;
+        }
+    </style>
+    """
+    
+    # Write HTML with centering
+    html_content = fig.to_html(include_plotlyjs=True, full_html=True)
+    # Insert CSS into the head section
+    html_content = html_content.replace('</head>', f'{centering_css}</head>')
+    
+    with open(output_file, 'w') as f:
+        f.write(html_content)
+    
     print(f"Interactive heatmap saved to: {output_file}")
     
     return fig

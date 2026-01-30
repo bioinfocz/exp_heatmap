@@ -313,7 +313,6 @@ def plot_exp_heatmap(
     vertical_line=True,
     cbar_vmin=None,
     cbar_vmax=None,
-    ylabel=None,
     xlabel=None,
     cbar_ticks=None,
     display_limit=None,
@@ -348,8 +347,8 @@ def plot_exp_heatmap(
         If a list of (position, label) tuples is provided, draws multiple vertical lines with labels.
     cbar_vmin, cbar_vmax : float, optional
         Minimum and maximum values for the colorbar.
-    ylabel, xlabel : str, optional
-        Custom y-axis/x-axis labels.
+    xlabel : str, optional
+        Custom x-axis label.
     cbar_ticks : list, optional
         Custom ticks for the colorbar.
     display_limit : float, optional
@@ -590,9 +589,8 @@ def plot_exp_heatmap(
     ax.figure.savefig(f"{output}.{output_suffix}", dpi=400, bbox_inches="tight")
     print(f"ExP heatmap saved into {output}.{output_suffix}")
     return ax
-    
 
-    
+
 def prepare_cbar_params(data_df, n_cbar_ticks=4):
     """
     Calculate optimal colorbar parameters for heatmap visualization.
