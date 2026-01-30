@@ -46,10 +46,9 @@ def compute_cmd(zarr_dir, panel_file, output, test, chunked):
 @click.option('--dpi', type=int, default=400, show_default=True, help='Resolution of output image in DPI')
 @click.option('--figsize', type=str, default=None, help='Figure size as "WIDTH,HEIGHT" in inches (e.g., "20,8")')
 @click.option('--cluster-rows', is_flag=True, help='Cluster rows by similarity for pattern discovery')
-@click.option('--no-superpop-colors', is_flag=True, help='Disable superpopulation color annotation bar')
 @click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization (requires plotly)')
 
-def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, cluster_rows, no_superpop_colors, interactive):
+def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, cluster_rows, interactive):
     """
     <input_dir>  PATH  Directory with TSV files from 'exp_heatmap compute'
     
@@ -106,8 +105,7 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, dpi, figsize, clus
                 cmap=cmap,
                 dpi=dpi,
                 figsize=parsed_figsize,
-                cluster_rows=cluster_rows,
-                show_superpop_colors=not no_superpop_colors
+                cluster_rows=cluster_rows
             )
         except ValueError as e:
             raise click.ClickException(str(e))

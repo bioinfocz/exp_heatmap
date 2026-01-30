@@ -16,14 +16,6 @@ superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
                     "EUR": ("CEU", "FIN", "GBR", "IBS", "TSI"),
                     "AMR": ("CLM", "MXL", "PEL", "PUR",)}
 
-# Superpopulation colors for annotation bars
-superpopulation_colors = {
-    "AFR": "#E41A1C",  # Red
-    "SAS": "#377EB8",  # Blue
-    "EAS": "#4DAF4A",  # Green
-    "EUR": "#984EA3",  # Purple
-    "AMR": "#FF7F00",  # Orange
-}
 
 # Mapping from population to superpopulation
 pop_to_superpop = {}
@@ -335,7 +327,6 @@ def plot_exp_heatmap(
     cbar_ticks=None,
     display_limit=None,
     display_values="higher",
-    show_superpop_colors=True,
     dpi=400,
     figsize=None,
     cluster_rows_by=None,
@@ -379,9 +370,6 @@ def plot_exp_heatmap(
     display_values : {'higher', 'lower'}, optional
         Determines which values to retain when applying `display_limit`.
         Use "higher" for rank scores or distances (default), "lower" for classical p-values.
-    show_superpop_colors : bool, optional
-        If True (default), adds colored annotation bars on the left side of the heatmap
-        indicating superpopulation groupings. Only applies to 1000Genomes populations.
     dpi : int, optional
         Resolution of the output image in dots per inch (default: 400).
     figsize : tuple, optional
@@ -483,8 +471,6 @@ def plot_exp_heatmap(
         try:
             input_df = input_df.loc[row_order]
             print(f"Applied custom row ordering with {len(row_order)} rows")
-            # Disable superpop colors when using custom ordering
-            show_superpop_colors = False
         except KeyError as e:
             raise ValueError(f"Some row names in row_order not found in data: {e}")
     elif cluster_rows_by is not None:
@@ -492,8 +478,6 @@ def plot_exp_heatmap(
         print(f"Clustering rows by {cluster_rows_by} distance...")
         input_df = cluster_rows(input_df, metric=cluster_rows_by)
         print("Row clustering complete")
-        # Disable superpop colors when clustering (order no longer matches superpops)
-        show_superpop_colors = False
     
     # Custom expheatmap colormap
     if cmap == "expheatmap":
@@ -518,22 +502,10 @@ def plot_exp_heatmap(
         else:
             base_width = 15 + (input_df.shape[1] // 1000)
             base_height = 5 + (input_df.shape[0] // 900)
-        # Add extra width for superpopulation color bar if enabled
-        if show_superpop_colors and is_1000genomes:
-            base_width += 0.5
         figsize = (base_width, base_height)
 
-    # Create figure with optional superpopulation color annotation
-    if show_superpop_colors and is_1000genomes:
-        # Create figure with GridSpec for heatmap and color bar
-        fig = plt.figure(figsize=figsize)
-        from matplotlib.gridspec import GridSpec
-        gs = GridSpec(1, 2, width_ratios=[0.02, 1], wspace=0.02)
-        ax_colors = fig.add_subplot(gs[0])
-        ax = fig.add_subplot(gs[1])
-    else:
-        fig, ax = plt.subplots(figsize=figsize)
-        ax_colors = None
+    # Create figure
+    fig, ax = plt.subplots(figsize=figsize)
 
     # Plot the main heatmap
     if is_1000genomes:
@@ -585,46 +557,7 @@ def plot_exp_heatmap(
     fontsize = max(4, min(8, 200 // n_pops))  # Scale font size based on number of populations
     ax.set_yticklabels(populations, minor=True, fontsize=fontsize)
     
-    # Add superpopulation color annotation bar
-    if ax_colors is not None and is_1000genomes:
-        # Create color array for each row (population pair)
-        row_colors = []
-        for pop in populations:
-            superpop = pop_to_superpop.get(pop, "Unknown")
-            color = superpopulation_colors.get(superpop, "#808080")
-            # Each population has (n_pops - 1) rows in the heatmap
-            row_colors.extend([color] * (n_pops - 1))
-        
-        # Plot color bar
-        color_data = np.array(row_colors).reshape(-1, 1)
-        from matplotlib.colors import ListedColormap
-        unique_colors = list(superpopulation_colors.values())
-        ax_colors.imshow(
-            np.arange(len(row_colors)).reshape(-1, 1),
-            aspect='auto',
-            cmap=ListedColormap(row_colors),
-            interpolation='nearest'
-        )
-        ax_colors.set_xticks([])
-        ax_colors.set_yticks([])
-        ax_colors.set_ylabel("population pairings", fontsize=9)
-        
-        # Add superpopulation legend
-        from matplotlib.patches import Patch
-        legend_elements = [
-            Patch(facecolor=superpopulation_colors[sp], label=sp)
-            for sp in ["AFR", "SAS", "EAS", "EUR", "AMR"]
-        ]
-        ax_colors.legend(
-            handles=legend_elements, 
-            loc='upper left', 
-            bbox_to_anchor=(-2.5, 1.0),
-            fontsize=6,
-            frameon=False,
-            title="Superpop",
-            title_fontsize=7
-        )
-    elif ylabel:
+    if ylabel:
         ax.set_ylabel(ylabel)
     elif is_1000genomes:
         ax.set_ylabel("population pairings")
@@ -719,7 +652,7 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
 
 
 def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues", 
-         dpi=400, figsize=None, cluster_rows=False, show_superpop_colors=True):
+         dpi=400, figsize=None, cluster_rows=False):
     """
     Generate and save an ExP heatmap from XP-EHH analysis results.
 
@@ -754,8 +687,6 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues",
         Figure size as (width, height) in inches. If None, uses automatic sizing.
     cluster_rows : bool, optional
         If True, cluster rows by similarity before plotting (default: False).
-    show_superpop_colors : bool, optional
-        If True (default), show superpopulation color annotation bar.
 
     Returns
     -------
@@ -781,8 +712,7 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues",
             xlabel="{:,} - {:,}".format(start, end),
             dpi=dpi,
             figsize=figsize,
-            cluster_rows_by='euclidean' if cluster_rows else None,
-            show_superpop_colors=show_superpop_colors
+            cluster_rows_by='euclidean' if cluster_rows else None
         )
     except KeyboardInterrupt:
         print("")
