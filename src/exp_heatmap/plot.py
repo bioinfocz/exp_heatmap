@@ -540,7 +540,9 @@ def plot_exp_heatmap(
     fig, ax = plt.subplots(figsize=figsize)
 
     # Plot the main heatmap
+    cbar_kws_base = {"shrink": 0.6}  # Make colorbar smaller
     if is_1000genomes:
+        cbar_kws = {**cbar_kws_base, "ticks": cbar_ticks} if cbar_ticks else cbar_kws_base
         sns.heatmap(
             input_df,
             yticklabels=False,  # We'll set these manually
@@ -549,16 +551,17 @@ def plot_exp_heatmap(
             vmax=4.833 if cbar_vmax is None else cbar_vmax,
             ax=ax,
             cmap=cmap,
-            cbar_kws={"ticks": cbar_ticks} if cbar_ticks else None,
+            cbar_kws=cbar_kws,
         )
     else:
+        cbar_kws = {**cbar_kws_base, "ticks": cbar_ticks}
         sns.heatmap(
             input_df,
             yticklabels=False,  # We'll set these manually
             xticklabels=False,
             vmin=cbar_vmin,
             vmax=cbar_vmax,
-            cbar_kws={"ticks": cbar_ticks},
+            cbar_kws=cbar_kws,
             ax=ax,
             cmap=cmap,
         )
@@ -570,18 +573,52 @@ def plot_exp_heatmap(
     y_axis_len = len(populations) * (len(populations) - 1)
     n_pops = len(populations)
     
-    # Place ticks at the center of each population group (aligned with labels)
-    tick_positions = np.arange((n_pops - 1) / 2, y_axis_len, step=(n_pops - 1))
-    ax.set_yticks(tick_positions)
+    # Major ticks at population group boundaries (excluding first and last)
+    boundary_positions = np.arange(0, y_axis_len + 1, step=(n_pops - 1))
+    boundary_positions = boundary_positions[1:-1]  # Remove first and last tick
+    ax.set_yticks(boundary_positions)
+    ax.set_yticklabels([])  # No labels on boundary ticks
+    
+    # Minor ticks at center of each population group for labels (no tick marks)
+    label_positions = np.arange((n_pops - 1) / 2, y_axis_len, step=(n_pops - 1))
+    ax.set_yticks(label_positions, minor=True)
+    ax.tick_params(axis="y", which="minor", length=0)  # Hide minor tick marks
     
     # Set y-axis labels with appropriate font size for visibility
     fontsize = max(4, min(8, 200 // n_pops))  # Scale font size based on number of populations
-    ax.set_yticklabels(populations, fontsize=fontsize)
+    ax.set_yticklabels(populations, minor=True, fontsize=fontsize)
+    ax.set_ylabel('')  # Remove any ylabel
     
-    if ylabel:
-        ax.set_ylabel(ylabel)
-    elif is_1000genomes:
-        ax.set_ylabel("population pairings")
+    # Add superpopulation labels on the right side for 1000 Genomes data
+    if is_1000genomes:
+        superpop_order = ["AFR", "SAS", "EAS", "EUR", "AMR"]
+        superpop_sizes = [len(superpopulations[sp]) for sp in superpop_order]
+        
+        # Get the x-axis extent (number of columns in heatmap)
+        x_extent = input_df.shape[1]
+        
+        # Calculate positions and add labels with separator lines
+        cumulative_pos = 0
+        for i, (sp, sp_size) in enumerate(zip(superpop_order, superpop_sizes)):
+            # Each population has (n_pops - 1) rows, so superpop spans sp_size * (n_pops - 1) rows
+            sp_rows = sp_size * (n_pops - 1)
+            center_pos = cumulative_pos + sp_rows / 2
+            
+            # Add superpopulation label to the right of the heatmap, rotated 90 degrees
+            ax.text(x_extent * 1.005, center_pos, sp, 
+                    ha='left', va='center', fontsize=7,
+                    rotation=270, clip_on=False)
+            
+            # Add horizontal separator line at the end of each superpopulation (except the last)
+            if i < len(superpop_order) - 1:
+                boundary_pos = cumulative_pos + sp_rows
+                # Subtle line across the full width of the heatmap
+                ax.axhline(y=boundary_pos, color='#CCCCCC', linewidth=0.3, zorder=1)
+                # Darker line segment on the right side for the tick
+                ax.plot([x_extent, x_extent * 1.02], [boundary_pos, boundary_pos], 
+                       color='black', linewidth=0.8, clip_on=False)
+            
+            cumulative_pos += sp_rows
 
     # Add vertical line if specified
     if vertical_line is True: # Single vertical line in the middle
