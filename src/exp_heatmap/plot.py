@@ -176,47 +176,6 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
 
     return concat_df
 
-def cluster_rows(input_df, method='average', metric='euclidean'):
-    """
-    Cluster rows of the heatmap data by similarity.
-    
-    This function performs hierarchical clustering on the population pair rows
-    to group similar patterns together, which can reveal structure not apparent
-    in the default alphabetical/superpopulation ordering.
-    
-    Parameters
-    ----------
-    input_df : pandas.DataFrame
-        Input DataFrame with population pairs as rows and genomic positions as columns.
-    method : str, optional
-        Linkage method for hierarchical clustering. Options: 'single', 'complete',
-        'average' (default), 'weighted', 'centroid', 'median', 'ward'.
-    metric : str, optional
-        Distance metric for clustering. Options: 'euclidean' (default), 'correlation',
-        'cosine', 'cityblock', etc. See scipy.spatial.distance.pdist for full list.
-        
-    Returns
-    -------
-    pandas.DataFrame
-        DataFrame with rows reordered according to hierarchical clustering.
-    """
-    from scipy.cluster.hierarchy import linkage, leaves_list
-    from scipy.spatial.distance import pdist
-    
-    # Handle NaN values by filling with column mean
-    df_filled = input_df.fillna(input_df.mean())
-    
-    # Compute pairwise distances and linkage
-    distances = pdist(df_filled.values, metric=metric)
-    linkage_matrix = linkage(distances, method=method)
-    
-    # Get the order of rows from clustering
-    row_order = leaves_list(linkage_matrix)
-    
-    # Reorder the DataFrame
-    return input_df.iloc[row_order]
-
-
 def summarize_by_superpopulation(input_df, populations="1000Genomes", agg_func='mean'):
     """
     Collapse population pair rows to superpopulation-level summaries.
@@ -359,9 +318,6 @@ def plot_exp_heatmap(
     cbar_ticks=None,
     display_limit=None,
     display_values="higher",
-    dpi=400,
-    figsize=None,
-    cluster_rows_by=None,
     row_order=None
 ):
     """
@@ -402,19 +358,9 @@ def plot_exp_heatmap(
     display_values : {'higher', 'lower'}, optional
         Determines which values to retain when applying `display_limit`.
         Use "higher" for rank scores or distances (default), "lower" for classical p-values.
-    dpi : int, optional
-        Resolution of the output image in dots per inch (default: 400).
-    figsize : tuple, optional
-        Figure size as (width, height) in inches. If None, uses automatic sizing.
-    cluster_rows_by : str, optional
-        If set, cluster rows by similarity before plotting. Options:
-        - 'euclidean': Cluster using Euclidean distance
-        - 'correlation': Cluster using correlation distance
-        - None (default): Keep original row order
-        Note: When clustering is enabled, superpopulation color bars are disabled.
     row_order : list, optional
         Custom row order as a list of population pair names (e.g., ['ACB_ASW', 'ACB_BEB', ...]).
-        If provided, rows will be reordered accordingly. Overrides cluster_rows_by.
+        If provided, rows will be reordered accordingly.
 
     Returns
     -------
@@ -497,19 +443,13 @@ def plot_exp_heatmap(
         else:
             raise ValueError(f"plot_exp_heatmap() parameter 'display_values' has unknown value '{display_values}'. The only expected options are 'higher' or 'lower'.")
     
-    # Apply custom row ordering or clustering
+    # Apply custom row ordering
     if row_order is not None:
-        # Custom row order provided
         try:
             input_df = input_df.loc[row_order]
             print(f"Applied custom row ordering with {len(row_order)} rows")
         except KeyError as e:
             raise ValueError(f"Some row names in row_order not found in data: {e}")
-    elif cluster_rows_by is not None:
-        # Cluster rows by similarity
-        print(f"Clustering rows by {cluster_rows_by} distance...")
-        input_df = cluster_rows(input_df, metric=cluster_rows_by)
-        print("Row clustering complete")
     
     # Custom expheatmap colormap
     if cmap == "expheatmap":
@@ -527,13 +467,11 @@ def plot_exp_heatmap(
         populations = populations_1000genomes
 
     # Calculate figure size
-    if figsize is None:
-        if is_1000genomes:
-            base_width = 15
-            base_height = 5
-        else:
-            base_width = 15 + (input_df.shape[1] // 1000)
-            base_height = 5 + (input_df.shape[0] // 900)
+    if is_1000genomes:
+        figsize = (15, 5)
+    else:
+        base_width = 15 + (input_df.shape[1] // 1000)
+        base_height = 5 + (input_df.shape[0] // 900)
         figsize = (base_width, base_height)
 
     # Create figure
@@ -649,7 +587,7 @@ def plot_exp_heatmap(
             ax.set_xticks(positions_indices)
             ax.set_xticklabels(labels)
     
-    ax.figure.savefig(f"{output}.{output_suffix}", dpi=dpi, bbox_inches="tight")
+    ax.figure.savefig(f"{output}.{output_suffix}", dpi=400, bbox_inches="tight")
     print(f"ExP heatmap saved into {output}.{output_suffix}")
     return ax
     
@@ -709,8 +647,7 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
 
 
 
-def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues", 
-         dpi=400, figsize=None, cluster_rows=False):
+def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
     """
     Generate and save an ExP heatmap from XP-EHH analysis results.
 
@@ -739,12 +676,6 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues",
     cmap : str, optional
         Matplotlib colormap name for the heatmap visualization (default: "Blues").
         Can also use "expheatmap" for a custom colormap optimized for this analysis.
-    dpi : int, optional
-        Resolution of the output image in dots per inch (default: 400).
-    figsize : tuple, optional
-        Figure size as (width, height) in inches. If None, uses automatic sizing.
-    cluster_rows : bool, optional
-        If True, cluster rows by similarity before plotting (default: False).
 
     Returns
     -------
@@ -771,10 +702,7 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues",
             title=title,
             cmap=cmap,
             output=output,
-            xlabel="{:,} - {:,}".format(actual_start, actual_end),
-            dpi=dpi,
-            figsize=figsize,
-            cluster_rows_by='euclidean' if cluster_rows else None
+            xlabel="{:,} - {:,}".format(actual_start, actual_end)
         )
     except KeyboardInterrupt:
         print("")
