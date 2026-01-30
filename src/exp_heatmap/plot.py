@@ -126,6 +126,38 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
             f"Please specify a region that overlaps with this range using --start/--end or --mid."
         )
     
+    # Get actual data range after filtering
+    actual_start = int(concat_df.columns[0])
+    actual_end = int(concat_df.columns[-1])
+    num_variants = len(concat_df.columns)
+    
+    # Print informative region selection summary
+    print(f"\n{'─' * 60}")
+    print("Region Selection Summary")
+    print(f"{'─' * 60}")
+    print(f"  Requested region:    {start:,} - {end:,}")
+    print(f"  Available data:      {_first_file_range[0]:,} - {_first_file_range[1]:,}")
+    print(f"  Selected region:     {actual_start:,} - {actual_end:,}")
+    print(f"  Variants in region:  {num_variants:,}")
+    
+    # Explain any adjustments made
+    adjustments = []
+    if start < _first_file_range[0]:
+        adjustments.append(f"start adjusted from {start:,} to {actual_start:,} (requested start precedes available data)")
+    elif actual_start != start:
+        adjustments.append(f"start snapped to nearest variant at {actual_start:,}")
+    
+    if end > _first_file_range[1]:
+        adjustments.append(f"end adjusted from {end:,} to {actual_end:,} (requested end exceeds available data)")
+    elif actual_end != end:
+        adjustments.append(f"end snapped to nearest variant at {actual_end:,}")
+    
+    if adjustments:
+        print(f"\n  Note: Region boundaries adjusted to match available variant positions:")
+        for adj in adjustments:
+            print(f"    • {adj}")
+    print(f"{'─' * 60}")
+    
     pop_labels = concat_df.index.values
     first_pop = [pop.split("_")[0] for pop in pop_labels]
     second_pop = [pop.split("_")[1] for pop in pop_labels]
@@ -692,13 +724,17 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues",
     try:
         plot_input = create_plot_input(input_dir, start=start, end=end)
         
+        # Use actual data range for xlabel (not requested range)
+        actual_start = int(plot_input.columns[0])
+        actual_end = int(plot_input.columns[-1])
+        
         return plot_exp_heatmap(
-            plot_input, start=plot_input.columns[0],
-            end=plot_input.columns[-1],
+            plot_input, start=actual_start,
+            end=actual_end,
             title=title,
             cmap=cmap,
             output=output,
-            xlabel="{:,} - {:,}".format(start, end),
+            xlabel="{:,} - {:,}".format(actual_start, actual_end),
             dpi=dpi,
             figsize=figsize,
             cluster_rows_by='euclidean' if cluster_rows else None
