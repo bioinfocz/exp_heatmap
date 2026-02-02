@@ -59,7 +59,7 @@ def compute_cmd(zarr_dir, panel_file, output, test, chunked, no_log, verbose):
 @click.option('-t', '--title', type=str, help='Title of the heatmap')
 @click.option('-o', '--out', 'output', type=click.Path(), default='ExP_heatmap', show_default=True, help='The output heatmap')
 @click.option('-c', '--cmap', type=str, default='Blues', show_default=True, help='Matplotlib colormap for heatmap visualization')
-@click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization (requires plotly)')
+@click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization')
 @click.option('--no-log', is_flag=True, help='Disable logging to file')
 @click.option('--verbose', is_flag=True, help='Show detailed debug output in console')
 
@@ -88,20 +88,15 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, interactive, no_lo
     
     if interactive:
         # Use interactive Plotly visualization
-        try:
-            from exp_heatmap.interactive import plot_interactive
-            plot_interactive(
-                input_dir,
-                start=start_pos,
-                end=end_pos,
-                title=title,
-                output=output,
-                colorscale=cmap if cmap != 'expheatmap' else 'Blues'
-            )
-        except ImportError as e:
-            raise click.UsageError(
-                "Interactive mode requires plotly. Install with: pip install plotly"
-            )
+        from exp_heatmap.interactive import plot_interactive
+        plot_interactive(
+            input_dir,
+            start=start_pos,
+            end=end_pos,
+            title=title,
+            output=output,
+            colorscale=cmap if cmap != 'expheatmap' else 'Blues'
+        )
     else:
         # Use standard matplotlib visualization
         try:
