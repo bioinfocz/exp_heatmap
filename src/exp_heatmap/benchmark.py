@@ -14,6 +14,7 @@ Features aligned with research paper benchmarking standards:
 """
 
 import os
+import sys
 import time
 import json
 import platform
@@ -945,10 +946,14 @@ def generate_benchmark_report(
     str
         Formatted benchmark report
     """
+    command = " ".join(sys.argv) if hasattr(sys, "argv") else ""
     report_lines = [
         "ExP Heatmap Benchmark Report",
         "=" * 50,
         "",
+        f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"Command: {command}",
+        
     ]
     
     # Add system information section if provided

@@ -102,30 +102,57 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, interactive):
 @click.option('-o', '--out', 'output', type=click.Path(), default='benchmark', show_default=True, help='Output prefix for benchmark files')
 @click.option('-t', '--test', type=click.Choice(['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst']), default='xpehh', show_default=True, help='Statistical test to benchmark')
 @click.option('-c', '--chunked', is_flag=True, help='Use chunked array during compute')
+@click.option('-r', '--replicates', type=int, default=1, show_default=True, help='Number of replicate runs for statistical analysis')
+@click.option('-w', '--warmup', type=int, default=0, show_default=True, help='Number of warmup runs to discard')
 @click.option('--report', type=click.Path(), default=None, help='Save benchmark report to file')
-def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, report):
+def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, replicates, warmup, report):
     """
     <vcf_file>  PATH  VCF file for benchmarking
     <panel_file>  PATH  Population panel file
     
     Run performance benchmarks on the full ExP Heatmap pipeline.
-    """
-    from exp_heatmap.benchmark import run_full_benchmark, generate_benchmark_report
     
-    results = run_full_benchmark(
-        vcf_file=vcf_file,
-        panel_file=panel_file,
-        start=start,
-        end=end,
-        output_prefix=output,
-        test=test,
-        chunked=chunked
+    Use --replicates to run multiple times and get statistical analysis
+    (mean, std, 95% confidence intervals).
+    """
+    from exp_heatmap.benchmark import (
+        run_full_benchmark, 
+        run_full_benchmark_with_replicates,
+        generate_benchmark_report
     )
     
-    if report:
-        generate_benchmark_report(results, output_file=report)
+    if replicates > 1:
+        results, system_info = run_full_benchmark_with_replicates(
+            vcf_file=vcf_file,
+            panel_file=panel_file,
+            start=start,
+            end=end,
+            output_prefix=output,
+            test=test,
+            chunked=chunked,
+            n_replicates=replicates,
+            warmup_runs=warmup
+        )
+        
+        if report:
+            generate_benchmark_report(results, system_info=system_info, output_file=report)
+        else:
+            print("\n" + generate_benchmark_report(results, system_info=system_info))
     else:
-        print("\n" + generate_benchmark_report(results))
+        results = run_full_benchmark(
+            vcf_file=vcf_file,
+            panel_file=panel_file,
+            start=start,
+            end=end,
+            output_prefix=output,
+            test=test,
+            chunked=chunked
+        )
+        
+        if report:
+            generate_benchmark_report(results, output_file=report)
+        else:
+            print("\n" + generate_benchmark_report(results))
 
 
 if __name__ == "__main__":
