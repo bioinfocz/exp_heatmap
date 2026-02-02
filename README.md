@@ -20,10 +20,7 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
 - **Python API**: Full programmatic control for custom analyses
 - **Efficient Processing**: Zarr-based data storage for fast computation
 - **Customizable Visualization**: Multiple color schemes, resolution options, and display settings
-TODO: ADD THE POINTS BELOW ONLY IF IMPLEMENTED INTO PROD
 - **Interactive Mode**: Plotly-based HTML visualizations with zoom, pan, and hover tooltips
-- **Row Clustering**: Hierarchical clustering to reveal patterns across population pairs
-- **Superpopulation Annotations**: Color-coded bars indicating continental ancestry groups
 - **Performance Benchmarking**: Built-in tools for measuring runtime and memory usage
 
 ## Table of Contents
@@ -128,14 +125,8 @@ exp_heatmap plot [OPTIONS] <input_dir>
 - `-t, --title`: Title of the heatmap
 - `-o, --out`: Output filename (without extension)
 - `-c, --cmap`: Matplotlib colormap - [list of colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html)
-TODO: ADD THE POINTS BELOW ONLY IF IMPLEMENTED INTO PROD
-- `--dpi`: Resolution of output image (default: 400)
-- `--figsize`: Figure size as "WIDTH,HEIGHT" in inches
-- `--cluster-rows`: Cluster rows by similarity for pattern discovery
-- `--no-superpop-colors`: Disable superpopulation color annotation bar
 - `--interactive`: Generate interactive HTML visualization
 
-TODO: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 #### 4. Performance Benchmarking - `benchmark`
 
 >Measure runtime and memory usage across the pipeline.
@@ -225,7 +216,6 @@ data_to_plot = create_plot_input("results/", start=47000000, end=49000000)
 plot_exp_heatmap(data_to_plot, start=47000000, end=49000000, 
                  title="Custom Analysis", output="custom_plot")
 ```
-TODOSTART: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 ---
 
 ## Advanced Features
@@ -252,44 +242,6 @@ Or via CLI:
 exp_heatmap plot results/ --start 135287850 --end 136287850 --interactive --out lct_interactive
 ```
 
-### Row Clustering
-
-Cluster population pairs by similarity to reveal hidden patterns:
-
-```python
-from exp_heatmap.plot import plot_exp_heatmap, cluster_rows
-
-# Cluster rows before plotting
-clustered_data = cluster_rows(data_to_plot, method='average', metric='euclidean')
-plot_exp_heatmap(clustered_data, ...)
-
-# Or use the built-in parameter
-plot_exp_heatmap(data_to_plot, cluster_rows_by='euclidean', ...)
-```
-
-### Superpopulation Summaries
-
-Collapse data to superpopulation-level summaries:
-
-```python
-from exp_heatmap.plot import summarize_by_superpopulation
-
-# Aggregate by superpopulation
-summary_data = summarize_by_superpopulation(data_to_plot, agg_func='mean')
-```
-
-### Top Regions Extraction
-
-Automatically identify top-scoring genomic regions:
-
-```python
-from exp_heatmap.plot import extract_top_regions
-
-# Find top 50 selection signal regions
-top_regions = extract_top_regions(data_to_plot, n_top=50, window_size=10000)
-print(top_regions)
-```
-
 ### Performance Benchmarking
 
 Measure and report pipeline performance:
@@ -308,7 +260,6 @@ results = run_full_benchmark(
 # Generate report
 report = generate_benchmark_report(results, output_file="benchmark_report.txt")
 ```
-TODOEND: ADD THE SECTION BELOW ONLY IF IMPLEMENTED INTO PROD
 
 ### Advanced Customization
 
@@ -335,17 +286,12 @@ plot_exp_heatmap(
     cmap="expheatmap",                    # Custom ExP colormap
     display_limit=1.60,                   # Filter noise (values below limit = white)
     display_values="higher",              # Show values above display_limit
-    TODO: ADD THE VALUES BELOW ONLY IF IMPLEMENTED INTO PROD
-    dpi=600,                              # High resolution output
-    figsize=(20, 8),                      # Custom figure size
     
     # Annotations
     vertical_line=[                       # Mark important SNPs
         [135851073, "rs41525747"],        # [position, label]
         [135851081, "rs41380347"]
     ],
-    TODO: ADD THE VALUE BELOW ONLY IF IMPLEMENTED INTO PROD
-    show_superpop_colors=True,            # Show superpopulation color bar
     
     # Colorbar customization
     cbar_vmin=cmin,
