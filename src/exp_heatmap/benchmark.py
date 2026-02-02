@@ -29,6 +29,10 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 
+from exp_heatmap.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 def _get_package_version(package_name: str) -> str:
     """Safely get package version, return 'unknown' if not found."""
@@ -706,21 +710,21 @@ def run_benchmark_with_replicates(
     
     # Warmup runs (discarded)
     for i in range(warmup_runs):
-        print(f"  Warmup run {i+1}/{warmup_runs}...")
+        logger.debug(f"  Warmup run {i+1}/{warmup_runs}...")
         try:
             benchmark_func(**benchmark_kwargs)
         except Exception as e:
-            print(f"    Warmup failed: {e}")
+            logger.debug(f"    Warmup failed: {e}")
     
     # Actual measurement runs
     for i in range(n_replicates):
-        print(f"  Replicate {i+1}/{n_replicates}...")
+        logger.debug(f"  Replicate {i+1}/{n_replicates}...")
         try:
             result = benchmark_func(**benchmark_kwargs)
             all_results.append(result)
-            print(f"    Runtime: {result.runtime_seconds:.2f}s, Memory: {result.peak_memory_mb:.1f}MB")
+            logger.debug(f"    Runtime: {result.runtime_seconds:.2f}s, Memory: {result.peak_memory_mb:.1f}MB")
         except Exception as e:
-            print(f"    FAILED: {e}")
+            logger.debug(f"    FAILED: {e}")
     
     if not all_results:
         raise RuntimeError("All benchmark runs failed")
@@ -782,26 +786,26 @@ def run_full_benchmark_with_replicates(
     compute_dir = f"{output_prefix}_compute"
     plot_output = f"{output_prefix}_plot"
     
-    print("=" * 60)
-    print("ExP Heatmap Full Pipeline Benchmark (with replicates)")
-    print("=" * 60)
-    print(f"\nSystem: {system_info.cpu_model}")
-    print(f"Replicates: {n_replicates}, Warmup: {warmup_runs}")
+    logger.info("=" * 60)
+    logger.info("ExP Heatmap Full Pipeline Benchmark (with replicates)")
+    logger.info("=" * 60)
+    logger.debug(f"System: {system_info.cpu_model}")
+    logger.debug(f"Replicates: {n_replicates}, Warmup: {warmup_runs}")
     
     # Step 1: Prepare (usually run once since it's deterministic)
     if not skip_prepare:
-        print("\n[1/3] Benchmarking PREPARE step...")
+        logger.info("[1/3] Benchmarking PREPARE step...")
         try:
             # Prepare typically only needs one run as it's I/O bound and deterministic
             result = benchmark_prepare(vcf_file, zarr_dir)
             stats = compute_statistics([result])
             results.append(stats.to_dict())
-            print(f"      Runtime: {stats.runtime_mean:.2f}s, Memory: {stats.peak_memory_mean:.1f}MB")
+            logger.debug(f"      Runtime: {stats.runtime_mean:.2f}s, Memory: {stats.peak_memory_mean:.1f}MB")
         except Exception as e:
-            print(f"      FAILED: {e}")
+            logger.error(f"      FAILED: {e}")
     
     # Step 2: Compute (run with replicates)
-    print(f"\n[2/3] Benchmarking COMPUTE step ({n_replicates} replicates)...")
+    logger.info(f"[2/3] Benchmarking COMPUTE step ({n_replicates} replicates)...")
     try:
         stats, _ = run_benchmark_with_replicates(
             benchmark_compute,
@@ -814,13 +818,13 @@ def run_full_benchmark_with_replicates(
             chunked=chunked
         )
         results.append(stats.to_dict())
-        print(f"      Runtime: {stats.runtime_mean:.2f} ± {stats.runtime_std:.2f}s")
-        print(f"      Memory: {stats.peak_memory_mean:.1f} ± {stats.peak_memory_std:.1f}MB")
+        logger.debug(f"      Runtime: {stats.runtime_mean:.2f} ± {stats.runtime_std:.2f}s")
+        logger.debug(f"      Memory: {stats.peak_memory_mean:.1f} ± {stats.peak_memory_std:.1f}MB")
     except Exception as e:
-        print(f"      FAILED: {e}")
+        logger.error(f"      FAILED: {e}")
     
     # Step 3: Plot (run with replicates)
-    print(f"\n[3/3] Benchmarking PLOT step ({n_replicates} replicates)...")
+    logger.info(f"[3/3] Benchmarking PLOT step ({n_replicates} replicates)...")
     try:
         stats, _ = run_benchmark_with_replicates(
             benchmark_plot,
@@ -832,14 +836,14 @@ def run_full_benchmark_with_replicates(
             output=plot_output
         )
         results.append(stats.to_dict())
-        print(f"      Runtime: {stats.runtime_mean:.2f} ± {stats.runtime_std:.2f}s")
-        print(f"      Memory: {stats.peak_memory_mean:.1f} ± {stats.peak_memory_std:.1f}MB")
+        logger.debug(f"      Runtime: {stats.runtime_mean:.2f} ± {stats.runtime_std:.2f}s")
+        logger.debug(f"      Memory: {stats.peak_memory_mean:.1f} ± {stats.peak_memory_std:.1f}MB")
     except Exception as e:
-        print(f"      FAILED: {e}")
+        logger.error(f"      FAILED: {e}")
     
-    print("\n" + "=" * 60)
-    print("Benchmark Complete")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Benchmark Complete")
+    logger.info("=" * 60)
     
     return pd.DataFrame(results), system_info
 
@@ -880,40 +884,40 @@ def run_full_benchmark(vcf_file: str, panel_file: str,
     compute_dir = f"{output_prefix}_compute"
     plot_output = f"{output_prefix}_plot"
     
-    print("=" * 60)
-    print("ExP Heatmap Full Pipeline Benchmark")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("ExP Heatmap Full Pipeline Benchmark")
+    logger.info("=" * 60)
     
     # Step 1: Prepare
-    print("\n[1/3] Benchmarking PREPARE step...")
+    logger.info("[1/3] Benchmarking PREPARE step...")
     try:
         result = benchmark_prepare(vcf_file, zarr_dir)
         results.append(result.to_dict())
-        print(f"      Runtime: {result.runtime_seconds:.2f}s, Peak Memory: {result.peak_memory_mb:.1f}MB")
+        logger.debug(f"      Runtime: {result.runtime_seconds:.2f}s, Peak Memory: {result.peak_memory_mb:.1f}MB")
     except Exception as e:
-        print(f"      FAILED: {e}")
+        logger.error(f"      FAILED: {e}")
     
     # Step 2: Compute
-    print("\n[2/3] Benchmarking COMPUTE step...")
+    logger.info("[2/3] Benchmarking COMPUTE step...")
     try:
         result = benchmark_compute(zarr_dir, panel_file, compute_dir, test, chunked)
         results.append(result.to_dict())
-        print(f"      Runtime: {result.runtime_seconds:.2f}s, Peak Memory: {result.peak_memory_mb:.1f}MB")
+        logger.debug(f"      Runtime: {result.runtime_seconds:.2f}s, Peak Memory: {result.peak_memory_mb:.1f}MB")
     except Exception as e:
-        print(f"      FAILED: {e}")
+        logger.error(f"      FAILED: {e}")
     
     # Step 3: Plot
-    print("\n[3/3] Benchmarking PLOT step...")
+    logger.info("[3/3] Benchmarking PLOT step...")
     try:
         result = benchmark_plot(compute_dir, start, end, plot_output)
         results.append(result.to_dict())
-        print(f"      Runtime: {result.runtime_seconds:.2f}s, Peak Memory: {result.peak_memory_mb:.1f}MB")
+        logger.debug(f"      Runtime: {result.runtime_seconds:.2f}s, Peak Memory: {result.peak_memory_mb:.1f}MB")
     except Exception as e:
-        print(f"      FAILED: {e}")
+        logger.error(f"      FAILED: {e}")
     
-    print("\n" + "=" * 60)
-    print("Benchmark Complete")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Benchmark Complete")
+    logger.info("=" * 60)
     
     return pd.DataFrame(results)
 
@@ -1110,7 +1114,7 @@ def generate_benchmark_report(
     if output_file:
         with open(output_file, 'w') as f:
             f.write(report)
-        print(f"Report saved to: {output_file}")
+        logger.info(f"Report saved to: {output_file}")
     
     return report
 
@@ -1184,7 +1188,7 @@ def export_benchmark_json(
     if output_file:
         with open(output_file, 'w') as f:
             f.write(json_str)
-        print(f"JSON export saved to: {output_file}")
+        logger.info(f"JSON export saved to: {output_file}")
     
     return json_str
 
@@ -1395,7 +1399,7 @@ def export_benchmark_markdown(
     if output_file:
         with open(output_file, 'w') as f:
             f.write(md_str)
-        print(f"Markdown export saved to: {output_file}")
+        logger.info(f"Markdown export saved to: {output_file}")
     
     return md_str
 
@@ -1415,7 +1419,7 @@ def export_benchmark_csv(
         Output CSV file path
     """
     results.to_csv(output_file, index=False)
-    print(f"CSV export saved to: {output_file}")
+    logger.info(f"CSV export saved to: {output_file}")
 
 
 def scalability_test(base_data_generator: Callable,
@@ -1451,7 +1455,7 @@ def scalability_test(base_data_generator: Callable,
     
     for n_pops in population_counts:
         for n_vars in variant_counts:
-            print(f"\nTesting: {n_pops} populations, {n_vars} variants")
+            logger.debug(f"Testing: {n_pops} populations, {n_vars} variants")
             
             try:
                 # Generate test data
@@ -1474,7 +1478,7 @@ def scalability_test(base_data_generator: Callable,
                 all_results.append(results)
                 
             except Exception as e:
-                print(f"  FAILED: {e}")
+                logger.error(f"  FAILED: {e}")
                 continue
     
     if all_results:
@@ -1483,5 +1487,4 @@ def scalability_test(base_data_generator: Callable,
         return combined
     
     return pd.DataFrame()
-
 

@@ -1,6 +1,7 @@
 import sys
 import click
 from exp_heatmap import prepare, compute, plot, __version__
+from exp_heatmap.logging import setup_logging, get_logger, get_log_file_path
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -13,11 +14,19 @@ def cli():
 @cli.command(name='prepare', short_help='Convert VCF file to ZARR format', context_settings=CONTEXT_SETTINGS)
 @click.argument('vcf_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<vcf_file>')
 @click.option('-o', '--out', 'output', type=click.Path(), default='zarr_output', show_default=True, help='Directory for ZARR files')
-def prepare_cmd(vcf_file, output):
+@click.option('--no-log', is_flag=True, help='Disable logging to file')
+@click.option('--verbose', is_flag=True, help='Show detailed debug output in console')
+def prepare_cmd(vcf_file, output, no_log, verbose):
     """
     <vcf_file>  PATH  Recoded VCF file
     """
+    setup_logging("prepare", log_to_file=not no_log, verbose=verbose)
+    logger = get_logger(__name__)
+    logger.info("Starting prepare command...")
     prepare(vcf_file, output)
+    log_file = get_log_file_path()
+    if log_file:
+        logger.info(f"Log file: {log_file}")
 
 # compute command
 @cli.command(name='compute', short_help='Compute population genetics statistics', context_settings=CONTEXT_SETTINGS)
@@ -26,12 +35,20 @@ def prepare_cmd(vcf_file, output):
 @click.option('-o', '--out', 'output', type=click.Path(), default='output', show_default=True, help='Directory for output files')
 @click.option('-t', '--test', type=click.Choice(['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst']), default='xpehh', show_default=True, help='Statistical test to compute')
 @click.option('-c', '--chunked', is_flag=True, help='Use chunked array to avoid memory exhaustion')
-def compute_cmd(zarr_dir, panel_file, output, test, chunked):
+@click.option('--no-log', is_flag=True, help='Disable logging to file')
+@click.option('--verbose', is_flag=True, help='Show detailed debug output in console')
+def compute_cmd(zarr_dir, panel_file, output, test, chunked, no_log, verbose):
     """
     <zarr_dir>  PATH  Directory with ZARR files from 'exp_heatmap prepare'
     <panel_file>  PATH  Population panel file
     """
+    setup_logging("compute", log_to_file=not no_log, verbose=verbose)
+    logger = get_logger(__name__)
+    logger.info("Starting compute command...")
     compute(zarr_dir, panel_file, output, test, chunked)
+    log_file = get_log_file_path()
+    if log_file:
+        logger.info(f"Log file: {log_file}")
 
 # plot command
 @cli.command(name='plot', short_help='Generate heatmap visualization', context_settings=CONTEXT_SETTINGS)
@@ -43,13 +60,19 @@ def compute_cmd(zarr_dir, panel_file, output, test, chunked):
 @click.option('-o', '--out', 'output', type=click.Path(), default='ExP_heatmap', show_default=True, help='The output heatmap')
 @click.option('-c', '--cmap', type=str, default='Blues', show_default=True, help='Matplotlib colormap for heatmap visualization')
 @click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization (requires plotly)')
+@click.option('--no-log', is_flag=True, help='Disable logging to file')
+@click.option('--verbose', is_flag=True, help='Show detailed debug output in console')
 
-def plot_cmd(input_dir, start, end, mid, title, output, cmap, interactive):
+def plot_cmd(input_dir, start, end, mid, title, output, cmap, interactive, no_log, verbose):
     """
     <input_dir>  PATH  Directory with TSV files from 'exp_heatmap compute'
     
     For positional arguments, use either [-s with -e] or [-m].
     """
+    setup_logging("plot", log_to_file=not no_log, verbose=verbose)
+    logger = get_logger(__name__)
+    logger.info("Starting plot command...")
+    
     start_end_provided = start is not None and end is not None
     mid_provided = mid is not None
     
@@ -92,6 +115,10 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, interactive):
             )
         except ValueError as e:
             raise click.ClickException(str(e))
+    
+    log_file = get_log_file_path()
+    if log_file:
+        logger.info(f"Log file: {log_file}")
 
 # benchmark command
 @cli.command(name='benchmark', short_help='Run performance benchmarks', context_settings=CONTEXT_SETTINGS)
@@ -105,7 +132,9 @@ def plot_cmd(input_dir, start, end, mid, title, output, cmap, interactive):
 @click.option('-r', '--replicates', type=int, default=1, show_default=True, help='Number of replicate runs for statistical analysis')
 @click.option('-w', '--warmup', type=int, default=0, show_default=True, help='Number of warmup runs to discard')
 @click.option('--report', type=click.Path(), default=None, help='Save benchmark report to file')
-def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, replicates, warmup, report):
+@click.option('--no-log', is_flag=True, help='Disable logging to file')
+@click.option('--verbose', is_flag=True, help='Show detailed debug output in console')
+def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, replicates, warmup, report, no_log, verbose):
     """
     <vcf_file>  PATH  VCF file for benchmarking
     <panel_file>  PATH  Population panel file
@@ -115,6 +144,10 @@ def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, repli
     Use --replicates to run multiple times and get statistical analysis
     (mean, std, 95% confidence intervals).
     """
+    setup_logging("benchmark", log_to_file=not no_log, verbose=verbose)
+    logger = get_logger(__name__)
+    logger.info("Starting benchmark command...")
+    
     from exp_heatmap.benchmark import (
         run_full_benchmark, 
         run_full_benchmark_with_replicates,
@@ -137,7 +170,7 @@ def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, repli
         if report:
             generate_benchmark_report(results, system_info=system_info, output_file=report)
         else:
-            print("\n" + generate_benchmark_report(results, system_info=system_info))
+            logger.info("\n" + generate_benchmark_report(results, system_info=system_info))
     else:
         results = run_full_benchmark(
             vcf_file=vcf_file,
@@ -152,7 +185,11 @@ def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, repli
         if report:
             generate_benchmark_report(results, output_file=report)
         else:
-            print("\n" + generate_benchmark_report(results))
+            logger.info("\n" + generate_benchmark_report(results))
+    
+    log_file = get_log_file_path()
+    if log_file:
+        logger.info(f"Log file: {log_file}")
 
 
 if __name__ == "__main__":

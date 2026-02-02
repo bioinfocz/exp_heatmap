@@ -3,6 +3,9 @@ import allel
 import zarr
 
 from exp_heatmap import utils
+from exp_heatmap.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def prepare(recode_file: str, zarr_dir: str) -> None:
@@ -22,11 +25,9 @@ def prepare(recode_file: str, zarr_dir: str) -> None:
     # Check zarr version compatibility
     zarr_version = zarr.__version__
     if int(zarr_version.split('.')[0]) >= 3:
-        print(f"Error: Unsupported zarr version: {zarr_version}")
-        print("Please downgrade to zarr version < 3.0.0:")
-        print()
-        print("  pip install 'zarr<3.0.0'")
-        print()
+        logger.error(f"Unsupported zarr version: {zarr_version}")
+        logger.error("Please downgrade to zarr version < 3.0.0:")
+        logger.error("  pip install 'zarr<3.0.0'")
         sys.exit(1)
     
     # Check if input file exists
@@ -34,14 +35,14 @@ def prepare(recode_file: str, zarr_dir: str) -> None:
 
     # Convert VCF file to ZARR array
     try:
-        allel.vcf_to_zarr(recode_file, zarr_dir, fields="*", log=sys.stdout)
+        allel.vcf_to_zarr(recode_file, zarr_dir, fields="*", log=logger)
     except KeyboardInterrupt:
-        print("")
+        logger.info("")
         sys.exit(1)
     except Exception as e:
-        print(f"Error converting VCF to ZARR: {e}")
+        logger.error(f"Error converting VCF to ZARR: {e}")
         sys.exit(1)
     
-    print()
-    print(f"Recoded VCF: {recode_file}")
-    print(f"ZARR dir: {zarr_dir}")
+    logger.info(f"Prepare completed successfully")
+    logger.debug(f"Recoded VCF: {recode_file}")
+    logger.debug(f"ZARR dir: {zarr_dir}")

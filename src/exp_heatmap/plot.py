@@ -8,6 +8,10 @@ import glob
 from bisect import bisect_left
 from tqdm import tqdm
 
+from exp_heatmap.logging import get_logger
+
+logger = get_logger(__name__)
+
 # 1000 Genomes Project data
 populations_1000genomes = ("ACB","ASW","ESN","GWD","LWK","MSL","YRI","BEB","GIH","ITU","PJL","STU","CDX","CHB","CHS","JPT","KHV","CEU","FIN","GBR","IBS","TSI","CLM","MXL","PEL","PUR")
 superpopulations = {"AFR": ("ACB", "ASW", "ESN", "GWD", "LWK", "MSL", "YRI"),
@@ -66,7 +70,7 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
             df_list.append(segments)
 
         else:
-            print(f"[{index}/{len(segment_files)}] ERROR Loading {pop_pair} from {segment_file}. {p1} or {p2} not in provided population list.")
+            logger.debug(f"[{index}/{len(segment_files)}] Skipping {pop_pair} from {segment_file}. {p1} or {p2} not in provided population list.")
             
         index += 1
             
@@ -131,14 +135,14 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
     actual_end = int(concat_df.columns[-1])
     num_variants = len(concat_df.columns)
     
-    # Print informative region selection summary
-    print(f"\n{'─' * 60}")
-    print("Region Selection Summary")
-    print(f"{'─' * 60}")
-    print(f"  Requested region:    {start:,} - {end:,}")
-    print(f"  Available data:      {_first_file_range[0]:,} - {_first_file_range[1]:,}")
-    print(f"  Selected region:     {actual_start:,} - {actual_end:,}")
-    print(f"  Variants in region:  {num_variants:,}")
+    # Log informative region selection summary
+    logger.debug(f"{'─' * 60}")
+    logger.debug("Region Selection Summary")
+    logger.debug(f"{'─' * 60}")
+    logger.debug(f"  Requested region:    {start:,} - {end:,}")
+    logger.debug(f"  Available data:      {_first_file_range[0]:,} - {_first_file_range[1]:,}")
+    logger.debug(f"  Selected region:     {actual_start:,} - {actual_end:,}")
+    logger.debug(f"  Variants in region:  {num_variants:,}")
     
     # Explain any adjustments made
     adjustments = []
@@ -153,10 +157,10 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         adjustments.append(f"end snapped to nearest variant at {actual_end:,}")
     
     if adjustments:
-        print(f"\n  Note: Region boundaries adjusted to match available variant positions:")
+        logger.debug(f"  Note: Region boundaries adjusted to match available variant positions:")
         for adj in adjustments:
-            print(f"    • {adj}")
-    print(f"{'─' * 60}")
+            logger.debug(f"    • {adj}")
+    logger.debug(f"{'─' * 60}")
     
     pop_labels = concat_df.index.values
     first_pop = [pop.split("_")[0] for pop in pop_labels]
@@ -409,34 +413,30 @@ def plot_exp_heatmap(
         new_end = take_closest_end(sorted_columns, end)
         input_df = input_df.loc[:, new_start:new_end]
         
-        print(f"WARNING: Given 'start' and 'end' datapoints are not found in the input data. New closest datapoints were selected.\nstart={new_start}\nend={new_end}")
+        logger.warning(f"Given 'start' and 'end' datapoints are not found in the input data. New closest datapoints were selected: start={new_start}, end={new_end}")
         
     # Check the input data for number of populations and input_df shape
     if populations == "1000Genomes":
-        print("\nInput data: 1000 Genomes Project, phase 3 (26 populations expected)")
-        print("Expecting 650 population pairwise comparisons: ", end="")
+        logger.debug("Input data: 1000 Genomes Project, phase 3 (26 populations expected)")
+        logger.debug(f"Expecting 650 population pairwise comparisons: {input_df.shape[0]} found")
         if input_df.shape[0] != 650:
             raise ValueError(f"With selected populations='1000Genomes' option, the input_df was expected to have 650 rows, actual shape was: {input_df.shape[0]} rows, {input_df.shape[1]} columns")
-        else:
-            print("✓\n")
 
     else:
         expected_pop_pairs = len(populations) * (len(populations) - 1)
-        print(f"\n Input data: {len(populations)} custom populations")
-        print(f"Expecting {expected_pop_pairs} population pairs: ", end="")
-        if input_df.shape[0] == expected_pop_pairs:
-            print("✓\n")
-        else:
+        logger.debug(f"Input data: {len(populations)} custom populations")
+        logger.debug(f"Expecting {expected_pop_pairs} population pairs: {input_df.shape[0]} found")
+        if input_df.shape[0] != expected_pop_pairs:
             raise ValueError(f"With selected populations={populations} option, the input_df was expected to have {expected_pop_pairs} rows, actual shape was: {input_df.shape[0]} rows, {input_df.shape[1]} columns")
 
     # Apply the display_limit if selected
     if display_limit:
         if display_values == "higher":
-            print(f"\nDisplaying only values above the given display_limit: {display_limit}")
+            logger.debug(f"Displaying only values above the given display_limit: {display_limit}")
             input_df[input_df < display_limit] = 0
             
         elif display_values == "lower":
-            print(f"\nDisplaying only values below the given display_limit: {display_limit}")
+            logger.debug(f"Displaying only values below the given display_limit: {display_limit}")
             input_df[input_df > display_limit] = 0
             
         else:
@@ -446,7 +446,7 @@ def plot_exp_heatmap(
     if row_order is not None:
         try:
             input_df = input_df.loc[row_order]
-            print(f"Applied custom row ordering with {len(row_order)} rows")
+            logger.debug(f"Applied custom row ordering with {len(row_order)} rows")
         except KeyError as e:
             raise ValueError(f"Some row names in row_order not found in data: {e}")
     
@@ -583,7 +583,7 @@ def plot_exp_heatmap(
                 labels.append(label)
                 ax.axvline(x=col_index, linewidth=0.3, color='#CCCCCC', zorder=1)
             except ValueError:
-                print(f"Warning: Position {pos} not found in data columns, skipping this vertical line")
+                logger.warning(f"Position {pos} not found in data columns, skipping this vertical line")
                 continue
         
         # Set x-ticks and labels for the valid positions
@@ -592,7 +592,7 @@ def plot_exp_heatmap(
             ax.set_xticklabels(labels)
     
     ax.figure.savefig(f"{output}.{output_suffix}", dpi=400, bbox_inches="tight")
-    print(f"ExP heatmap saved into {output}.{output_suffix}")
+    logger.info(f"ExP heatmap saved to {output}.{output_suffix}")
     return ax
 
 
@@ -707,5 +707,5 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
             output=output
         )
     except KeyboardInterrupt:
-        print("")
+        logger.info("")
         sys.exit(1)

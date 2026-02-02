@@ -18,6 +18,10 @@ distribution, suitable for identifying outliers but not for formal hypothesis te
 
 import numpy as np
 
+from exp_heatmap.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 def compute_ranks(values):
     """
@@ -47,7 +51,7 @@ def compute_ranks(values):
     if len(ranks) == len(values):
         return ranks
     else:
-        print("number of ranks does not equal number of values")
+        logger.error("number of ranks does not equal number of values")
 
 
 def compute_empirical_rank_scores(ranks):

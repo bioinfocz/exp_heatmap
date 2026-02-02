@@ -6,6 +6,10 @@ import re
 import os
 import sys
 
+from exp_heatmap.logging import get_logger
+
+logger = get_logger(__name__)
+
 
 def check_path_or_exit(path: str):
     """
@@ -18,7 +22,7 @@ def check_path_or_exit(path: str):
         path (str): The file or directory path to check
     """
     if not os.path.exists(path):
-        print("Path {} does not exist or it is unaccessible".format(path))
+        logger.error(f"Path {path} does not exist or it is unaccessible")
         sys.exit(1)
 
 

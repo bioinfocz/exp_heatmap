@@ -19,6 +19,9 @@ from exp_heatmap.plot import (
     pop_to_superpop,
     create_plot_input
 )
+from exp_heatmap.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def plot_interactive_heatmap(
@@ -119,7 +122,7 @@ def plot_interactive_heatmap(
         input_df = pd.DataFrame(downsampled_data, index=downsampled_positions).T
         input_df.columns = downsampled_positions
         
-        print(f"Downsampled from {n_cols:,} to {len(input_df.columns):,} positions for interactive view")
+        logger.debug(f"Downsampled from {n_cols:,} to {len(input_df.columns):,} positions for interactive view")
     
     # Determine populations
     is_1000genomes = populations == "1000Genomes"
@@ -316,7 +319,7 @@ def plot_interactive_heatmap(
     with open(output_file, 'w') as f:
         f.write(html_content)
     
-    print(f"Interactive heatmap saved to: {output_file}")
+    logger.info(f"Interactive heatmap saved to: {output_file}")
     
     return fig
 
@@ -460,7 +463,7 @@ def create_comparison_view(
     # Save
     output_file = f"{output}.html"
     fig.write_html(output_file)
-    print(f"Comparison view saved to: {output_file}")
+    logger.info(f"Comparison view saved to: {output_file}")
     
     return fig
 
@@ -539,8 +542,7 @@ def create_population_focus_view(
     
     output_file = f"{output}.html"
     fig.write_html(output_file)
-    print(f"Population focus view saved to: {output_file}")
+    logger.info(f"Population focus view saved to: {output_file}")
     
     return fig
-
 
