@@ -14,7 +14,6 @@ Features aligned with research paper benchmarking standards:
 """
 
 import os
-import sys
 import time
 import json
 import platform
@@ -23,7 +22,7 @@ import hashlib
 import tracemalloc
 import functools
 from datetime import datetime
-from typing import Dict, List, Optional, Callable, Any, Union, Tuple
+from typing import Dict, List, Optional, Callable, Any, Tuple
 from dataclasses import dataclass, field, asdict
 import pandas as pd
 import numpy as np
