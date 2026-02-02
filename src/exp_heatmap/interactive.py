@@ -35,7 +35,8 @@ def plot_interactive_heatmap(
     display_values: str = "higher",
     height: int = 600,
     width: int = 1500,
-    show_superpop_annotations: bool = True
+    show_superpop_annotations: bool = True,
+    max_columns: int = 30000
 ) -> 'go.Figure':
     """
     Generate an interactive ExP heatmap using Plotly.
@@ -75,6 +76,11 @@ def plot_interactive_heatmap(
         Width of the figure in pixels (default: 1500).
     show_superpop_annotations : bool, optional
         If True, add superpopulation group annotations on y-axis.
+    max_columns : int, optional
+        Maximum number of genomic positions (columns) to display (default: 30000).
+        If the data has more columns, it will be downsampled by taking the maximum
+        value within each bin. This keeps the file size manageable for browsers.
+        Set to None to disable downsampling (not recommended for large regions).
         
     Returns
     -------
@@ -88,6 +94,32 @@ def plot_interactive_heatmap(
     if not columns:
         raise ValueError(f"No data found in range {start}-{end}")
     input_df = input_df[columns]
+    
+    # Downsample if too many columns (to keep HTML file size reasonable)
+    n_cols = len(input_df.columns)
+    if max_columns is not None and n_cols > max_columns:
+        # Calculate bin size
+        bin_size = n_cols // max_columns
+        n_bins = n_cols // bin_size
+        
+        # Downsample by taking max value in each bin (preserves peaks)
+        downsampled_data = []
+        downsampled_positions = []
+        
+        for i in range(n_bins):
+            bin_start = i * bin_size
+            bin_end = min((i + 1) * bin_size, n_cols)
+            bin_data = input_df.iloc[:, bin_start:bin_end]
+            # Take max across the bin for each row (preserves selection signals)
+            downsampled_data.append(bin_data.max(axis=1))
+            # Use the middle position of the bin as the representative position
+            mid_idx = (bin_start + bin_end) // 2
+            downsampled_positions.append(input_df.columns[mid_idx])
+        
+        input_df = pd.DataFrame(downsampled_data, index=downsampled_positions).T
+        input_df.columns = downsampled_positions
+        
+        print(f"Downsampled from {n_cols:,} to {len(input_df.columns):,} positions for interactive view")
     
     # Determine populations
     is_1000genomes = populations == "1000Genomes"
@@ -107,24 +139,8 @@ def plot_interactive_heatmap(
     if zmax is None:
         zmax = 4.833 if is_1000genomes else input_df.max().max()
     
-    # Create custom hover text
-    hover_text = []
-    for row_idx, row_name in enumerate(input_df.index):
-        row_hover = []
-        pop1, pop2 = row_name.split("_")
-        superpop1 = pop_to_superpop.get(pop1, "Unknown")
-        superpop2 = pop_to_superpop.get(pop2, "Unknown")
-        for col_idx, pos in enumerate(input_df.columns):
-            value = input_df.iloc[row_idx, col_idx]
-            row_hover.append(
-                f"Position: {pos:,}<br>"
-                f"Population pair: {row_name}<br>"
-                f"Superpopulations: {superpop1} vs {superpop2}<br>"
-                f"Score: {value:.3f}"
-            )
-        hover_text.append(row_hover)
-    
-    # Create the heatmap
+    # Create the heatmap using hovertemplate for memory efficiency
+    # This avoids creating millions of hover text strings for large datasets
     fig = go.Figure()
     
     fig.add_trace(go.Heatmap(
@@ -134,8 +150,7 @@ def plot_interactive_heatmap(
         colorscale=colorscale,
         zmin=zmin,
         zmax=zmax,
-        hovertext=hover_text,
-        hoverinfo='text',
+        hovertemplate='Position: %{x:,}<br>Population pair: %{y}<br>Score: %{z:.3f}<extra></extra>',
         colorbar=dict(
             title=dict(text="-log10(rank score)", side="right"),
             thickness=15,
