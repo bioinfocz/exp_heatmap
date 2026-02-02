@@ -8,6 +8,23 @@ from exp_heatmap.logging import get_logger
 logger = get_logger(__name__)
 
 
+class LoggerWriter:
+    """Adapter to make a logging.Logger behave like a file-like object for scikit-allel."""
+    def __init__(self, logger_instance, level=None):
+        self.logger = logger_instance
+        self.level = level or logger_instance.info
+    
+    def write(self, message):
+        # Strip trailing newlines to avoid double-spacing in logs
+        message = message.rstrip('\n')
+        if message:  # Only log non-empty messages
+            self.level(message)
+    
+    def flush(self):
+        # Required for file-like interface, but logging handles this
+        pass
+
+
 def prepare(recode_file: str, zarr_dir: str) -> None:
     """
     Convert VCF file to ZARR array.
@@ -35,7 +52,9 @@ def prepare(recode_file: str, zarr_dir: str) -> None:
 
     # Convert VCF file to ZARR array
     try:
-        allel.vcf_to_zarr(recode_file, zarr_dir, fields="*", log=logger)
+        # Wrap logger in file-like adapter for scikit-allel compatibility
+        log_writer = LoggerWriter(logger, level=logger.debug)
+        allel.vcf_to_zarr(recode_file, zarr_dir, fields="*", log=log_writer)
     except KeyboardInterrupt:
         logger.info("")
         sys.exit(1)
