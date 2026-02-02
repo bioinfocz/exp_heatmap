@@ -477,12 +477,12 @@ def plot_exp_heatmap(
     fig, ax = plt.subplots(figsize=figsize)
 
     # Plot the main heatmap
-    cbar_kws_base = {"shrink": 0.6}  # Make colorbar smaller
+    cbar_kws_base = {"shrink": 0.9, "aspect": 30}
     if is_1000genomes:
         cbar_kws = {**cbar_kws_base, "ticks": cbar_ticks} if cbar_ticks else cbar_kws_base
-        sns.heatmap(
+        hm = sns.heatmap(
             input_df,
-            yticklabels=False,  # We'll set these manually
+            yticklabels=False,
             xticklabels=False,
             vmin=1.301 if cbar_vmin is None else cbar_vmin,
             vmax=4.833 if cbar_vmax is None else cbar_vmax,
@@ -492,9 +492,9 @@ def plot_exp_heatmap(
         )
     else:
         cbar_kws = {**cbar_kws_base, "ticks": cbar_ticks}
-        sns.heatmap(
+        hm = sns.heatmap(
             input_df,
-            yticklabels=False,  # We'll set these manually
+            yticklabels=False,
             xticklabels=False,
             vmin=cbar_vmin,
             vmax=cbar_vmax,
@@ -502,29 +502,38 @@ def plot_exp_heatmap(
             ax=ax,
             cmap=cmap,
         )
+    
+    # Remove colorbar ticks and reduce label font size
+    cbar = hm.collections[0].colorbar
+    cbar.ax.tick_params(length=0, labelsize=7)
 
     ax.set_title(title)
-    ax.set_xlabel(xlabel)
+    
+    # Set x-axis ticks at left, middle, and right positions with genomic coordinates
+    x_extent = input_df.shape[1]
+    actual_start = int(input_df.columns[0])
+    actual_end = int(input_df.columns[-1])
+    actual_middle = (actual_start + actual_end) // 2
+    
+    ax.set_xticks([0, x_extent // 2, x_extent - 1])
+    ax.set_xticklabels([f"{actual_start:,}", f"{actual_middle:,}", f"{actual_end:,}"], fontsize=7)
+    ax.tick_params(axis="x", length=0, pad=8)  # Remove x-axis tick marks, add padding
+    ax.set_xlabel(xlabel if xlabel else "")
         
     # Set the y-axis ticks and labels with improved visibility
     y_axis_len = len(populations) * (len(populations) - 1)
     n_pops = len(populations)
     
-    # Major ticks at population group boundaries (excluding first and last)
-    boundary_positions = np.arange(0, y_axis_len + 1, step=(n_pops - 1))
-    boundary_positions = boundary_positions[1:-1]  # Remove first and last tick
-    ax.set_yticks(boundary_positions)
-    ax.set_yticklabels([])  # No labels on boundary ticks
-    
-    # Minor ticks at center of each population group for labels (no tick marks)
+    # Remove all y-axis ticks
+    ax.set_yticks([])
     label_positions = np.arange((n_pops - 1) / 2, y_axis_len, step=(n_pops - 1))
     ax.set_yticks(label_positions, minor=True)
-    ax.tick_params(axis="y", which="minor", length=0)  # Hide minor tick marks
+    ax.tick_params(axis="y", which="minor", length=0)
     
     # Set y-axis labels with appropriate font size for visibility
     fontsize = max(4, min(8, 200 // n_pops))  # Scale font size based on number of populations
     ax.set_yticklabels(populations, minor=True, fontsize=fontsize)
-    ax.set_ylabel('')  # Remove any ylabel
+    ax.set_ylabel('')
     
     # Add superpopulation labels on the right side for 1000 Genomes data
     if is_1000genomes:
@@ -549,18 +558,14 @@ def plot_exp_heatmap(
             # Add horizontal separator line at the end of each superpopulation (except the last)
             if i < len(superpop_order) - 1:
                 boundary_pos = cumulative_pos + sp_rows
-                # Subtle line across the full width of the heatmap
                 ax.axhline(y=boundary_pos, color='#CCCCCC', linewidth=0.3, zorder=1)
-                # Darker line segment on the right side for the tick
-                ax.plot([x_extent, x_extent * 1.02], [boundary_pos, boundary_pos], 
-                       color='black', linewidth=0.8, clip_on=False)
             
             cumulative_pos += sp_rows
 
     # Add vertical line if specified
     if vertical_line is True: # Single vertical line in the middle
         middle = int(input_df.shape[1] / 2)
-        ax.axvline(x=middle, linewidth=1, color="grey")
+        ax.axvline(x=middle, linewidth=0.3, color='#CCCCCC', zorder=1)
         
     elif vertical_line and hasattr(vertical_line, '__iter__') and not isinstance(vertical_line, str): # Multiple vertical lines with labels
         list_of_columns = input_df.columns.to_list()
@@ -576,7 +581,7 @@ def plot_exp_heatmap(
                 col_index = list_of_columns.index(pos)
                 positions_indices.append(col_index)
                 labels.append(label)
-                ax.axvline(x=col_index, linewidth=1, color="grey")
+                ax.axvline(x=col_index, linewidth=0.3, color='#CCCCCC', zorder=1)
             except ValueError:
                 print(f"Warning: Position {pos} not found in data columns, skipping this vertical line")
                 continue
@@ -699,8 +704,7 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
             end=actual_end,
             title=title,
             cmap=cmap,
-            output=output,
-            xlabel="{:,} - {:,}".format(actual_start, actual_end)
+            output=output
         )
     except KeyboardInterrupt:
         print("")
