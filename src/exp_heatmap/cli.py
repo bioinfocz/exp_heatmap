@@ -41,7 +41,7 @@ def full_cmd(vcf_file, panel_file, output, start, end, test, chunked, title, cma
     if interactive:
         # Use interactive Plotly visualization
         colorscale=cmap if cmap != 'expheatmap' else 'Blues'
-        plot_interactive(compute_dir,start,end,title,plot_output,colorscale=colorscale)
+        plot_interactive(compute_dir,start,end,title,plot_output,colorscale)
     else:
         # Use static matplotlib visualization
         plot(compute_dir, start, end, title, plot_output, cmap)
@@ -115,7 +115,7 @@ def plot_cmd(input_dir, start, end, title, output, cmap, interactive, no_log, ve
     if interactive:
         # Use interactive Plotly visualization
         colorscale=cmap if cmap != 'expheatmap' else 'Blues'
-        plot_interactive(input_dir,start,end,title,output,colorscale=colorscale)
+        plot_interactive(input_dir,start,end,title,output,colorscale)
     else:
         # Use static matplotlib visualization
         plot(input_dir, start, end, title, output, cmap)
@@ -123,6 +123,78 @@ def plot_cmd(input_dir, start, end, title, output, cmap, interactive, no_log, ve
     log_file = get_log_file_path()
     if log_file:
         logger.info(f"Log file: {log_file}")
+
+# benchmark command
+@cli.command(name='benchmark', short_help='Run performance benchmarks', context_settings=CONTEXT_SETTINGS)
+@click.argument('vcf_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<vcf_file>')
+@click.argument('panel_file', type=click.Path(exists=True, readable=True, dir_okay=False), required=True, metavar='<panel_file>')
+@click.option('-s', '--start', type=int, required=True, help='Start position for plot benchmark')
+@click.option('-e', '--end', type=int, required=True, help='End position for plot benchmark')
+@click.option('-o', '--out', 'output', type=click.Path(), default='benchmark', show_default=True, help='Output prefix for benchmark files')
+@click.option('-t', '--test', type=click.Choice(['xpehh', 'xpnsl', 'delta_tajima_d', 'hudson_fst']), default='xpehh', show_default=True, help='Statistical test to benchmark')
+@click.option('-c', '--chunked', is_flag=True, help='Use chunked array during compute')
+@click.option('-r', '--replicates', type=int, default=1, show_default=True, help='Number of replicate runs for statistical analysis')
+@click.option('-w', '--warmup', type=int, default=0, show_default=True, help='Number of warmup runs to discard')
+@click.option('--report', type=click.Path(), default=None, help='Save benchmark report to file')
+@click.option('--no-log', is_flag=True, help='Disable logging to file')
+@click.option('--verbose', is_flag=True, help='Show detailed debug output in console')
+def benchmark_cmd(vcf_file, panel_file, start, end, output, test, chunked, replicates, warmup, report, no_log, verbose):
+    """
+    <vcf_file>  PATH  VCF file for benchmarking
+    <panel_file>  PATH  Population panel file
+    
+    Run performance benchmarks on the full ExP Heatmap pipeline.
+    
+    Use --replicates to run multiple times and get statistical analysis
+    (mean, std, 95% confidence intervals).
+    """
+    setup_logging("benchmark", log_to_file=not no_log, verbose=verbose)
+    logger = get_logger(__name__)
+    logger.info("Starting benchmark command...")
+    
+    from exp_heatmap.benchmark import (
+        run_full_benchmark, 
+        run_full_benchmark_with_replicates,
+        generate_benchmark_report
+    )
+    
+    if replicates > 1:
+        results, system_info = run_full_benchmark_with_replicates(
+            vcf_file=vcf_file,
+            panel_file=panel_file,
+            start=start,
+            end=end,
+            output_prefix=output,
+            test=test,
+            chunked=chunked,
+            n_replicates=replicates,
+            warmup_runs=warmup
+        )
+        
+        if report:
+            generate_benchmark_report(results, system_info=system_info, output_file=report)
+        else:
+            logger.info("\n" + generate_benchmark_report(results, system_info=system_info))
+    else:
+        results = run_full_benchmark(
+            vcf_file=vcf_file,
+            panel_file=panel_file,
+            start=start,
+            end=end,
+            output_prefix=output,
+            test=test,
+            chunked=chunked
+        )
+        
+        if report:
+            generate_benchmark_report(results, output_file=report)
+        else:
+            logger.info("\n" + generate_benchmark_report(results))
+    
+    log_file = get_log_file_path()
+    if log_file:
+        logger.info(f"Log file: {log_file}")
+
 
 if __name__ == "__main__":
     cli()
