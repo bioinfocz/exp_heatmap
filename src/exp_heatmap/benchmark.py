@@ -979,14 +979,24 @@ def generate_benchmark_report(
     
     if is_statistical:
         # Statistical report
-        n_replicates = results['n_replicates'].iloc[0] if 'n_replicates' in results.columns else 1
         total_runtime = results['runtime_mean'].sum()
         total_runtime_std = np.sqrt((results['runtime_std'] ** 2).sum()) if 'runtime_std' in results.columns else 0
         max_memory = results['peak_memory_mean'].max()
         max_memory_std = results.loc[results['peak_memory_mean'].idxmax(), 'peak_memory_std'] if 'peak_memory_std' in results.columns else 0
         
+        # Get replicate counts per step
+        if 'n_replicates' in results.columns:
+            replicate_counts = results.set_index('operation')['n_replicates'].to_dict()
+            unique_counts = set(replicate_counts.values())
+            if len(unique_counts) == 1:
+                replicate_str = f"{list(unique_counts)[0]}"
+            else:
+                replicate_str = ", ".join(f"{op.upper()}: {n}" for op, n in replicate_counts.items())
+        else:
+            replicate_str = "1"
+        
         report_lines.extend([
-            f"Number of Replicates: {n_replicates}",
+            f"Number of Replicates: {replicate_str}",
             f"Total Runtime: {total_runtime:.2f} ± {total_runtime_std:.2f} seconds (mean ± std)",
             f"Peak Memory Usage: {max_memory:.1f} ± {max_memory_std:.1f} MB",
             "",
