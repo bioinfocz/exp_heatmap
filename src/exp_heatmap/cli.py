@@ -41,7 +41,7 @@ def full_cmd(vcf_file, panel_file, output, start, end, test, chunked, title, cma
     if interactive:
         # Use interactive Plotly visualization
         colorscale=cmap if cmap != 'expheatmap' else 'Blues'
-        plot_interactive(compute_dir,start,end,title,plot_output,colorscale)
+        plot_interactive(compute_dir,start,end,title,plot_output,colorscale=colorscale)
     else:
         # Use static matplotlib visualization
         plot(compute_dir, start, end, title, plot_output, cmap)
@@ -115,7 +115,7 @@ def plot_cmd(input_dir, start, end, title, output, cmap, interactive, no_log, ve
     if interactive:
         # Use interactive Plotly visualization
         colorscale=cmap if cmap != 'expheatmap' else 'Blues'
-        plot_interactive(input_dir,start,end,title,output,colorscale)
+        plot_interactive(input_dir,start,end,title,output,colorscale=colorscale)
     else:
         # Use static matplotlib visualization
         plot(input_dir, start, end, title, output, cmap)
