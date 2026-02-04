@@ -17,6 +17,7 @@ class LoggerWriter:
     def write(self, message):
         # Strip trailing newlines to avoid double-spacing in logs
         message = message.rstrip('\n')
+        message = message.replace('\x00', ' ') # Remove null bytes that scikit-allel sometimes inserts
         if message:  # Only log non-empty messages
             self.level(message)
     
