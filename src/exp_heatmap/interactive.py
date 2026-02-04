@@ -7,7 +7,6 @@ of cross-population genomic data.
 """
 
 import pandas as pd
-import numpy as np
 from typing import Optional, Tuple, Union
 
 import plotly.graph_objects as go
@@ -98,18 +97,14 @@ def plot_interactive_heatmap(
         raise ValueError(f"No data found in range {start}-{end}")
     input_df = input_df[columns]
     
-    # Downsample if too many columns (to keep HTML file size reasonable)
+    # Downsample if too many variants
     n_cols = len(input_df.columns)
     if max_columns is not None and n_cols > max_columns:
-        # Calculate bin size
         bin_size = n_cols // max_columns
-        n_bins = n_cols // bin_size
-        
-        # Downsample by taking max value in each bin (preserves peaks)
         downsampled_data = []
         downsampled_positions = []
         
-        for i in range(n_bins):
+        for i in range(max_columns):
             bin_start = i * bin_size
             bin_end = min((i + 1) * bin_size, n_cols)
             bin_data = input_df.iloc[:, bin_start:bin_end]
@@ -124,26 +119,22 @@ def plot_interactive_heatmap(
         
         logger.debug(f"Downsampled from {n_cols:,} to {len(input_df.columns):,} positions for interactive view")
     
-    # Determine populations
     is_1000genomes = populations == "1000Genomes"
     if is_1000genomes:
         populations = populations_1000genomes
     
-    # Apply display limit
     if display_limit is not None:
         if display_values == "higher":
             input_df = input_df.where(input_df >= display_limit, 0)
         elif display_values == "lower":
             input_df = input_df.where(input_df <= display_limit, 0)
     
-    # Set color scale limits
     if zmin is None:
         zmin = 1.301 if is_1000genomes else input_df.min().min()
     if zmax is None:
         zmax = 4.833 if is_1000genomes else input_df.max().max()
     
-    # Create the heatmap using hovertemplate for memory efficiency
-    # This avoids creating millions of hover text strings for large datasets
+    # Create the heatmap
     fig = go.Figure()
     
     fig.add_trace(go.Heatmap(
@@ -161,16 +152,12 @@ def plot_interactive_heatmap(
         )
     ))
     
-    # Add superpopulation annotations if enabled and using 1000 Genomes
-    # This matches the static heatmap style with labels on the right side
+    # Add superpopulation annotations
     if show_superpop_annotations and is_1000genomes:
         n_pops = len(populations)
         n_pairs_per_pop = n_pops - 1
         total_rows = len(input_df)
         
-        # Calculate superpopulation boundaries
-        # Data order: AFR populations first (ACB, ASW, ...), then SAS, EAS, EUR, AMR (ending with PUR)
-        # With autorange='reversed' on y-axis, first row (ACB) will be at TOP
         superpop_order = ["AFR", "SAS", "EAS", "EUR", "AMR"]
         superpop_boundaries = []
         current_row = 0
@@ -185,30 +172,24 @@ def plot_interactive_heatmap(
             })
             current_row += superpop_rows
         
-        # Add annotations for superpopulation groups on the right side
-        # With autorange='reversed', row 0 is at top (y=1 in paper), row total_rows-1 is at bottom (y=0)
         annotations = []
         for boundary in superpop_boundaries:
-            # Convert row position to paper coordinates
-            # Row 0 at top = y_paper=1, row total_rows at bottom = y_paper=0
             y_paper = 1.0 - (boundary['mid_row'] / total_rows)
             annotations.append(dict(
-                x=1.02,  # Right side of the plot
+                x=1.02,
                 y=y_paper,
                 xref='paper',
                 yref='paper',
                 text=boundary['name'],
                 showarrow=False,
                 font=dict(size=10, color='black'),
-                textangle=90  # Rotate 90° so text reads top-to-bottom (like matplotlib rotation=270)
+                textangle=90
             ))
         
-        # Add horizontal separator lines between superpopulation groups
         shapes = []
-        for i, boundary in enumerate(superpop_boundaries[:-1]):  # Skip last boundary
+        for i, boundary in enumerate(superpop_boundaries[:-1]):
             boundary_row_idx = boundary['end_row']
             if boundary_row_idx < total_rows:
-                # Get the row name at the boundary
                 boundary_row_name = input_df.index[boundary_row_idx]
                 shapes.append(dict(
                     type='line',
@@ -223,24 +204,14 @@ def plot_interactive_heatmap(
         
         fig.update_layout(annotations=annotations, shapes=shapes)
     
-    # Update layout - match static heatmap style
-    # For 1000Genomes, show population labels on the left y-axis (like static version)
+    # Update layout for 1k genomes
     if is_1000genomes:
         n_pops = len(populations)
-        n_pairs_per_pop = n_pops - 1  # 25 for 1000Genomes
+        n_pairs_per_pop = n_pops - 1
         
-        # Calculate tick positions at the center of each population's row group
-        # Static version uses: np.arange((n_pops - 1) / 2, y_axis_len, step=(n_pops - 1))
-        # This gives positions: 12.5, 37.5, 62.5, ... (center of each 25-row group)
-        # For Plotly categorical axis, we use the row name at the integer center position
-        # In Plotly heatmap with categorical y-axis, the first row (index 0) is at the TOP
-        # which matches seaborn's behavior. So we don't need to reverse anything.
         tickvals = []
         ticktext = []
         for i, pop in enumerate(populations):
-            # Center row index for this population (rounded to nearest integer)
-            # Formula: i * n_pairs_per_pop + (n_pairs_per_pop) / 2
-            # For i=0: 0 + 12.5 = 12, for i=1: 25 + 12.5 = 37, etc.
             center_row_idx = int(i * n_pairs_per_pop + (n_pairs_per_pop) / 2)
             if center_row_idx < len(input_df):
                 tickvals.append(input_df.index[center_row_idx])
@@ -254,14 +225,14 @@ def plot_interactive_heatmap(
             ticktext=ticktext,
             tickfont=dict(size=6),
             side='left',
-            autorange='reversed'  # Reverse y-axis so first row (ACB) is at top, like seaborn
+            autorange='reversed'
         )
     else:
         yaxis_config = dict(
             title="",
             showgrid=False,
             tickfont=dict(size=6) if len(input_df) > 100 else dict(size=8),
-            autorange='reversed'  # Reverse y-axis so first row is at top, like seaborn
+            autorange='reversed'
         )
     
     fig.update_layout(
@@ -279,20 +250,17 @@ def plot_interactive_heatmap(
         height=height,
         width=width,
         margin=dict(l=100, r=50, t=80, b=80),
-        # Disable the default drag-to-select behavior that grays out unselected regions
         dragmode='zoom'
     )
     
-    # Add range slider for x-axis (this provides the selection highlighting)
+    # Add range slider for x-axis
     fig.update_xaxes(
         rangeslider=dict(visible=True, thickness=0.05),
         type="linear"
     )
     
-    # Save to HTML with centering CSS
+    # Save to HTML
     output_file = f"{output}.html"
-    
-    # Custom HTML template to center the plot
     centering_css = """
     <style>
         body {
@@ -311,9 +279,7 @@ def plot_interactive_heatmap(
     </style>
     """
     
-    # Write HTML with centering
     html_content = fig.to_html(include_plotlyjs=True, full_html=True)
-    # Insert CSS into the head section
     html_content = html_content.replace('</head>', f'{centering_css}</head>')
     
     with open(output_file, 'w') as f:

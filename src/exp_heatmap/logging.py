@@ -22,11 +22,8 @@ import os
 from datetime import datetime
 from typing import Optional
 
-
-# Package-level logger name
 LOGGER_NAME = "exp_heatmap"
 
-# Track if logging has been set up
 _logging_initialized = False
 _log_file_path: Optional[str] = None
 
@@ -63,13 +60,8 @@ def setup_logging(
     """
     global _logging_initialized, _log_file_path
     
-    # Get the root logger for the package
     logger = logging.getLogger(LOGGER_NAME)
-    
-    # Clear any existing handlers to avoid duplicates
     logger.handlers.clear()
-    
-    # Set the root logger to DEBUG to capture everything
     logger.setLevel(logging.DEBUG)
     
     # Create formatters
@@ -81,13 +73,12 @@ def setup_logging(
         datefmt="%Y-%m-%d %H:%M:%S"
     )
     
-    # Console handler - INFO by default, DEBUG if verbose
+    # Handlers
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
     
-    # File handler - always DEBUG level
     if log_to_file:
         os.makedirs(log_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -126,19 +117,15 @@ def get_logger(name: str) -> logging.Logger:
     logging.Logger
         Logger instance for the module.
     """
-    # If the name starts with exp_heatmap, use it directly
-    # Otherwise, prepend the package name
     if name.startswith(LOGGER_NAME):
         logger_name = name
     else:
-        # For module names like '__main__', just use the base name
         module_name = name.split('.')[-1] if '.' in name else name
         logger_name = f"{LOGGER_NAME}.{module_name}"
     
     logger = logging.getLogger(logger_name)
     
-    # If logging hasn't been initialized, set up a basic console handler
-    # This allows the library to be used without CLI setup
+    # Set handlers if logging hasn't been initialized
     if not _logging_initialized and not logger.handlers:
         parent_logger = logging.getLogger(LOGGER_NAME)
         if not parent_logger.handlers:
