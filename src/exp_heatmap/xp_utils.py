@@ -9,6 +9,10 @@ import pandas as pd
 from itertools import combinations
 from typing import List, Tuple, Any
 
+from exp_heatmap.logging import get_logger
+
+logger = get_logger(__name__)
+
 def create_pop_pairs(panel: pd.DataFrame) -> List[Tuple[str, str]]:
     """
     Create all unique population pairs from a population panel.
@@ -39,10 +43,7 @@ def get_haplotypes(gt_array: allel.GenotypeArray, panel: pd.DataFrame, pop: str)
     Returns:
         Haplotype array for the specified population
     """
-    # Get indices of samples belonging to the specified population
     indices_pop = panel.index[panel["pop"] == pop]
-
-    # Extract genotype data for the population
     gt_pop = gt_array.take(indices_pop, axis=1)
 
     return gt_pop.to_haplotypes()
@@ -61,13 +62,8 @@ def get_pop_allele_counts(gt: allel.GenotypeArray, panel: pd.DataFrame, pop: str
     Returns:
         Allele counts array for the specified population
     """
-    # Get indices of samples belonging to the specified population
     indices_pop = panel.index[panel["pop"] == pop]
-
-    # Extract genotype data for the population
     gt_pop = gt.take(indices_pop, axis=1)
-
-    # Calculate allele counts for the population (input for PBS analysis)
     ac = gt_pop.count_alleles()
     return ac
 
@@ -89,16 +85,13 @@ def filter_by_AF(callset: Any, af_threshold: float, chunked: bool = False) -> Tu
 
     # Load the genotype as chunked array for memory efficiency
     if chunked:
-        print("Using chunked array to avoid memory exhaustion")
+        logger.debug("Using chunked array to avoid memory exhaustion")
         gt = allel.GenotypeChunkedArray(gt_zarr)
     else:
-        print("Attempting to load full array into memory")
+        logger.debug("Attempting to load full array into memory")
         gt = allel.GenotypeArray(gt_zarr)
 
-    # Filter variants above the threshold
     gt_filtered = gt.compress(loc_variant_selection, axis=0)
-    
-    # Filter positions correspondingly
     positions = allel.SortedIndex(callset["variants/POS"])
     positions_filtered = positions.compress(loc_variant_selection, axis=0)
 
@@ -117,16 +110,14 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
     zarr_samples_list = zarr_samples.tolist() if hasattr(zarr_samples, 'tolist') else list(zarr_samples)
     panel_samples_list = panel_samples.tolist() if hasattr(panel_samples, 'tolist') else list(panel_samples)
     
-    print(f"Zarr samples: {len(zarr_samples_list)}")
-    print(f"Panel samples: {len(panel_samples_list)}")
+    logger.debug(f"Zarr samples: {len(zarr_samples_list)}")
+    logger.debug(f"Panel samples: {len(panel_samples_list)}")
     
     # Verify that both datasets have the same number of samples
     if len(zarr_samples_list) != len(panel_samples_list):
-        print(f"\nERROR: Different number of samples!")
-        print(f"Zarr has {len(zarr_samples_list)} samples, panel has {len(panel_samples_list)} samples")
+        logger.error(f"Different number of samples! Zarr has {len(zarr_samples_list)} samples, panel has {len(panel_samples_list)} samples")
         sys.exit(1)
     
-    # Check if samples are the same (regardless of order)
     zarr_set = set(zarr_samples_list)
     panel_set = set(panel_samples_list)
     
@@ -134,14 +125,13 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
         missing_in_panel = zarr_set - panel_set
         missing_in_zarr = panel_set - zarr_set
         
-        print(f"\nERROR: Different samples!")
+        logger.error("Different samples!")
         if missing_in_panel:
-            print(f"Samples in zarr but not in panel: {missing_in_panel}")
+            logger.error(f"Samples in zarr but not in panel: {missing_in_panel}")
         if missing_in_zarr:
-            print(f"Samples in panel but not in zarr: {missing_in_zarr}")
+            logger.error(f"Samples in panel but not in zarr: {missing_in_zarr}")
         sys.exit(1)
     
-    # Verify that sample order matches between datasets
     order_matches = True
     mismatches = []
     
@@ -151,25 +141,22 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
             mismatches.append((i, zarr_sample, panel_sample))
     
     if order_matches:
-        print(f"\nSUCCESS: Sample order is identical!")
-        print(f"All {len(zarr_samples_list)} samples are in the same order.")
+        logger.debug(f"Sample order is identical! All {len(zarr_samples_list)} samples are in the same order.")
     else:
-        print(f"\nWARNING: Sample order differs!")
-        print(f"Found {len(mismatches)} mismatches:")
+        logger.error(f"Sample order differs! Found {len(mismatches)} mismatches:")
         
-        # Display the first 10 mismatched positions for debugging
         for i, zarr_sample, panel_sample in mismatches[:10]:
-            print(f"  Position {i+1}: Zarr='{zarr_sample}' vs Panel='{panel_sample}'")
+            logger.error(f"  Position {i+1}: Zarr='{zarr_sample}' vs Panel='{panel_sample}'")
         
         if len(mismatches) > 10:
-            print(f"  ... and {len(mismatches) - 10} more mismatches")
+            logger.error(f"  ... and {len(mismatches) - 10} more mismatches")
         
-        print(f"\nFirst 10 samples comparison:")
-        print("Position\tZarr\t\tPanel")
+        logger.error("First 10 samples comparison:")
+        logger.error("Position\tZarr\t\tPanel")
         for i in range(min(10, len(zarr_samples_list))):
             match_status = "✓" if zarr_samples_list[i] == panel_samples_list[i] else "✗"
-            print(f"{i+1}\t{zarr_samples_list[i]}\t{panel_samples_list[i]}\t{match_status}")
+            logger.error(f"{i+1}\t{zarr_samples_list[i]}\t{panel_samples_list[i]}\t{match_status}")
         
-        print("\nOrder of samples in panel file does not match order of samples in zarr.")
-        print("It is possible that you are using wrong panel file path e.g. from different phase than your variant data.")
+        logger.error("Order of samples in panel file does not match order of samples in zarr.")
+        logger.error("It is possible that you are using wrong panel file path e.g. from different phase than your variant data.")
         sys.exit(1)

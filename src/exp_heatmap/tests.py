@@ -3,9 +3,11 @@ import zarr
 import os
 import numpy as np
 import pandas as pd
-import sys
 
 from exp_heatmap import xp_utils, utils, rank_tools
+from exp_heatmap.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 def run(
@@ -29,11 +31,11 @@ def run(
                               Values between 10-20 work well. Increase if getting
                               empty results. Default is 13.
     """
-    print(f"Loading panel file: {panel_file}")
+    logger.debug(f"Loading panel file: {panel_file}")
     panel = pd.read_csv(panel_file, sep="\t", usecols=["sample", "pop", "super_pop"])
     pop_pairs = xp_utils.create_pop_pairs(panel)
 
-    print(f"Loading zarr data: {zarr_dir}")
+    logger.debug(f"Loading zarr data: {zarr_dir}")
     callset = zarr.open_group(zarr_dir, mode="r")
 
     gt, positions = xp_utils.filter_by_AF(callset, 0.05, chunked)
@@ -65,10 +67,10 @@ def run(
             array_pop1 = xp_utils.get_pop_allele_counts(gt, panel, pair[0])
             array_pop2 = xp_utils.get_pop_allele_counts(gt, panel, pair[1])
 
-        print(f"Computing {test.upper()} for pair {pair[0]} vs {pair[1]}")
-        print(f"Population {pair[0]} dimensions: {' '.join(map(str, array_pop1.shape))}")
-        print(f"Population {pair[1]} dimensions: {' '.join(map(str, array_pop2.shape))}")
-        print(f"Number of positions: {len(positions)}")
+        logger.debug(f"Computing {test.upper()} for pair {pair[0]} vs {pair[1]}")
+        logger.debug(f"Population {pair[0]} dimensions: {' '.join(map(str, array_pop1.shape))}")
+        logger.debug(f"Population {pair[1]} dimensions: {' '.join(map(str, array_pop2.shape))}")
+        logger.debug(f"Number of positions: {len(positions)}")
 
         # Compute the selected test
         if test == "xpehh":
@@ -117,15 +119,14 @@ def run(
     valid_positions_mask = ~combined_nan_mask
     
     num_masked = np.sum(combined_nan_mask)
-    print("Applying NaN mask for all results")
-    print("Number of results removed from each file: {}".format(num_masked))
+    logger.debug("Applying NaN mask for all results")
+    logger.debug(f"Number of results removed from each file: {num_masked}")
 
     # Check if all positions are masked
     if num_masked == len(valid_positions_mask):
-        print("\n=== WARNING ===")
-        print("All positions have NaN results. No output will be generated.")
+        logger.warning("All positions have NaN results. No output will be generated.")
         if test == "delta_tajima_d":
-            print("For delta Tajima's D, try increasing the 'd_tajima_d_size' parameter.")
+            logger.warning("For delta Tajima's D, try increasing the 'd_tajima_d_size' parameter.")
         return
 
     os.makedirs(output_dir, exist_ok=True)
@@ -136,20 +137,20 @@ def run(
         # add results to the dataframe with coordinates
         df[test] = result_data
 
-        # Compute ascending and descending log10 rank p-values
+        # Compute ascending and descending log10 rank scores
+        # Note: These are empirical rank scores, not classical p-values
         for ascending in [True, False]:
             df.sort_values(by=test, inplace=True, ascending=ascending)
             test_results = df[test].values
             ranks = rank_tools.compute_ranks(test_results)
-            rank_p_vals = rank_tools.compute_rank_p_vals(ranks)
-            log_10_p_vals = rank_tools.compute_log_10_p_vals(rank_p_vals)
+            rank_scores = rank_tools.compute_empirical_rank_scores(ranks)
+            log10_rank_scores = rank_tools.compute_log10_rank_scores(rank_scores)
 
             suffix = "ascending" if ascending else "descending"
-            df[f"-log10_p_value_{suffix}"] = log_10_p_vals
+            # Column names kept for backward compatibility with existing data files
+            df[f"-log10_p_value_{suffix}"] = log10_rank_scores
 
         df.sort_values(by="variant_pos", inplace=True, ascending=True)
 
         # Save only positions without NaN values
         df[valid_positions_mask].to_csv(result_path, index=False, sep="\t")
-
-        print(f"Results saved to: {result_path}")

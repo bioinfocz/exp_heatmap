@@ -1,11 +1,12 @@
-# Expose main modules
+# Expose modules
 from .prepare import prepare
 from .compute import compute
 from .plot import plot
-
-# Expose utility modules
 from . import xp_utils
 from . import utils
 from . import rank_tools
+from . import logging as exp_logging
+from .logging import setup_logging, get_logger
+from . import interactive
 
-__version__ = "1.1.4"
+__version__ = "1.2.0"
