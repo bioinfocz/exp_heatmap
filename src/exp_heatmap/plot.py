@@ -27,7 +27,7 @@ for superpop, pops in superpopulations.items():
     for pop in pops:
         pop_to_superpop[pop] = superpop
 
-def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pvalues="2-tailed"):
+def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_scores="2-tailed"):
     """
     Generate a pandas DataFrame for plotting from a directory of pairwise population .tsv files.
 
@@ -36,13 +36,14 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         start (int): Start genomic position (X-axis lower bound).
         end (int): End genomic position (X-axis upper bound).
         populations (iterable or "1000Genomes"): List of population names to include and order in the heatmap. If not using 1000 Genomes, provide a custom iterable.
-        rank_pvalues (str): Determines which rank score column to use:
-            - "ascending": Use "-log10_p_value_ascending" (empirical rank scores, ascending sort).
-            - "descending": Use "-log10_p_value_descending" (empirical rank scores, descending sort).
+        rank_scores (str): Determines which rank score column to use:
+            - "ascending": Use ascending rank scores (lowest test values ranked first).
+            - "descending": Use descending rank scores (highest test values ranked first).
             - "2-tailed": For pop1_pop2, use descending; for pop2_pop1, use ascending.
             
-            Note: Despite the column names containing "p_value", these are empirical rank scores
-            (genome-wide percentile ranks transformed to -log10 scale), not classical p-values.
+            Note: TSV column names contain "p_value" for backward compatibility, but these are
+            empirical rank scores (genome-wide percentile ranks transformed to -log10 scale),
+            not classical p-values.
 
     Returns:
         pd.DataFrame: Formatted data for heatmap plotting.
@@ -84,38 +85,37 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         if not np.array_equal(df_list[i].variant_pos.values, variant_positions):
             raise ValueError(f"the variant_positions dont match in df {i}")
 
-    # Select variant_pos and -log10_p_value and transpose each df
+    # Select variant_pos and rank score column, then transpose each df
     transp_list = []
 
     for df, pop_pair in zip(df_list, pop_id_list):
-        if rank_pvalues == "ascending":
-            pvalues_column1 = "-log10_p_value_ascending"
-            pvalues_column2 = "-log10_p_value_ascending"
+        # Determine which columns to use based on rank_scores parameter
+        # Note: TSV column names contain "p_value" for backward compatibility
+        if rank_scores == "ascending":
+            score_column1 = "-log10_p_value_ascending"
+            score_column2 = "-log10_p_value_ascending"
         
-        elif rank_pvalues == "descending":
-            pvalues_column1 = "-log10_p_value_descending"
-            pvalues_column2 = "-log10_p_value_descending"
+        elif rank_scores == "descending":
+            score_column1 = "-log10_p_value_descending"
+            score_column2 = "-log10_p_value_descending"
 
-        elif rank_pvalues == "2-tailed":
-            pvalues_column1 = "-log10_p_value_descending"
-            pvalues_column2 = "-log10_p_value_ascending"
+        elif rank_scores == "2-tailed":
+            score_column1 = "-log10_p_value_descending"
+            score_column2 = "-log10_p_value_ascending"
         
         else:
-            raise ValueError(f"Unknown value for 'rank_pvalues' parameter in create_plot_input(). Expected values are: 'ascending', 'descending' or '2-tailed', got '{rank_pvalues}'")
+            raise ValueError(f"Unknown value for 'rank_scores' parameter in create_plot_input(). Expected values are: 'ascending', 'descending' or '2-tailed', got '{rank_scores}'")
             
-        # Note: Column names contain "p_value" for backward compatibility,
-        # but these are empirical rank scores, not classical p-values
-            
-        # Extract and transpose p-values for pop1_pop2 (pop1 under selection)
-        left_df = df[["variant_pos", pvalues_column1]].copy()
-        left_df.rename(columns={pvalues_column1: pop_pair}, inplace=True)
+        # Extract and transpose rank scores for pop1_pop2 (pop1 under selection)
+        left_df = df[["variant_pos", score_column1]].copy()
+        left_df.rename(columns={score_column1: pop_pair}, inplace=True)
         left_df = left_df.set_index("variant_pos").T
         transp_list.append(left_df)
 
-        # Extract and transpose p-values for pop2_pop1 (pop2 under selection)
+        # Extract and transpose rank scores for pop2_pop1 (pop2 under selection)
         reverse_pop_pair = "_".join(pop_pair.split("_")[::-1])
-        right_df = df[["variant_pos", pvalues_column2]].copy()
-        right_df.rename(columns={pvalues_column2: reverse_pop_pair}, inplace=True)
+        right_df = df[["variant_pos", score_column2]].copy()
+        right_df.rename(columns={score_column2: reverse_pop_pair}, inplace=True)
         right_df = right_df.set_index("variant_pos").T
         transp_list.append(right_df)
 
@@ -127,7 +127,7 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
         raise ValueError(
             f"No data found in the requested genomic region ({start:,} - {end:,}). "
             f"The data in '{input_dir}' contains positions from {_first_file_range[0]:,} to {_first_file_range[1]:,}. "
-            f"Please specify a region that overlaps with this range using --start/--end or --mid."
+            f"Please specify a region that overlaps with this range using --start/--end."
         )
     
     # Get actual data range after filtering

@@ -88,11 +88,6 @@ def compute_log10_rank_scores(rank_scores):
     return np.round(log_scores, 3)
 
 
-# Backward compatibility aliases
-compute_rank_p_vals = compute_empirical_rank_scores
-compute_log_10_p_vals = compute_log10_rank_scores
-
-
 def rank_across_genome(test_data, top_lowest):
     """
     Compute genome-wide empirical rank scores for test statistics.

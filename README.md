@@ -23,7 +23,6 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
 - **Efficient Processing**: Zarr-based data storage for fast computation
 - **Customizable Visualization**: Multiple color schemes, resolution options, and display settings
 - **Interactive Mode**: Plotly-based HTML visualizations with zoom, pan, and hover tooltips
-- **Performance Benchmarking**: Built-in tools for measuring runtime and memory usage
 
 ## Table of Contents
 
@@ -65,7 +64,6 @@ ExP Heatmap requires the following Python packages (automatically installed):
 | seaborn | latest | Heatmap rendering |
 | click | latest | Command-line interface |
 | plotly | latest | Interactive visualizations |
-| scipy | latest | Statistical functions (for benchmarking) |
 | tqdm | latest | Progress bars |
 
 > **Important**: ExP Heatmap requires `zarr < 3.0.0`. The package will automatically install a compatible version, but if you encounter issues, ensure you have the correct version:
@@ -134,7 +132,37 @@ ExP Heatmap follows a simple three-step workflow: **prepare** → **compute** �
 
 ### Command-Line Interface
 
-#### 1. Data Preparation - `prepare`
+#### 1. Full Pipeline - `full`
+
+>Run the complete pipeline (prepare → compute → plot) in a single command.
+
+```bash
+exp_heatmap full [OPTIONS] <vcf_file> <panel_file>
+```
+
+| Argument/Option | Type | Default | Description |
+|-----------------|------|---------|-------------|
+| `<vcf_file>` | PATH | required | Recoded VCF file (SNPs only recommended) |
+| `<panel_file>` | PATH | required | Population panel file |
+| `-o, --out` | PATH | `exp_heatmap` | Prefix for all output files |
+| `-s, --start` | INT | required | Start position for displayed region |
+| `-e, --end` | INT | required | End position for displayed region |
+| `-t, --test` | choice | `xpehh` | Statistical test: `xpehh`, `xpnsl`, `delta_tajima_d`, `hudson_fst` |
+| `-c, --chunked` | flag | - | Use chunked array to avoid memory exhaustion |
+| `--title` | STR | - | Title of the heatmap |
+| `--cmap` | STR | `Blues` | Colormap for visualization |
+| `--interactive` | flag | - | Generate interactive HTML visualization |
+| `--no-log` | flag | - | Disable logging to file |
+| `--verbose` | flag | - | Show detailed debug output |
+
+**Example:**
+```bash
+exp_heatmap full chr15_snps.recode.vcf genotypes.panel -s 47924019 -e 48924019 -o slc24a5_analysis --title "SLC24A5"
+```
+
+This creates: `slc24a5_analysis_zarr/`, `slc24a5_analysis_compute/`, and `slc24a5_analysis_plot.png`
+
+#### 2. Data Preparation - `prepare`
 
 >Convert VCF files to efficient Zarr format for faster computation.
 
@@ -154,7 +182,7 @@ exp_heatmap prepare [OPTIONS] <vcf_file>
 exp_heatmap prepare chr15_snps.recode.vcf -o chr15.zarr
 ```
 
-#### 2. Statistical Analysis - `compute`
+#### 3. Statistical Analysis - `compute`
 
 >Calculate population genetic statistics across all genomic positions.
 
@@ -178,12 +206,14 @@ exp_heatmap compute [OPTIONS] <zarr_dir> <panel_file>
 - `delta_tajima_d`: Delta Tajima's D - measures difference in allele frequency spectrum
 - `hudson_fst`: Hudson's Fst - genetic differentiation between populations
 
+> **Note**: The `-t` flag has different meanings for different commands: for `compute` it specifies the statistical test (`--test`), while for `plot` it specifies the heatmap title (`--title`).
+
 **Example:**
 ```bash
 exp_heatmap compute chr15.zarr genotypes.panel -o chr15_results -t xpehh
 ```
 
-#### 3. Visualization - `plot`
+#### 4. Visualization - `plot`
 
 >Generate heatmap visualizations from computed statistics.
 
@@ -194,9 +224,8 @@ exp_heatmap plot [OPTIONS] <input_dir>
 | Argument/Option | Type | Default | Description |
 |-----------------|------|---------|-------------|
 | `<input_dir>` | PATH | required | Directory with TSV files from `compute` step |
-| `-s, --start` | INT | - | Start genomic position (required with `-e`) |
-| `-e, --end` | INT | - | End genomic position (required with `-s`) |
-| `-m, --mid` | INT | - | Center position (calculates ±500kb region) |
+| `-s, --start` | INT | required | Start genomic position |
+| `-e, --end` | INT | required | End genomic position |
 | `-t, --title` | STR | - | Title of the heatmap |
 | `-o, --out` | PATH | `ExP_heatmap` | Output filename (without extension) |
 | `-c, --cmap` | STR | `Blues` | Colormap name (see [Colormap Options](#colormap-options)) |
@@ -204,50 +233,13 @@ exp_heatmap plot [OPTIONS] <input_dir>
 | `--no-log` | flag | - | Disable logging to file |
 | `--verbose` | flag | - | Show detailed debug output in console |
 
-> **Note**: You must specify either `--start` and `--end` together, OR `--mid` alone.
-
 **Example:**
 ```bash
-# Using start/end
+# Basic usage
 exp_heatmap plot chr15_results/ --start 47924019 --end 48924019 --title "SLC24A5" --out slc24a5
-
-# Using mid (creates ±500kb window)
-exp_heatmap plot chr15_results/ --mid 48424019 --title "SLC24A5" --out slc24a5
 
 # Interactive HTML output
 exp_heatmap plot chr15_results/ --start 47924019 --end 48924019 --interactive --out slc24a5_interactive
-```
-
-#### 4. Performance Benchmarking - `benchmark`
-
->Measure runtime and memory usage across the pipeline.
-
-```bash
-exp_heatmap benchmark <vcf_file> <panel_file> -s <start> -e <end> [OPTIONS]
-```
-
-| Argument/Option | Type | Default | Description |
-|-----------------|------|---------|-------------|
-| `<vcf_file>` | PATH | required | VCF file for benchmarking |
-| `<panel_file>` | PATH | required | Population panel file |
-| `-s, --start` | INT | required | Start position for plot benchmark |
-| `-e, --end` | INT | required | End position for plot benchmark |
-| `-o, --out` | PATH | `benchmark` | Output prefix for benchmark files |
-| `-t, --test` | choice | `xpehh` | Statistical test to benchmark |
-| `-c, --chunked` | flag | - | Use chunked array during compute |
-| `-r, --replicates` | INT | `1` | Number of replicate runs for statistical analysis |
-| `-w, --warmup` | INT | `0` | Number of warmup runs to discard |
-| `--report` | PATH | - | Save benchmark report to file |
-| `--no-log` | flag | - | Disable logging to file |
-| `--verbose` | flag | - | Show detailed debug output in console |
-
-**Example:**
-```bash
-# Single run benchmark
-exp_heatmap benchmark data.vcf panel.tsv -s 47000000 -e 49000000 --report benchmark.txt
-
-# Multiple replicates with warmup
-exp_heatmap benchmark data.vcf panel.tsv -s 47000000 -e 49000000 -r 5 -w 1 --report benchmark.txt
 ```
 
 ---
@@ -294,7 +286,7 @@ data_to_plot = create_plot_input(
     start=135287850, 
     end=136287850, 
     populations="1000Genomes",
-    rank_pvalues="2-tailed"    # Options: "2-tailed", "ascending", "descending"
+    rank_scores="2-tailed"    # Options: "2-tailed", "ascending", "descending"
 )
 
 # Create heatmap
@@ -488,25 +480,6 @@ create_population_focus_view(
 )
 ```
 
-### Performance Benchmarking
-
-Measure and report pipeline performance:
-
-```python
-from exp_heatmap.benchmark import run_full_benchmark, generate_benchmark_report
-
-# Run complete benchmark
-results = run_full_benchmark(
-    vcf_file="data.vcf",
-    panel_file="populations.panel",
-    start=135000000,
-    end=137000000
-)
-
-# Generate report
-report = generate_benchmark_report(results, output_file="benchmark_report.txt")
-```
-
 ### Advanced Customization
 
 Fine-tune your visualizations with advanced options:
@@ -650,7 +623,7 @@ ExP Heatmap uses **empirical rank scores** to visualize selection signals. Despi
 
 ### Rank Score Options
 
-The `rank_pvalues` parameter in `create_plot_input()` controls how rank scores are calculated:
+The `rank_scores` parameter in `create_plot_input()` controls how rank scores are calculated:
 
 | Option | Description | Use Case |
 |--------|-------------|----------|
@@ -661,10 +634,10 @@ The `rank_pvalues` parameter in `create_plot_input()` controls how rank scores a
 **Example:**
 ```python
 # Two-tailed (recommended for most analyses)
-data = create_plot_input("results/", start=47000000, end=49000000, rank_pvalues="2-tailed")
+data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="2-tailed")
 
 # One-tailed for specific hypothesis
-data = create_plot_input("results/", start=47000000, end=49000000, rank_pvalues="descending")
+data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="descending")
 ```
 
 ### Statistical Tests Explained
