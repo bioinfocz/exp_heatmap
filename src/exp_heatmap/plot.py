@@ -135,7 +135,6 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
     actual_end = int(concat_df.columns[-1])
     num_variants = len(concat_df.columns)
     
-    # Log informative region selection summary
     logger.debug(f"{'─' * 60}")
     logger.debug("Region Selection Summary")
     logger.debug(f"{'─' * 60}")
@@ -144,7 +143,6 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_pva
     logger.debug(f"  Selected region:     {actual_start:,} - {actual_end:,}")
     logger.debug(f"  Variants in region:  {num_variants:,}")
     
-    # Explain any adjustments made
     adjustments = []
     if start < _first_file_range[0]:
         adjustments.append(f"start adjusted from {start:,} to {actual_start:,} (requested start precedes available data)")
@@ -254,15 +252,11 @@ def extract_top_regions(input_df, n_top=100, window_size=10000, min_gap=5000):
         'top_population_pair', sorted by mean_score descending.
     """
     positions = input_df.columns.tolist()
-    
-    # Calculate mean score across all population pairs for each position
     position_scores = input_df.mean(axis=0)
+    sorted_positions = position_scores.sort_values(ascending=False)
     
     results = []
     used_positions = set()
-    
-    # Sort positions by score
-    sorted_positions = position_scores.sort_values(ascending=False)
     
     for pos in sorted_positions.index:
         # Skip if too close to already-selected region
@@ -503,71 +497,60 @@ def plot_exp_heatmap(
             cmap=cmap,
         )
     
-    # Remove colorbar ticks and reduce label font size
     cbar = hm.collections[0].colorbar
     cbar.ax.tick_params(length=0, labelsize=7)
 
     ax.set_title(title)
     
-    # Set x-axis ticks at left, middle, and right positions with genomic coordinates
+    # Set x-axis ticks and labels
     x_extent = input_df.shape[1]
     actual_start = int(input_df.columns[0])
     actual_end = int(input_df.columns[-1])
     actual_middle = (actual_start + actual_end) // 2
-    
     ax.set_xticks([0, x_extent // 2, x_extent - 1])
     ax.set_xticklabels([f"{actual_start:,}", f"{actual_middle:,}", f"{actual_end:,}"], fontsize=7)
-    ax.tick_params(axis="x", length=0, pad=8)  # Remove x-axis tick marks, add padding
+    ax.tick_params(axis="x", length=0, pad=8)
     ax.set_xlabel(xlabel if xlabel else "")
         
-    # Set the y-axis ticks and labels with improved visibility
+    # Set the y-axis ticks and labels
     y_axis_len = len(populations) * (len(populations) - 1)
     n_pops = len(populations)
-    
-    # Remove all y-axis ticks
     ax.set_yticks([])
     label_positions = np.arange((n_pops - 1) / 2, y_axis_len, step=(n_pops - 1))
     ax.set_yticks(label_positions, minor=True)
     ax.tick_params(axis="y", which="minor", length=0)
-    
-    # Set y-axis labels with appropriate font size for visibility
-    fontsize = max(4, min(8, 200 // n_pops))  # Scale font size based on number of populations
+    fontsize = max(4, min(8, 200 // n_pops))
     ax.set_yticklabels(populations, minor=True, fontsize=fontsize)
     ax.set_ylabel('')
     
-    # Add superpopulation labels on the right side for 1000 Genomes data
+    # Add superpopulation labels for 1k Genomes data
     if is_1000genomes:
         superpop_order = ["AFR", "SAS", "EAS", "EUR", "AMR"]
         superpop_sizes = [len(superpopulations[sp]) for sp in superpop_order]
-        
-        # Get the x-axis extent (number of columns in heatmap)
+
         x_extent = input_df.shape[1]
         
-        # Calculate positions and add labels with separator lines
         cumulative_pos = 0
         for i, (sp, sp_size) in enumerate(zip(superpop_order, superpop_sizes)):
-            # Each population has (n_pops - 1) rows, so superpop spans sp_size * (n_pops - 1) rows
             sp_rows = sp_size * (n_pops - 1)
             center_pos = cumulative_pos + sp_rows / 2
             
-            # Add superpopulation label to the right of the heatmap, rotated 90 degrees
             ax.text(x_extent * 1.005, center_pos, sp, 
                     ha='left', va='center', fontsize=7,
                     rotation=270, clip_on=False)
             
-            # Add horizontal separator line at the end of each superpopulation (except the last)
             if i < len(superpop_order) - 1:
                 boundary_pos = cumulative_pos + sp_rows
                 ax.axhline(y=boundary_pos, color='#CCCCCC', linewidth=0.3, zorder=1)
             
             cumulative_pos += sp_rows
 
-    # Add vertical line if specified
-    if vertical_line is True: # Single vertical line in the middle
+    # Add vertical line
+    if vertical_line is True:
         middle = int(input_df.shape[1] / 2)
         ax.axvline(x=middle, linewidth=0.3, color='#CCCCCC', zorder=1)
         
-    elif vertical_line and hasattr(vertical_line, '__iter__') and not isinstance(vertical_line, str): # Multiple vertical lines with labels
+    elif vertical_line and hasattr(vertical_line, '__iter__') and not isinstance(vertical_line, str):
         list_of_columns = input_df.columns.to_list()
         positions_indices = []
         labels = []
@@ -586,7 +569,6 @@ def plot_exp_heatmap(
                 logger.warning(f"Position {pos} not found in data columns, skipping this vertical line")
                 continue
         
-        # Set x-ticks and labels for the valid positions
         if positions_indices:
             ax.set_xticks(positions_indices)
             ax.set_xticklabels(labels)

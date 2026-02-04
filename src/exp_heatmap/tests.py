@@ -3,7 +3,6 @@ import zarr
 import os
 import numpy as np
 import pandas as pd
-import sys
 
 from exp_heatmap import xp_utils, utils, rank_tools
 from exp_heatmap.logging import get_logger

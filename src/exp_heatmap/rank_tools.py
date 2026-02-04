@@ -40,11 +40,11 @@ def compute_ranks(values):
     ranks = [1]
 
     while i < len(values):
-        r = r + 1  # increase rank by one (create new rank)
+        r = r + 1
         if values[i] != values[i - 1]:
-            ranks.append(r)  # give new rank
+            ranks.append(r)
         else:
-            ranks.append(ranks[i - 1])  # give the same rank as before
+            ranks.append(ranks[i - 1])
 
         i = i + 1
 

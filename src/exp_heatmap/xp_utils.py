@@ -43,10 +43,7 @@ def get_haplotypes(gt_array: allel.GenotypeArray, panel: pd.DataFrame, pop: str)
     Returns:
         Haplotype array for the specified population
     """
-    # Get indices of samples belonging to the specified population
     indices_pop = panel.index[panel["pop"] == pop]
-
-    # Extract genotype data for the population
     gt_pop = gt_array.take(indices_pop, axis=1)
 
     return gt_pop.to_haplotypes()
@@ -65,13 +62,8 @@ def get_pop_allele_counts(gt: allel.GenotypeArray, panel: pd.DataFrame, pop: str
     Returns:
         Allele counts array for the specified population
     """
-    # Get indices of samples belonging to the specified population
     indices_pop = panel.index[panel["pop"] == pop]
-
-    # Extract genotype data for the population
     gt_pop = gt.take(indices_pop, axis=1)
-
-    # Calculate allele counts for the population (input for PBS analysis)
     ac = gt_pop.count_alleles()
     return ac
 
@@ -99,10 +91,7 @@ def filter_by_AF(callset: Any, af_threshold: float, chunked: bool = False) -> Tu
         logger.debug("Attempting to load full array into memory")
         gt = allel.GenotypeArray(gt_zarr)
 
-    # Filter variants above the threshold
     gt_filtered = gt.compress(loc_variant_selection, axis=0)
-    
-    # Filter positions correspondingly
     positions = allel.SortedIndex(callset["variants/POS"])
     positions_filtered = positions.compress(loc_variant_selection, axis=0)
 
@@ -129,7 +118,6 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
         logger.error(f"Different number of samples! Zarr has {len(zarr_samples_list)} samples, panel has {len(panel_samples_list)} samples")
         sys.exit(1)
     
-    # Check if samples are the same (regardless of order)
     zarr_set = set(zarr_samples_list)
     panel_set = set(panel_samples_list)
     
@@ -144,7 +132,6 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
             logger.error(f"Samples in panel but not in zarr: {missing_in_zarr}")
         sys.exit(1)
     
-    # Verify that sample order matches between datasets
     order_matches = True
     mismatches = []
     
@@ -158,7 +145,6 @@ def check_sample_order(zarr_samples, panel_samples) -> None:
     else:
         logger.error(f"Sample order differs! Found {len(mismatches)} mismatches:")
         
-        # Display the first 10 mismatched positions for debugging
         for i, zarr_sample, panel_sample in mismatches[:10]:
             logger.error(f"  Position {i+1}: Zarr='{zarr_sample}' vs Panel='{panel_sample}'")
         

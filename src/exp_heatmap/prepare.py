@@ -15,10 +15,9 @@ class LoggerWriter:
         self.level = level or logger_instance.info
     
     def write(self, message):
-        # Strip trailing newlines to avoid double-spacing in logs
         message = message.rstrip('\n')
         message = message.replace('\x00', ' ') # Remove null bytes that scikit-allel sometimes inserts
-        if message:  # Only log non-empty messages
+        if message:
             self.level(message)
     
     def flush(self):
@@ -53,7 +52,6 @@ def prepare(recode_file: str, zarr_dir: str) -> None:
 
     # Convert VCF file to ZARR array
     try:
-        # Wrap logger in file-like adapter for scikit-allel compatibility
         log_writer = LoggerWriter(logger, level=logger.debug)
         allel.vcf_to_zarr(recode_file, zarr_dir, fields="*", log=log_writer)
     except KeyboardInterrupt:
