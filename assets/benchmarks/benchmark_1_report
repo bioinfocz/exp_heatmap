@@ -1,0 +1,47 @@
+ExP Heatmap Benchmark Report
+==================================================
+
+Generated on 2026-02-02 17:20:12
+Command: /home/adam/miniconda3/envs/exp/bin/exp_heatmap benchmark -s 40000000 -e 40500000 -o benchmark_1 --report benchmark_1_report /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/vcf_files/chr22_p3_37.vcf /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/testing_changes/genotypes.panel
+Summary
+------------------------------
+Total Runtime: 1941.86 seconds
+Peak Memory Usage: 10555.0 MB
+
+Step-by-Step Results
+------------------------------
+
+PREPARE:
+  Runtime: 138.459 seconds
+  CPU Time: 139.488 seconds
+  Peak Memory: 681.8 MB
+  Throughput: 7970.21 variants/second
+  Memory Efficiency: 617.85 MB/million_variants
+  vcf_file_size_mb: 10692.949979782104
+  n_variants: 1103547.0
+
+COMPUTE:
+  Runtime: 1794.507 seconds
+  CPU Time: 4147.522 seconds
+  Peak Memory: 10555.0 MB
+  Throughput: 0.18 pairs/second
+  Memory Efficiency: 9564.57 MB/million_variants
+  n_variants: 1103547.0
+  test: xpehh
+  n_populations: 26.0
+  n_samples: 2504.0
+  n_pairs: 325.0
+  chunked: False
+  seconds_per_pair: 5.522
+  variants_x_pairs: 358652775.0
+
+PLOT:
+  Runtime: 8.897 seconds
+  CPU Time: 8.868 seconds
+  Peak Memory: 58.0 MB
+  Throughput: 56201.41 bp/second
+  Memory Efficiency: 116.06 MB/megabase
+  n_files: 325.0
+  region_size_bp: 500000.0
+  start: 40000000.0
+  end: 40500000.0
