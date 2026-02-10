@@ -8,7 +8,7 @@
 
 ExP Heatmap specializes in displaying cross-population data, including differences, similarities, p-values, and other statistical parameters between multiple groups or populations. This tool enables efficient evaluation of millions of statistical values in a single, comprehensive visualization.
 
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/master/assets/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
 
 *ExP heatmap of the human lactose (LCT) gene showing population differences between 26 populations from the 1000 Genomes Project, displaying empirical rank scores for cross-population extended haplotype homozygosity (XPEHH) selection test. Create your own LCT heatmap with the [Quick Start](#quick-start) Guide*
 
