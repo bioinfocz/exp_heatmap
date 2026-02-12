@@ -1,0 +1,1364 @@
+2026-02-04 21:19:59 - exp_heatmap - DEBUG - Logging initialized for command: benchmark
+2026-02-04 21:19:59 - exp_heatmap - DEBUG - Log file: logs/exp_heatmap_benchmark_20260204_211959.log
+2026-02-04 21:19:59 - exp_heatmap.cli - INFO - Starting benchmark command...
+2026-02-04 21:19:59 - exp_heatmap.benchmark - INFO - ============================================================
+2026-02-04 21:19:59 - exp_heatmap.benchmark - INFO - ExP Heatmap Full Pipeline Benchmark
+2026-02-04 21:19:59 - exp_heatmap.benchmark - INFO - ============================================================
+2026-02-04 21:19:59 - exp_heatmap.benchmark - INFO - [1/3] Benchmarking PREPARE step...
+2026-02-04 21:20:07 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 65536 rows in 7.89s; chunk in 7.89s (8309 rows/s); 22 :18539397
+2026-02-04 21:20:16 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 131072 rows in 16.10s; chunk in 8.22s (7976 rows/s); 22 :21016127
+2026-02-04 21:20:24 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 196608 rows in 24.29s; chunk in 8.19s (8005 rows/s); 22 :23236362
+2026-02-04 21:20:32 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 262144 rows in 32.64s; chunk in 8.35s (7850 rows/s); 22 :25227844
+2026-02-04 21:20:41 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 327680 rows in 41.04s; chunk in 8.40s (7798 rows/s); 22 :27285434
+2026-02-04 21:20:49 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 393216 rows in 49.42s; chunk in 8.38s (7820 rows/s); 22 :29572822
+2026-02-04 21:20:57 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 458752 rows in 57.86s; chunk in 8.44s (7767 rows/s); 22 :31900536
+2026-02-04 21:21:06 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 524288 rows in 66.27s; chunk in 8.41s (7788 rows/s); 22 :34069864
+2026-02-04 21:21:14 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 589824 rows in 74.75s; chunk in 8.47s (7734 rows/s); 22 :36053392
+2026-02-04 21:21:22 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 655360 rows in 82.73s; chunk in 7.98s (8212 rows/s); 22 :38088395
+2026-02-04 21:21:30 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 720896 rows in 90.84s; chunk in 8.11s (8080 rows/s); 22 :40216200
+2026-02-04 21:21:39 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 786432 rows in 99.03s; chunk in 8.20s (7994 rows/s); 22 :42597446
+2026-02-04 21:21:46 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 851968 rows in 106.83s; chunk in 7.79s (8407 rows/s); 22 :44564263
+2026-02-04 21:21:54 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 917504 rows in 114.97s; chunk in 8.14s (8050 rows/s); 22 :46390672
+2026-02-04 21:22:03 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 983040 rows in 123.05s; chunk in 8.08s (8108 rows/s); 22 :48116697
+2026-02-04 21:22:10 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 1048576 rows in 130.87s; chunk in 7.82s (8380 rows/s); 22 :49713436
+2026-02-04 21:22:17 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 1103547 rows in 137.72s; chunk in 6.85s (8023 rows/s)
+2026-02-04 21:22:17 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] all done (7999 rows/s)
+2026-02-04 21:22:17 - exp_heatmap.prepare - INFO - Prepare completed successfully
+2026-02-04 21:22:17 - exp_heatmap.prepare - DEBUG - Recoded VCF: /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/vcf_files/chr22_p3_37.vcf
+2026-02-04 21:22:17 - exp_heatmap.prepare - DEBUG - ZARR dir: benchmark_1_zarr
+2026-02-04 21:22:17 - exp_heatmap.benchmark - DEBUG -       Runtime: 138.10s, Peak Memory: 681.8MB
+2026-02-04 21:22:17 - exp_heatmap.benchmark - INFO - [2/3] Benchmarking COMPUTE step...
+2026-02-04 21:22:17 - exp_heatmap.tests - DEBUG - Loading panel file: /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/testing_changes/genotypes.panel
+2026-02-04 21:22:17 - exp_heatmap.tests - DEBUG - Loading zarr data: benchmark_1_zarr
+2026-02-04 21:22:17 - exp_heatmap.xp_utils - DEBUG - Attempting to load full array into memory
+2026-02-04 21:22:22 - exp_heatmap.xp_utils - DEBUG - Zarr samples: 2504
+2026-02-04 21:22:22 - exp_heatmap.xp_utils - DEBUG - Panel samples: 2504
+2026-02-04 21:22:22 - exp_heatmap.xp_utils - DEBUG - Sample order is identical! All 2504 samples are in the same order.
+2026-02-04 21:22:22 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs ASW
+2026-02-04 21:22:22 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:22 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:22:22 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:25 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs BEB
+2026-02-04 21:22:25 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:25 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:22:25 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:28 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs CDX
+2026-02-04 21:22:28 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:28 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:22:28 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:30 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs CEU
+2026-02-04 21:22:30 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:30 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:22:30 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:33 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs CHB
+2026-02-04 21:22:33 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:33 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:22:33 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:36 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs CHS
+2026-02-04 21:22:36 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:36 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:22:36 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:39 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs CLM
+2026-02-04 21:22:39 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:39 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:22:39 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:42 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs ESN
+2026-02-04 21:22:42 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:42 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:22:42 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:45 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs FIN
+2026-02-04 21:22:45 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:45 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:22:45 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:47 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs GBR
+2026-02-04 21:22:47 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:47 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:22:47 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:50 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs GIH
+2026-02-04 21:22:50 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:50 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:22:50 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:53 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs GWD
+2026-02-04 21:22:53 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:53 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:22:53 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:22:57 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs IBS
+2026-02-04 21:22:57 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:22:57 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:22:57 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs ITU
+2026-02-04 21:23:00 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:00 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:23:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs JPT
+2026-02-04 21:23:03 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:03 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:23:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:06 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs KHV
+2026-02-04 21:23:06 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:06 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:23:06 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:08 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs LWK
+2026-02-04 21:23:08 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:08 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:23:08 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:11 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs MSL
+2026-02-04 21:23:11 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:11 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:23:11 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:14 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs MXL
+2026-02-04 21:23:14 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:14 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:23:14 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:17 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs PEL
+2026-02-04 21:23:17 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:17 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:23:17 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:19 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs PJL
+2026-02-04 21:23:19 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:19 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:23:19 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:22 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs PUR
+2026-02-04 21:23:22 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:22 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:23:22 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:25 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs STU
+2026-02-04 21:23:25 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:25 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:23:25 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:28 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs TSI
+2026-02-04 21:23:28 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:28 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:23:28 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:31 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ACB vs YRI
+2026-02-04 21:23:31 - exp_heatmap.tests - DEBUG - Population ACB dimensions: 114322 192
+2026-02-04 21:23:31 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:23:31 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:34 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs BEB
+2026-02-04 21:23:34 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:34 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:23:34 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:37 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs CDX
+2026-02-04 21:23:37 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:37 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:23:37 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:39 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs CEU
+2026-02-04 21:23:39 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:39 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:23:39 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:42 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs CHB
+2026-02-04 21:23:42 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:42 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:23:42 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs CHS
+2026-02-04 21:23:44 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:44 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:23:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:47 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs CLM
+2026-02-04 21:23:47 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:47 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:23:47 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:50 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs ESN
+2026-02-04 21:23:50 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:50 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:23:50 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:53 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs FIN
+2026-02-04 21:23:53 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:53 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:23:53 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:55 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs GBR
+2026-02-04 21:23:55 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:55 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:23:55 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:23:58 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs GIH
+2026-02-04 21:23:58 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:23:58 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:23:58 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:01 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs GWD
+2026-02-04 21:24:01 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:01 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:24:01 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:04 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs IBS
+2026-02-04 21:24:04 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:04 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:24:04 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:07 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs ITU
+2026-02-04 21:24:07 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:07 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:24:07 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:10 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs JPT
+2026-02-04 21:24:10 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:10 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:24:10 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:13 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs KHV
+2026-02-04 21:24:13 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:13 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:24:13 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:16 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs LWK
+2026-02-04 21:24:16 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:16 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:24:16 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:19 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs MSL
+2026-02-04 21:24:19 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:19 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:24:19 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:21 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs MXL
+2026-02-04 21:24:21 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:21 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:24:21 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:22 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs PEL
+2026-02-04 21:24:22 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:22 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:24:22 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:24 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs PJL
+2026-02-04 21:24:24 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:24 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:24:24 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:27 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs PUR
+2026-02-04 21:24:27 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:27 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:24:27 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:30 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs STU
+2026-02-04 21:24:30 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:30 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:24:30 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:33 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs TSI
+2026-02-04 21:24:33 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:33 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:24:33 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:36 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ASW vs YRI
+2026-02-04 21:24:36 - exp_heatmap.tests - DEBUG - Population ASW dimensions: 114322 122
+2026-02-04 21:24:36 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:24:36 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:39 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs CDX
+2026-02-04 21:24:39 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:24:39 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:24:39 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:41 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs CEU
+2026-02-04 21:24:41 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:24:41 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:24:41 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs CHB
+2026-02-04 21:24:44 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:24:44 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:24:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:47 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs CHS
+2026-02-04 21:24:47 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:24:47 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:24:47 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:50 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs CLM
+2026-02-04 21:24:50 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:24:50 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:24:50 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:53 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs ESN
+2026-02-04 21:24:53 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:24:53 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:24:53 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:55 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs FIN
+2026-02-04 21:24:55 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:24:55 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:24:55 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:24:58 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs GBR
+2026-02-04 21:24:58 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:24:58 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:24:58 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs GIH
+2026-02-04 21:25:00 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:00 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:25:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs GWD
+2026-02-04 21:25:03 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:03 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:25:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:07 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs IBS
+2026-02-04 21:25:07 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:07 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:25:07 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:10 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs ITU
+2026-02-04 21:25:10 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:10 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:25:10 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:13 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs JPT
+2026-02-04 21:25:13 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:13 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:25:13 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:16 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs KHV
+2026-02-04 21:25:16 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:16 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:25:16 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:19 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs LWK
+2026-02-04 21:25:19 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:19 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:25:19 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:22 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs MSL
+2026-02-04 21:25:22 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:22 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:25:22 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:24 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs MXL
+2026-02-04 21:25:24 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:24 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:25:24 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:26 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs PEL
+2026-02-04 21:25:26 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:26 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:25:26 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:28 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs PJL
+2026-02-04 21:25:28 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:28 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:25:28 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:30 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs PUR
+2026-02-04 21:25:30 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:30 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:25:30 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:34 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs STU
+2026-02-04 21:25:34 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:34 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:25:34 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:36 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs TSI
+2026-02-04 21:25:36 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:36 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:25:36 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:40 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair BEB vs YRI
+2026-02-04 21:25:40 - exp_heatmap.tests - DEBUG - Population BEB dimensions: 114322 172
+2026-02-04 21:25:40 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:25:40 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:43 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs CEU
+2026-02-04 21:25:43 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:25:43 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:25:43 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:46 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs CHB
+2026-02-04 21:25:46 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:25:46 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:25:46 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:49 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs CHS
+2026-02-04 21:25:49 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:25:49 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:25:49 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:52 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs CLM
+2026-02-04 21:25:52 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:25:52 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:25:52 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:54 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs ESN
+2026-02-04 21:25:54 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:25:54 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:25:54 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:25:57 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs FIN
+2026-02-04 21:25:57 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:25:57 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:25:57 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs GBR
+2026-02-04 21:26:00 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:00 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:26:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:02 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs GIH
+2026-02-04 21:26:02 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:02 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:26:02 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:05 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs GWD
+2026-02-04 21:26:05 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:05 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:26:05 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:09 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs IBS
+2026-02-04 21:26:09 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:09 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:26:09 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:12 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs ITU
+2026-02-04 21:26:12 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:12 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:26:12 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs JPT
+2026-02-04 21:26:15 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:15 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:26:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:18 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs KHV
+2026-02-04 21:26:18 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:18 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:26:18 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:21 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs LWK
+2026-02-04 21:26:21 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:21 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:26:21 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:24 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs MSL
+2026-02-04 21:26:24 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:24 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:26:24 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:26 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs MXL
+2026-02-04 21:26:26 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:26 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:26:26 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:28 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs PEL
+2026-02-04 21:26:28 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:28 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:26:28 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:31 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs PJL
+2026-02-04 21:26:31 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:31 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:26:31 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:33 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs PUR
+2026-02-04 21:26:33 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:33 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:26:33 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:36 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs STU
+2026-02-04 21:26:36 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:36 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:26:36 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:39 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs TSI
+2026-02-04 21:26:39 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:39 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:26:39 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:42 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CDX vs YRI
+2026-02-04 21:26:42 - exp_heatmap.tests - DEBUG - Population CDX dimensions: 114322 186
+2026-02-04 21:26:42 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:26:42 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:46 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs CHB
+2026-02-04 21:26:46 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:26:46 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:26:46 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:49 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs CHS
+2026-02-04 21:26:49 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:26:49 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:26:49 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:52 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs CLM
+2026-02-04 21:26:52 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:26:52 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:26:52 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:54 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs ESN
+2026-02-04 21:26:54 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:26:54 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:26:54 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:26:57 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs FIN
+2026-02-04 21:26:57 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:26:57 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:26:57 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs GBR
+2026-02-04 21:27:00 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:00 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:27:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs GIH
+2026-02-04 21:27:03 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:03 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:27:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:06 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs GWD
+2026-02-04 21:27:06 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:06 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:27:06 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:09 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs IBS
+2026-02-04 21:27:09 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:09 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:27:09 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:13 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs ITU
+2026-02-04 21:27:13 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:13 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:27:13 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs JPT
+2026-02-04 21:27:15 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:15 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:27:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:18 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs KHV
+2026-02-04 21:27:18 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:18 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:27:18 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:21 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs LWK
+2026-02-04 21:27:21 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:21 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:27:21 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:24 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs MSL
+2026-02-04 21:27:24 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:24 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:27:24 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:27 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs MXL
+2026-02-04 21:27:27 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:27 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:27:27 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:29 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs PEL
+2026-02-04 21:27:29 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:29 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:27:29 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:32 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs PJL
+2026-02-04 21:27:32 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:32 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:27:32 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:35 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs PUR
+2026-02-04 21:27:35 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:35 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:27:35 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:38 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs STU
+2026-02-04 21:27:38 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:38 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:27:38 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:41 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs TSI
+2026-02-04 21:27:41 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:41 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:27:41 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CEU vs YRI
+2026-02-04 21:27:44 - exp_heatmap.tests - DEBUG - Population CEU dimensions: 114322 198
+2026-02-04 21:27:44 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:27:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:47 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs CHS
+2026-02-04 21:27:47 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:27:47 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:27:47 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:50 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs CLM
+2026-02-04 21:27:50 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:27:50 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:27:50 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:53 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs ESN
+2026-02-04 21:27:53 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:27:53 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:27:53 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:56 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs FIN
+2026-02-04 21:27:56 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:27:56 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:27:56 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:27:59 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs GBR
+2026-02-04 21:27:59 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:27:59 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:27:59 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:02 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs GIH
+2026-02-04 21:28:02 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:02 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:28:02 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:05 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs GWD
+2026-02-04 21:28:05 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:05 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:28:05 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:09 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs IBS
+2026-02-04 21:28:09 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:09 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:28:09 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:12 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs ITU
+2026-02-04 21:28:12 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:12 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:28:12 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs JPT
+2026-02-04 21:28:15 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:15 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:28:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:18 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs KHV
+2026-02-04 21:28:18 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:18 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:28:18 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:21 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs LWK
+2026-02-04 21:28:21 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:21 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:28:21 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:23 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs MSL
+2026-02-04 21:28:23 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:23 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:28:23 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:26 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs MXL
+2026-02-04 21:28:26 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:26 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:28:26 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:29 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs PEL
+2026-02-04 21:28:29 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:29 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:28:29 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:32 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs PJL
+2026-02-04 21:28:32 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:32 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:28:32 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:35 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs PUR
+2026-02-04 21:28:35 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:35 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:28:35 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:38 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs STU
+2026-02-04 21:28:38 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:38 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:28:38 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:41 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs TSI
+2026-02-04 21:28:41 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:41 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:28:41 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHB vs YRI
+2026-02-04 21:28:44 - exp_heatmap.tests - DEBUG - Population CHB dimensions: 114322 206
+2026-02-04 21:28:44 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:28:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:48 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs CLM
+2026-02-04 21:28:48 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:28:48 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:28:48 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:51 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs ESN
+2026-02-04 21:28:51 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:28:51 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:28:51 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:54 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs FIN
+2026-02-04 21:28:54 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:28:54 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:28:54 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:28:57 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs GBR
+2026-02-04 21:28:57 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:28:57 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:28:57 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs GIH
+2026-02-04 21:29:00 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:00 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:29:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs GWD
+2026-02-04 21:29:03 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:03 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:29:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:06 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs IBS
+2026-02-04 21:29:06 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:06 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:29:06 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:09 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs ITU
+2026-02-04 21:29:09 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:09 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:29:09 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:13 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs JPT
+2026-02-04 21:29:13 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:13 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:29:13 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:16 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs KHV
+2026-02-04 21:29:16 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:16 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:29:16 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:19 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs LWK
+2026-02-04 21:29:19 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:19 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:29:19 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:21 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs MSL
+2026-02-04 21:29:21 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:21 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:29:21 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:24 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs MXL
+2026-02-04 21:29:24 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:24 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:29:24 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:28 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs PEL
+2026-02-04 21:29:28 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:28 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:29:28 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:31 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs PJL
+2026-02-04 21:29:31 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:31 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:29:31 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:34 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs PUR
+2026-02-04 21:29:34 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:34 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:29:34 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:37 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs STU
+2026-02-04 21:29:37 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:37 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:29:37 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:40 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs TSI
+2026-02-04 21:29:40 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:40 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:29:40 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:43 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CHS vs YRI
+2026-02-04 21:29:43 - exp_heatmap.tests - DEBUG - Population CHS dimensions: 114322 210
+2026-02-04 21:29:43 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:29:43 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:46 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs ESN
+2026-02-04 21:29:46 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:29:46 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:29:46 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:49 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs FIN
+2026-02-04 21:29:49 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:29:49 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:29:49 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:52 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs GBR
+2026-02-04 21:29:52 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:29:52 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:29:52 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:54 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs GIH
+2026-02-04 21:29:54 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:29:54 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:29:54 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:29:57 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs GWD
+2026-02-04 21:29:57 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:29:57 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:29:57 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:01 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs IBS
+2026-02-04 21:30:01 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:01 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:30:01 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:04 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs ITU
+2026-02-04 21:30:04 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:04 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:30:04 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:07 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs JPT
+2026-02-04 21:30:07 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:07 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:30:07 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:10 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs KHV
+2026-02-04 21:30:10 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:10 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:30:10 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:13 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs LWK
+2026-02-04 21:30:13 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:13 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:30:13 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs MSL
+2026-02-04 21:30:15 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:15 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:30:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:18 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs MXL
+2026-02-04 21:30:18 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:18 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:30:18 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:20 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs PEL
+2026-02-04 21:30:20 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:20 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:30:20 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:23 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs PJL
+2026-02-04 21:30:23 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:23 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:30:23 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:26 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs PUR
+2026-02-04 21:30:26 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:26 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:30:26 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:29 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs STU
+2026-02-04 21:30:29 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:29 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:30:29 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:32 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs TSI
+2026-02-04 21:30:32 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:32 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:30:32 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:35 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair CLM vs YRI
+2026-02-04 21:30:35 - exp_heatmap.tests - DEBUG - Population CLM dimensions: 114322 188
+2026-02-04 21:30:35 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:30:35 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:38 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs FIN
+2026-02-04 21:30:38 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:30:38 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:30:38 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:41 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs GBR
+2026-02-04 21:30:41 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:30:41 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:30:41 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs GIH
+2026-02-04 21:30:44 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:30:44 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:30:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:46 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs GWD
+2026-02-04 21:30:46 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:30:46 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:30:46 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:50 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs IBS
+2026-02-04 21:30:50 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:30:50 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:30:50 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:53 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs ITU
+2026-02-04 21:30:53 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:30:53 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:30:53 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:56 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs JPT
+2026-02-04 21:30:56 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:30:56 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:30:56 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:30:59 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs KHV
+2026-02-04 21:30:59 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:30:59 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:30:59 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:02 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs LWK
+2026-02-04 21:31:02 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:02 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:31:02 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:05 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs MSL
+2026-02-04 21:31:05 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:05 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:31:05 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:07 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs MXL
+2026-02-04 21:31:07 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:07 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:31:07 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:10 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs PEL
+2026-02-04 21:31:10 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:10 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:31:10 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:13 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs PJL
+2026-02-04 21:31:13 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:13 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:31:13 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:16 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs PUR
+2026-02-04 21:31:16 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:16 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:31:16 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:19 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs STU
+2026-02-04 21:31:19 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:19 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:31:19 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:22 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs TSI
+2026-02-04 21:31:22 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:22 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:31:22 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:25 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ESN vs YRI
+2026-02-04 21:31:25 - exp_heatmap.tests - DEBUG - Population ESN dimensions: 114322 198
+2026-02-04 21:31:25 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:31:25 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:28 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs GBR
+2026-02-04 21:31:28 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:28 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:31:28 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:31 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs GIH
+2026-02-04 21:31:31 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:31 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:31:31 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:34 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs GWD
+2026-02-04 21:31:34 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:34 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:31:34 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:38 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs IBS
+2026-02-04 21:31:38 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:38 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:31:38 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:41 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs ITU
+2026-02-04 21:31:41 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:41 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:31:41 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs JPT
+2026-02-04 21:31:44 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:44 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:31:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:46 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs KHV
+2026-02-04 21:31:46 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:46 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:31:46 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:49 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs LWK
+2026-02-04 21:31:49 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:49 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:31:49 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:52 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs MSL
+2026-02-04 21:31:52 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:52 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:31:52 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:55 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs MXL
+2026-02-04 21:31:55 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:55 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:31:55 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:31:58 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs PEL
+2026-02-04 21:31:58 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:31:58 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:31:58 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs PJL
+2026-02-04 21:32:00 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:32:00 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:32:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs PUR
+2026-02-04 21:32:03 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:32:03 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:32:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:06 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs STU
+2026-02-04 21:32:06 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:32:06 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:32:06 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:09 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs TSI
+2026-02-04 21:32:09 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:32:09 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:32:09 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:12 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair FIN vs YRI
+2026-02-04 21:32:12 - exp_heatmap.tests - DEBUG - Population FIN dimensions: 114322 198
+2026-02-04 21:32:12 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:32:12 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs GIH
+2026-02-04 21:32:15 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:15 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:32:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:18 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs GWD
+2026-02-04 21:32:18 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:18 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:32:18 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:22 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs IBS
+2026-02-04 21:32:22 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:22 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:32:22 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:25 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs ITU
+2026-02-04 21:32:25 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:25 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:32:25 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:28 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs JPT
+2026-02-04 21:32:28 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:28 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:32:28 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:31 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs KHV
+2026-02-04 21:32:31 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:31 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:32:31 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:34 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs LWK
+2026-02-04 21:32:34 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:34 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:32:34 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:37 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs MSL
+2026-02-04 21:32:37 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:37 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:32:37 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:39 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs MXL
+2026-02-04 21:32:39 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:39 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:32:39 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:41 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs PEL
+2026-02-04 21:32:41 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:41 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:32:41 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs PJL
+2026-02-04 21:32:44 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:44 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:32:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:46 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs PUR
+2026-02-04 21:32:46 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:46 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:32:46 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:49 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs STU
+2026-02-04 21:32:49 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:49 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:32:49 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:52 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs TSI
+2026-02-04 21:32:52 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:52 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:32:52 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:55 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GBR vs YRI
+2026-02-04 21:32:55 - exp_heatmap.tests - DEBUG - Population GBR dimensions: 114322 182
+2026-02-04 21:32:55 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:32:55 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:32:59 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs GWD
+2026-02-04 21:32:59 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:32:59 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:32:59 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:02 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs IBS
+2026-02-04 21:33:02 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:02 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:33:02 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:06 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs ITU
+2026-02-04 21:33:06 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:06 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:33:06 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:09 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs JPT
+2026-02-04 21:33:09 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:09 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:33:09 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:12 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs KHV
+2026-02-04 21:33:12 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:12 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:33:12 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:14 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs LWK
+2026-02-04 21:33:14 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:14 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:33:14 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:17 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs MSL
+2026-02-04 21:33:17 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:17 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:33:17 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:20 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs MXL
+2026-02-04 21:33:20 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:20 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:33:20 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:23 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs PEL
+2026-02-04 21:33:23 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:23 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:33:23 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:26 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs PJL
+2026-02-04 21:33:26 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:26 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:33:26 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:29 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs PUR
+2026-02-04 21:33:29 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:29 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:33:29 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:32 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs STU
+2026-02-04 21:33:32 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:32 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:33:32 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:35 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs TSI
+2026-02-04 21:33:35 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:35 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:33:35 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:38 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GIH vs YRI
+2026-02-04 21:33:38 - exp_heatmap.tests - DEBUG - Population GIH dimensions: 114322 206
+2026-02-04 21:33:38 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:33:38 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:42 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs IBS
+2026-02-04 21:33:42 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:33:42 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:33:42 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:45 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs ITU
+2026-02-04 21:33:45 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:33:45 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:33:45 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:49 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs JPT
+2026-02-04 21:33:49 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:33:49 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:33:49 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:53 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs KHV
+2026-02-04 21:33:53 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:33:53 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:33:53 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:33:56 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs LWK
+2026-02-04 21:33:56 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:33:56 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:33:56 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs MSL
+2026-02-04 21:34:00 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:34:00 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:34:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs MXL
+2026-02-04 21:34:03 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:34:03 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:34:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:07 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs PEL
+2026-02-04 21:34:07 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:34:07 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:34:07 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:11 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs PJL
+2026-02-04 21:34:11 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:34:11 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:34:11 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:14 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs PUR
+2026-02-04 21:34:14 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:34:14 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:34:14 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:18 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs STU
+2026-02-04 21:34:18 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:34:18 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:34:18 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:22 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs TSI
+2026-02-04 21:34:22 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:34:22 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:34:22 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:25 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair GWD vs YRI
+2026-02-04 21:34:25 - exp_heatmap.tests - DEBUG - Population GWD dimensions: 114322 226
+2026-02-04 21:34:25 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:34:25 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:29 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs ITU
+2026-02-04 21:34:29 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:29 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:34:29 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:32 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs JPT
+2026-02-04 21:34:32 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:32 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:34:32 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:35 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs KHV
+2026-02-04 21:34:35 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:35 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:34:35 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:38 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs LWK
+2026-02-04 21:34:38 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:38 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:34:38 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:41 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs MSL
+2026-02-04 21:34:41 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:41 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:34:41 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs MXL
+2026-02-04 21:34:44 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:44 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:34:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:48 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs PEL
+2026-02-04 21:34:48 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:48 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:34:48 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:51 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs PJL
+2026-02-04 21:34:51 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:51 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:34:51 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:54 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs PUR
+2026-02-04 21:34:54 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:54 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:34:54 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:34:57 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs STU
+2026-02-04 21:34:57 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:34:57 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:34:57 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs TSI
+2026-02-04 21:35:00 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:35:00 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:35:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair IBS vs YRI
+2026-02-04 21:35:03 - exp_heatmap.tests - DEBUG - Population IBS dimensions: 114322 214
+2026-02-04 21:35:03 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:35:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:07 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs JPT
+2026-02-04 21:35:07 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:07 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:35:07 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:10 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs KHV
+2026-02-04 21:35:10 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:10 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:35:10 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:12 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs LWK
+2026-02-04 21:35:12 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:12 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:35:12 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs MSL
+2026-02-04 21:35:15 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:15 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:35:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:18 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs MXL
+2026-02-04 21:35:18 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:18 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:35:18 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:21 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs PEL
+2026-02-04 21:35:21 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:21 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:35:21 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:24 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs PJL
+2026-02-04 21:35:24 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:24 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:35:24 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:27 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs PUR
+2026-02-04 21:35:27 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:27 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:35:27 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:30 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs STU
+2026-02-04 21:35:30 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:30 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:35:30 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:33 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs TSI
+2026-02-04 21:35:33 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:33 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:35:33 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:36 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair ITU vs YRI
+2026-02-04 21:35:36 - exp_heatmap.tests - DEBUG - Population ITU dimensions: 114322 204
+2026-02-04 21:35:36 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:35:36 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:40 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs KHV
+2026-02-04 21:35:40 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:35:40 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:35:40 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:43 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs LWK
+2026-02-04 21:35:43 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:35:43 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:35:43 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:45 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs MSL
+2026-02-04 21:35:45 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:35:45 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:35:45 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:48 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs MXL
+2026-02-04 21:35:48 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:35:48 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:35:48 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:51 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs PEL
+2026-02-04 21:35:51 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:35:51 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:35:51 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:54 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs PJL
+2026-02-04 21:35:54 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:35:54 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:35:54 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:35:57 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs PUR
+2026-02-04 21:35:57 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:35:57 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:35:57 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs STU
+2026-02-04 21:36:00 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:36:00 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:36:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs TSI
+2026-02-04 21:36:03 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:36:03 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:36:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:07 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair JPT vs YRI
+2026-02-04 21:36:07 - exp_heatmap.tests - DEBUG - Population JPT dimensions: 114322 208
+2026-02-04 21:36:07 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:36:07 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:10 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs LWK
+2026-02-04 21:36:10 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:10 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:10 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:13 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs MSL
+2026-02-04 21:36:13 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:13 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:36:13 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs MXL
+2026-02-04 21:36:15 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:15 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:36:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:18 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs PEL
+2026-02-04 21:36:18 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:18 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:36:18 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:21 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs PJL
+2026-02-04 21:36:21 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:21 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:36:21 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:24 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs PUR
+2026-02-04 21:36:24 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:24 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:36:24 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:27 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs STU
+2026-02-04 21:36:27 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:27 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:36:27 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:30 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs TSI
+2026-02-04 21:36:30 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:30 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:36:30 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:33 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair KHV vs YRI
+2026-02-04 21:36:33 - exp_heatmap.tests - DEBUG - Population KHV dimensions: 114322 198
+2026-02-04 21:36:33 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:36:33 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:36 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair LWK vs MSL
+2026-02-04 21:36:36 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:36 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:36:36 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:39 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair LWK vs MXL
+2026-02-04 21:36:39 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:39 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:36:39 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:42 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair LWK vs PEL
+2026-02-04 21:36:42 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:42 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:36:42 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair LWK vs PJL
+2026-02-04 21:36:44 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:44 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:36:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:47 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair LWK vs PUR
+2026-02-04 21:36:47 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:47 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:36:47 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:50 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair LWK vs STU
+2026-02-04 21:36:50 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:50 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:36:50 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:53 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair LWK vs TSI
+2026-02-04 21:36:53 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:53 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:36:53 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:36:56 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair LWK vs YRI
+2026-02-04 21:36:56 - exp_heatmap.tests - DEBUG - Population LWK dimensions: 114322 198
+2026-02-04 21:36:56 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:36:56 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MSL vs MXL
+2026-02-04 21:37:00 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:37:00 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:37:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:02 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MSL vs PEL
+2026-02-04 21:37:02 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:37:02 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:37:02 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:04 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MSL vs PJL
+2026-02-04 21:37:04 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:37:04 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:37:04 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:06 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MSL vs PUR
+2026-02-04 21:37:06 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:37:06 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:37:06 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:09 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MSL vs STU
+2026-02-04 21:37:09 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:37:09 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:37:09 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:12 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MSL vs TSI
+2026-02-04 21:37:12 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:37:12 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:37:12 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MSL vs YRI
+2026-02-04 21:37:15 - exp_heatmap.tests - DEBUG - Population MSL dimensions: 114322 170
+2026-02-04 21:37:15 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:37:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:19 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MXL vs PEL
+2026-02-04 21:37:19 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:37:19 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:37:19 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:21 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MXL vs PJL
+2026-02-04 21:37:21 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:37:21 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:37:21 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:23 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MXL vs PUR
+2026-02-04 21:37:23 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:37:23 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:37:23 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:26 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MXL vs STU
+2026-02-04 21:37:26 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:37:26 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:37:26 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:29 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MXL vs TSI
+2026-02-04 21:37:29 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:37:29 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:37:29 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:32 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair MXL vs YRI
+2026-02-04 21:37:32 - exp_heatmap.tests - DEBUG - Population MXL dimensions: 114322 128
+2026-02-04 21:37:32 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:37:32 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:35 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PEL vs PJL
+2026-02-04 21:37:35 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:37:35 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:37:35 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:38 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PEL vs PUR
+2026-02-04 21:37:38 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:37:38 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:37:38 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:41 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PEL vs STU
+2026-02-04 21:37:41 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:37:41 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:37:41 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:44 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PEL vs TSI
+2026-02-04 21:37:44 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:37:44 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:37:44 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:47 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PEL vs YRI
+2026-02-04 21:37:47 - exp_heatmap.tests - DEBUG - Population PEL dimensions: 114322 170
+2026-02-04 21:37:47 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:37:47 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:50 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PJL vs PUR
+2026-02-04 21:37:50 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:37:50 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:37:50 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:54 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PJL vs STU
+2026-02-04 21:37:54 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:37:54 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:37:54 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:37:56 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PJL vs TSI
+2026-02-04 21:37:56 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:37:56 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:37:56 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:38:00 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PJL vs YRI
+2026-02-04 21:38:00 - exp_heatmap.tests - DEBUG - Population PJL dimensions: 114322 192
+2026-02-04 21:38:00 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:38:00 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:38:03 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PUR vs STU
+2026-02-04 21:38:03 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:38:03 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:38:03 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:38:06 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PUR vs TSI
+2026-02-04 21:38:06 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:38:06 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:38:06 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:38:09 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair PUR vs YRI
+2026-02-04 21:38:09 - exp_heatmap.tests - DEBUG - Population PUR dimensions: 114322 208
+2026-02-04 21:38:09 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:38:09 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:38:12 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair STU vs TSI
+2026-02-04 21:38:12 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:38:12 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:38:12 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:38:15 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair STU vs YRI
+2026-02-04 21:38:15 - exp_heatmap.tests - DEBUG - Population STU dimensions: 114322 204
+2026-02-04 21:38:15 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:38:15 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:38:19 - exp_heatmap.tests - DEBUG - Computing XPEHH for pair TSI vs YRI
+2026-02-04 21:38:19 - exp_heatmap.tests - DEBUG - Population TSI dimensions: 114322 214
+2026-02-04 21:38:19 - exp_heatmap.tests - DEBUG - Population YRI dimensions: 114322 216
+2026-02-04 21:38:19 - exp_heatmap.tests - DEBUG - Number of positions: 114322
+2026-02-04 21:38:22 - exp_heatmap.tests - DEBUG - Applying NaN mask for all results
+2026-02-04 21:38:22 - exp_heatmap.tests - DEBUG - Number of results removed from each file: 83
+2026-02-04 21:51:59 - exp_heatmap.compute - INFO - Compute completed successfully
+2026-02-04 21:51:59 - exp_heatmap.compute - DEBUG - ZARR dir: benchmark_1_zarr
+2026-02-04 21:51:59 - exp_heatmap.compute - DEBUG - Panel file: /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/testing_changes/genotypes.panel
+2026-02-04 21:51:59 - exp_heatmap.compute - DEBUG - Output dir: benchmark_1_compute
+2026-02-04 21:51:59 - exp_heatmap.benchmark - DEBUG -       Runtime: 1781.12s, Peak Memory: 10555.0MB
+2026-02-04 21:51:59 - exp_heatmap.benchmark - INFO - [3/3] Benchmarking PLOT step...
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG - ────────────────────────────────────────────────────────────
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG - Region Selection Summary
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG - ────────────────────────────────────────────────────────────
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG -   Requested region:    40,000,000 - 40,500,000
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG -   Available data:      16,060,513 - 51,210,268
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG -   Selected region:     40,000,221 - 40,499,492
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG -   Variants in region:  715
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG -   Note: Region boundaries adjusted to match available variant positions:
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG -     • start snapped to nearest variant at 40,000,221
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG -     • end snapped to nearest variant at 40,499,492
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG - ────────────────────────────────────────────────────────────
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG - Input data: 1000 Genomes Project, phase 3 (26 populations expected)
+2026-02-04 21:52:07 - exp_heatmap.plot - DEBUG - Expecting 650 population pairwise comparisons: 650 found
+2026-02-04 21:52:08 - exp_heatmap.plot - INFO - ExP heatmap saved to benchmark_1_plot.png
+2026-02-04 21:52:08 - exp_heatmap.benchmark - DEBUG -       Runtime: 9.02s, Peak Memory: 58.0MB
+2026-02-04 21:52:08 - exp_heatmap.benchmark - INFO - ============================================================
+2026-02-04 21:52:08 - exp_heatmap.benchmark - INFO - Benchmark Complete
+2026-02-04 21:52:08 - exp_heatmap.benchmark - INFO - ============================================================
+2026-02-04 21:52:08 - exp_heatmap.benchmark_export - INFO - Report saved to: benchmark_1_report
+2026-02-04 21:52:08 - exp_heatmap.cli - INFO - Log file: logs/exp_heatmap_benchmark_20260204_211959.log
