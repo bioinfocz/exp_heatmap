@@ -8,7 +8,7 @@
 
 ExP Heatmap specializes in displaying cross-population data, including differences, similarities, p-values, and other statistical parameters between multiple groups or populations. This tool enables efficient evaluation of millions of statistical values in a single, comprehensive visualization.
 
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
 
 *ExP heatmap of the human lactose (LCT) gene showing population differences between 26 populations from the 1000 Genomes Project, displaying empirical rank scores for cross-population extended haplotype homozygosity (XPEHH) selection test. Create your own LCT heatmap with the [Quick Start](#quick-start) Guide*
 
@@ -548,7 +548,7 @@ See the [full list of matplotlib colormaps](https://matplotlib.org/stable/users/
 
 ### Complete Analysis: SLC24A5 Gene
 
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/SLC24A5_gene.png" width="800" alt="ExP heatmap of SLC24A5 gene">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/SLC24A5_gene.png" width="800" alt="ExP heatmap of SLC24A5 gene">
 
 This example demonstrates a full workflow analyzing the [SLC24A5](https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000188467;r=15:48120990-48142672) gene, known for its role in human skin pigmentation using 1000 Genomes Project data. SLC24A5 is also known to show strong selection signals, which makes it a suitable example.
 
@@ -588,19 +588,19 @@ exp_heatmap plot chr15_snps_output \
 The same XP-EHH test data for the ADM2 gene region, showing different rank score calculation methods:
 
 **Two-tailed rank scores:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_2tailed.png" width="800" alt="Two-tailed rank scores">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_2tailed.png" width="800" alt="Two-tailed rank scores">
 
 **Ascending rank scores:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_ascending.png" width="800" alt="Ascending rank scores">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_ascending.png" width="800" alt="Ascending rank scores">
 
 **Descending rank scores:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_descending.png" width="800" alt="Descending rank scores">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_descending.png" width="800" alt="Descending rank scores">
 
 ### Noise Filtering
 
 Using `display_limit` and `display_values` parameters to filter noisy data and highlight significant regions:
 
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_display_limit.png" width="800" alt="Filtered display">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_display_limit.png" width="800" alt="Filtered display">
 
 *Same data as above, but with display_limit=1.60 to filter noise and highlight significant signals.*
 
@@ -806,15 +806,15 @@ For commercial licensing under different terms, please contact: edvard.ehler@img
 <div align="center">
 
 <a href="http://genomat.img.cas.cz">
-  <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/genomat.png" width="100" alt="GenoMat">
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/funding/genomat.png" width="100" alt="GenoMat">
 </a>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="https://www.img.cas.cz/en">
-  <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/img.png" width="100" alt="IMG CAS">
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/funding/img.png" width="100" alt="IMG CAS">
 </a>
 &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="https://www.elixir-czech.cz">
-  <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/elixir.png" width="100" alt="ELIXIR">
+  <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/funding/elixir.png" width="100" alt="ELIXIR">
 </a>
 
 </div>
