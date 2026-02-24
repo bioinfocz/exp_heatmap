@@ -588,19 +588,19 @@ exp_heatmap plot chr15_snps_output \
 The same XP-EHH test data for the ADM2 gene region, showing different rank score calculation methods:
 
 **Two-tailed rank scores:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2, chr22, XP-EHH, pvals: 2-tailed.png" width="800" alt="Two-tailed rank scores">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_2tailed.png" width="800" alt="Two-tailed rank scores">
 
 **Ascending rank scores:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2, chr22, XP-EHH, pvals: ascending.png" width="800" alt="Ascending rank scores">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_ascending.png" width="800" alt="Ascending rank scores">
 
 **Descending rank scores:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2, chr22, XP-EHH, pvals: descending.png" width="800" alt="Descending rank scores">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_descending.png" width="800" alt="Descending rank scores">
 
 ### Noise Filtering
 
 Using `display_limit` and `display_values` parameters to filter noisy data and highlight significant regions:
 
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_XP-EHH_display_limit.png" width="800" alt="Filtered display">
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/ADM2_display_limit.png" width="800" alt="Filtered display">
 
 *Same data as above, but with display_limit=1.60 to filter noise and highlight significant signals.*
 
