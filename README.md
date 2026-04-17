@@ -333,7 +333,7 @@ exp_heatmap compare chr15_results/ --start-1 47924019 --end-1 48924019 --start-2
 
 #### 9. Top-Region Extraction - `regions`
 
->Extract top-scoring windows into a TSV for downstream review or manuscript figure planning.
+>Extract top-scoring windows into a TSV.
 
 ```bash
 exp_heatmap regions [OPTIONS] <input_dir>
@@ -478,8 +478,6 @@ Or:
 docker build -t exp-heatmap-local .
 docker run --rm exp-heatmap-local --help
 ```
-
-See [docs/LOCAL_REPRODUCIBILITY.md](docs/LOCAL_REPRODUCIBILITY.md) for details.
 
 ---
 
@@ -779,7 +777,7 @@ data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="
 
 ## Benchmarks
 
-All benchmarks were run locally on a macOS 14 / arm64 (Apple M4 Pro) workstation with 14 logical CPUs and 48 GB RAM. Python 3.12, zarr 2.x. Full benchmark scripts are provided under [`scripts/benchmarks/`](scripts/benchmarks). Raw logs, machine specs, and TSV summaries are kept in this repository's manuscript handoff bundle (see `temp_review/hand_off/benchmark_package/`).
+All benchmarks were run locally on a macOS 14 / arm64 (Apple M4 Pro) workstation with 14 logical CPUs and 48 GB RAM. Python 3.12, zarr 2.x. Full benchmark scripts are provided under [`scripts/benchmarks/`](scripts/benchmarks).
 
 ### Full pipeline on GGVP chr21
 
@@ -824,8 +822,6 @@ python scripts/benchmarks/run_population_scaling.py \
     --out-dir local_data/benchmarks/population_scaling
 ```
 
-See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) for the full reference.
-
 ## Validation on Public Data
 
 ExP Heatmap ships with two reproducible 1000 Genomes Project validation pipelines under [`scripts/validation/`](scripts/validation). Both scripts start from public Phase 3 release URLs and run end-to-end through `filter-vcf` → `prepare` → `compute` → `plot`.
@@ -838,7 +834,7 @@ The `run_1kg_chr15_slc24a5.sh` script reproduces the pigmentation-locus showcase
 |-------|-----------:|
 | `filter-vcf` | 99.59 s (biallelic-SNP filter; retains 6,456,568 / 6,477,157 records) |
 | `prepare` | 252.98 s (VCF → Zarr) |
-| `compute` | 3034.42 s (XP-EHH, all 26 × 26 ordered pairs) |
+| `compute` | 3034.42 s (XP-EHH, all 650 ordered population pairs from 26 populations) |
 | `plot` (static) | 28.43 s |
 | `plot` (interactive) | 14.04 s |
 
@@ -846,7 +842,7 @@ Output artifacts include a 21.95 GB filtered VCF, 499.69 MB Zarr store, 2.94 GB 
 
 ### chr2 / LCT locus (region-scoped reconstruction)
 
-The `run_1kg_chr2_lct_reconstruction.sh` script reconstructs the canonical lactase-persistence locus as a region-scoped public-data run. Because the main manuscript LCT figure uses an archived author-prepared bundle, the script does not try to re-run whole-chromosome compute; instead it filters chromosome 2 to the plotted LCT window plus 1 Mb of flanking sequence on each side before preparing and computing.
+The `run_1kg_chr2_lct_reconstruction.sh` script reconstructs the canonical lactase-persistence locus as a region-scoped public-data run.The script does not try to re-run whole-chromosome compute; instead it filters chromosome 2 to the plotted LCT window plus 1 Mb of flanking sequence on each side before preparing and computing.
 
 | Stage | Wall-clock |
 |-------|-----------:|
@@ -856,7 +852,7 @@ The `run_1kg_chr2_lct_reconstruction.sh` script reconstructs the canonical lacta
 | `plot` (static) | 4.61 s |
 | `plot` (interactive) | 2.11 s |
 
-This scales the whole-locus reconstruction to ~7 minutes of wall time end-to-end while keeping the plotted window and interpretation identical. See [`docs/VALIDATION_1KG_PIPELINES.md`](docs/VALIDATION_1KG_PIPELINES.md) for details, and [`scripts/validation/summarize_validation_run.py`](scripts/validation/summarize_validation_run.py) to regenerate the JSON/Markdown summaries from log files.
+This scales the whole-locus reconstruction to ~7 minutes of wall time end-to-end while keeping the plotted window and interpretation identical. See [`scripts/validation/summarize_validation_run.py`](scripts/validation/summarize_validation_run.py) to regenerate the JSON/Markdown summaries from log files.
 
 ## 1000 Genomes Population Reference
 
@@ -1002,7 +998,7 @@ The suite currently contains 28 tests covering rank-score generation with ties a
 
 ### Building documentation-facing assets
 
-Reproducibility scripts, benchmark drivers, and validation pipelines live under [`scripts/`](scripts) and are covered in [`docs/`](docs).
+Reproducibility scripts, benchmark drivers, and validation pipelines live under [`scripts/`](scripts).
 
 ## License
 
