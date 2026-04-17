@@ -2,12 +2,13 @@
 Specific utilities for genetic data analysis and population genetics calculations.
 """
 
-import numpy as np
-import allel
 import sys
-import pandas as pd
 from itertools import combinations
 from typing import List, Tuple, Any
+
+import allel
+import numpy as np
+import pandas as pd
 
 from exp_heatmap.logging import get_logger
 
@@ -67,6 +68,33 @@ def get_pop_allele_counts(gt: allel.GenotypeArray, panel: pd.DataFrame, pop: str
     ac = gt_pop.count_alleles()
     return ac
 
+def _extract_alt_frequencies(callset: Any, gt) -> np.ndarray:
+    """
+    Return total alternate allele frequencies for each variant.
+
+    Prefer INFO/AF when present, otherwise derive frequencies directly from genotypes.
+    """
+    try:
+        raw_af = np.asarray(callset["variants/AF"][:], dtype=float)
+        if raw_af.ndim == 1:
+            alt_frequencies = raw_af
+        else:
+            alt_frequencies = np.nansum(raw_af, axis=1)
+        logger.debug("Using precomputed alternate allele frequencies from variants/AF")
+        return alt_frequencies
+    except KeyError:
+        logger.warning(
+            "variants/AF is missing from the input data. Computing alternate allele "
+            "frequencies directly from genotypes instead."
+        )
+
+    allele_counts = gt.count_alleles()
+    allele_frequencies = allele_counts.to_frequencies()
+    if allele_frequencies.shape[1] <= 1:
+        return np.zeros(allele_frequencies.shape[0], dtype=float)
+    return 1.0 - allele_frequencies[:, 0]
+
+
 def filter_by_AF(callset: Any, af_threshold: float, chunked: bool = False) -> Tuple[allel.GenotypeChunkedArray, allel.SortedIndex]:
     """
     Filter variants by alternate allele frequency threshold.
@@ -79,17 +107,16 @@ def filter_by_AF(callset: Any, af_threshold: float, chunked: bool = False) -> Tu
         Tuple of (filtered_genotypes, filtered_positions) where variants
         have alternate allele frequency > af_threshold
     """
-    af = callset["variants/AF"][:]
-    loc_variant_selection = af[:, 0] > af_threshold
     gt_zarr = callset["calldata/GT"]
-
-    # Load the genotype as chunked array for memory efficiency
     if chunked:
         logger.debug("Using chunked array to avoid memory exhaustion")
         gt = allel.GenotypeChunkedArray(gt_zarr)
     else:
         logger.debug("Attempting to load full array into memory")
         gt = allel.GenotypeArray(gt_zarr)
+
+    alt_frequencies = _extract_alt_frequencies(callset, gt)
+    loc_variant_selection = alt_frequencies > af_threshold
 
     gt_filtered = gt.compress(loc_variant_selection, axis=0)
     positions = allel.SortedIndex(callset["variants/POS"])

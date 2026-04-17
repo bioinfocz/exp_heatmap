@@ -16,7 +16,8 @@ from exp_heatmap.plot import (
     populations_1000genomes, 
     superpopulations,
     pop_to_superpop,
-    create_plot_input
+    create_plot_input,
+    downsample_heatmap_columns,
 )
 from exp_heatmap.logging import get_logger
 
@@ -296,6 +297,7 @@ def plot_interactive(
     end: int,
     title: Optional[str] = None,
     output: str = "ExP_heatmap_interactive",
+    rank_scores: str = "directional",
     **kwargs
 ) -> 'go.Figure':
     """
@@ -316,6 +318,8 @@ def plot_interactive(
         Title for the heatmap.
     output : str, optional
         Output filename without extension.
+    rank_scores : str, optional
+        Which empirical rank-score mode to visualize.
     **kwargs : dict
         Additional arguments passed to plot_interactive_heatmap().
         
@@ -325,7 +329,8 @@ def plot_interactive(
         Interactive Plotly figure object.
     """
     # Load and prepare data
-    plot_input = create_plot_input(input_dir, start=start, end=end)
+    plot_input = create_plot_input(input_dir, start=start, end=end, rank_scores=rank_scores)
+    populations = plot_input.attrs.get("population_mode", "1000Genomes")
     
     return plot_interactive_heatmap(
         plot_input,
@@ -333,6 +338,7 @@ def plot_interactive(
         end=plot_input.columns[-1],
         title=title,
         output=output,
+        populations=populations,
         **kwargs
     )
 
@@ -343,6 +349,7 @@ def create_comparison_view(
     region2: Tuple[int, int],
     title: Optional[str] = None,
     output: str = "ExP_comparison",
+    max_columns: Optional[int] = None,
     **kwargs
 ) -> 'go.Figure':
     """
@@ -363,6 +370,9 @@ def create_comparison_view(
         Title for the comparison figure.
     output : str, optional
         Output filename without extension.
+    max_columns : int, optional
+        Maximum rendered columns per region. If set, each region is downsampled
+        independently before plotting.
     **kwargs : dict
         Additional arguments for heatmap styling.
         
@@ -377,6 +387,10 @@ def create_comparison_view(
     
     df1 = input_df[cols1]
     df2 = input_df[cols2]
+
+    if max_columns is not None:
+        df1, _ = downsample_heatmap_columns(df1, max_columns=max_columns, aggregation="max")
+        df2, _ = downsample_heatmap_columns(df2, max_columns=max_columns, aggregation="max")
     
     # Create subplots
     fig = make_subplots(
@@ -441,6 +455,7 @@ def create_population_focus_view(
     end: int,
     title: Optional[str] = None,
     output: str = "ExP_population_focus",
+    max_columns: Optional[int] = None,
     **kwargs
 ) -> 'go.Figure':
     """
@@ -460,6 +475,8 @@ def create_population_focus_view(
         Title for the figure.
     output : str, optional
         Output filename without extension.
+    max_columns : int, optional
+        Maximum rendered columns for wide focus views.
     **kwargs : dict
         Additional styling arguments.
         
@@ -478,6 +495,13 @@ def create_population_focus_view(
     # Filter columns to region
     cols = [c for c in filtered_df.columns if start <= c <= end]
     filtered_df = filtered_df[cols]
+
+    if max_columns is not None:
+        filtered_df, _ = downsample_heatmap_columns(
+            filtered_df,
+            max_columns=max_columns,
+            aggregation="max",
+        )
     
     # Create heatmap
     fig = go.Figure()
@@ -511,4 +535,3 @@ def create_population_focus_view(
     logger.info(f"Population focus view saved to: {output_file}")
     
     return fig
-

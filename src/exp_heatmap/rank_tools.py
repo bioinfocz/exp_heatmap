@@ -1,22 +1,21 @@
 """
 Rank-based transformation tools for genomic selection statistics.
 
-This module provides functions to compute empirical rank scores from test statistics.
-The rank transformation converts raw test values into genome-wide percentile ranks,
-which are then transformed to -log10 scale for visualization.
+These helpers convert raw test values into empirical genome-wide extremeness scores
+for visualization. The resulting values are useful for ranking and highlighting
+outliers, but they are not calibrated inferential p-values.
 
-Statistical Interpretation:
-- Null hypothesis: Under no selection, test statistics are uniformly distributed
-- Reference distribution: Genome-wide empirical distribution of the test statistic
-- Transformation: rank_score = -log10(rank / total_variants)
-- Tie handling: Equal values receive the same rank (standard competition ranking)
+Statistical interpretation:
+- Reference distribution: the empirical genome-wide distribution of the chosen statistic
+- Transformation: rank_score = -log10(rank / total_valid_variants)
+- Tie handling: equal values receive the same rank (standard competition ranking)
 
-Note: These are empirical rank scores, not classical p-values. They represent the
-relative extremity of each variant's test statistic compared to the genome-wide
-distribution, suitable for identifying outliers but not for formal hypothesis testing.
+These scores are suitable for visualization and prioritization, not formal hypothesis
+testing under an explicit null model.
 """
 
 import numpy as np
+import pandas as pd
 
 from exp_heatmap.logging import get_logger
 
@@ -88,6 +87,28 @@ def compute_log10_rank_scores(rank_scores):
     return np.round(log_scores, 3)
 
 
+def compute_rank_scores_for_series(values, ascending):
+    """
+    Compute -log10 empirical rank scores for one vector of test values.
+
+    Missing values are preserved as NaN so callers can keep pair-specific missingness
+    in downstream outputs and plots.
+    """
+    series = pd.Series(values, copy=True)
+    valid_values = series.dropna()
+    if valid_values.empty:
+        return pd.Series(np.nan, index=series.index, dtype=float)
+
+    sorted_values = valid_values.sort_values(ascending=ascending)
+    ranks = compute_ranks(sorted_values.values)
+    rank_scores = compute_empirical_rank_scores(ranks)
+    log_scores = compute_log10_rank_scores(rank_scores)
+
+    output = pd.Series(np.nan, index=series.index, dtype=float)
+    output.loc[sorted_values.index] = log_scores
+    return output
+
+
 def rank_across_genome(test_data, top_lowest):
     """
     Compute genome-wide empirical rank scores for test statistics.
@@ -106,21 +127,14 @@ def rank_across_genome(test_data, top_lowest):
     # The test files always have the test values saved in the last column
     test_name = test_data.columns[-1]
 
-    # get rid of results with nan (there should't be too many of them)
-    test_data.dropna(axis=0, inplace=True)
+    valid_data = test_data.dropna(axis=0).copy()
+    valid_data.sort_values(by=test_name, inplace=True, ascending=top_lowest)
 
-    # Sort the data, so that the ranks can be given
-    test_data.sort_values(by=test_name, inplace=True, ascending=top_lowest)
-
-    test_results = test_data[test_name].values
-
+    test_results = valid_data[test_name].values
     ranks = compute_ranks(test_results)
-    test_data["rank"] = ranks
-
+    valid_data["rank"] = ranks
     rank_scores = compute_empirical_rank_scores(ranks)
-    test_data["empirical_rank_score"] = rank_scores
+    valid_data["empirical_rank_score"] = rank_scores
+    valid_data["-log10_rank_score"] = compute_log10_rank_scores(rank_scores)
 
-    log10_rank_scores = compute_log10_rank_scores(rank_scores)
-    test_data["-log10_rank_score"] = log10_rank_scores
-
-    return test_data
+    return valid_data

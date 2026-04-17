@@ -1,12 +1,14 @@
 # ExP Heatmap
 
 [![PyPI version](https://badge.fury.io/py/exp-heatmap.svg)](https://pypi.org/project/exp_heatmap/)
-![Python](https://img.shields.io/badge/python-≥3.8-blue)
-![Version](https://img.shields.io/badge/version-1.2.0-green)
+![Python](https://img.shields.io/badge/python-≥3.10-blue)
+![Version](https://img.shields.io/badge/version-1.3.0-green)
+![License](https://img.shields.io/badge/license-MIT-green)
+[![Tests](https://github.com/bioinfocz/exp_heatmap/actions/workflows/tests.yml/badge.svg)](https://github.com/bioinfocz/exp_heatmap/actions/workflows/tests.yml)
 
-> A powerful Python package and command-line tool for visualizing multidimensional population genetics data through intuitive heatmaps.
+> An ordered-pair workflow for regional cross-population genomic visualization. ExP Heatmap takes a VCF through filter → prepare → compute → plot and renders ordered population-pair matrices as empirical rank-score heatmaps.
 
-ExP Heatmap specializes in displaying cross-population data, including differences, similarities, p-values, and other statistical parameters between multiple groups or populations. This tool enables efficient evaluation of millions of statistical values in a single, comprehensive visualization.
+ExP Heatmap is designed for visualizing cross-population selection signals, differentiation, and other statistical summaries across many populations at once. It is most useful when a regional view (e.g. a gene locus or an ordered-pair matrix over a candidate window) would be hard to interpret as dozens of separate per-pair tracks. The package supports the canonical 1000 Genomes Project panel out of the box and now also handles arbitrary custom panels (e.g. the Gambian Genome Variation Project).
 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/LCT_gene.png" width="800" alt="ExP heatmap of LCT gene">
 
@@ -16,13 +18,15 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
 
 ## Features
 
-- **Multiple Statistical Tests**: Support for XPEHH, XP-NSL, Delta Tajima's D, and Hudson's Fst
-- **Flexible Input Formats**: Work with VCF files, pre-computed statistics, or ready-to-plot data
-- **Command-Line Interface**: Easy-to-use CLI for standard workflows
-- **Python API**: Full programmatic control for custom analyses
-- **Efficient Processing**: Zarr-based data storage for fast computation
-- **Customizable Visualization**: Multiple color schemes, resolution options, and display settings
-- **Interactive Mode**: Plotly-based HTML visualizations with zoom, pan, and hover tooltips
+- **End-to-end workflow**: Built-in `filter-vcf` → `prepare` → `compute` → `plot` pipeline with no external preprocessing dependencies required
+- **Multiple statistical tests**: XP-EHH, XP-nSL, Delta Tajima's D, and Hudson's Fst
+- **Flexible input**: Work from raw VCF, pre-computed statistics, or ready-to-plot TSVs
+- **Custom population panels**: Automatic detection of non-1000G panels (e.g. GGVP) with fallback to the canonical 1000G layout when the full 26-population set is present
+- **Correct pair-specific missingness**: A NaN in one population pair no longer silently removes that locus from all other pairs
+- **Wide-region static rendering**: Explicit, documented column downsampling (`max`/`mean`/`median`) instead of implicit raster compression
+- **Interactive HTML**: Plotly-based zoom, pan, hover, region comparison, and population-focused views
+- **Reproducibility scaffolding**: Conda environment, Docker image, and CI-tested pytest suite
+- **Benchmark harness**: Scripts for local display, full-pipeline, and population-scaling benchmarks
 
 ## Table of Contents
 
@@ -32,12 +36,15 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
   - [Pipeline Overview](#pipeline-overview)
   - [Command-Line Interface](#command-line-interface)
   - [Python Package](#python-package)
+- [Reproducibility](#reproducibility)
 - [Input File Formats](#input-file-formats)
 - [Output File Formats](#output-file-formats)
 - [Advanced Features](#advanced-features)
 - [Workflow Examples](#workflow-examples)
 - [Gallery](#gallery)
 - [Statistical Methodology](#statistical-methodology)
+- [Benchmarks](#benchmarks)
+- [Validation on Public Data](#validation-on-public-data)
 - [1000 Genomes Population Reference](#1000-genomes-population-reference)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
@@ -47,8 +54,10 @@ ExP Heatmap specializes in displaying cross-population data, including differenc
 
 ### Requirements
 
-- Python ≥ 3.8
-- `vcftools` (for genomic data preparation - optional if using preprocessed data)
+- Python ≥ 3.10 (tested on 3.10, 3.11, 3.12)
+- `vcftools` (optional; only needed if you prefer external SNP-only preprocessing)
+
+ExP Heatmap now includes a built-in `filter-vcf` command for preparing biallelic SNP-only VCFs locally, so `vcftools` is no longer required for the standard preprocessing path.
 
 ### Python Dependencies
 
@@ -107,32 +116,58 @@ The `exp_heatmap` package will read the files from `chr2_output/` folder and cre
 
 ### Pipeline Overview
 
-ExP Heatmap follows a simple three-step workflow: **prepare** → **compute** → **plot**. Each step can be used independently depending on your data format.
+ExP Heatmap follows a simple three-step workflow: **prepare** → **compute** → **plot**. If your input VCF still contains indels or multiallelic sites, use **filter-vcf** first. Each step can be used independently depending on your data format.
 
 ```
 ┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-│   VCF File  │ ──── │   prepare   │ ──── │   ZARR Dir  │      │             │
-└─────────────┘      └─────────────┘      └──────┬──────┘      │             │
-                                                 │             │             │
-                                                 ▼             │             │
-┌─────────────┐      ┌─────────────┐      ┌─────────────┐      │   Heatmap   │
-│ Panel File  │ ──── │   compute   │ ──── │  TSV Files  │ ──── │    (PNG)    │
-└─────────────┘      └─────────────┘      └──────┬──────┘      │             │
-                                                 │             │             │
-                                                 ▼             │             │
-                                          ┌─────────────┐      │             │
-                                          │    plot     │ ──── │             │
-                                          └─────────────┘      └─────────────┘
+│   VCF File  │ ──── │ filter-vcf  │ ──── │ SNP-only VCF│ ──── │   prepare   │
+└─────────────┘      └─────────────┘      └─────────────┘      └──────┬──────┘
+                                                                        │
+                                                                        ▼
+                                                                 ┌─────────────┐
+                                                                 │   ZARR Dir  │
+                                                                 └──────┬──────┘
+                                                                        │
+                                                                        ▼
+┌─────────────┐      ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+│ Panel File  │ ──── │   compute   │ ──── │  TSV Files  │ ──── │   Heatmap   │
+└─────────────┘      └─────────────┘      └──────┬──────┘      │ PNG / HTML  │
+                                                 │             └─────────────┘
+                                                 ▼
+                                          ┌─────────────┐
+                                          │    plot     │
+                                          └─────────────┘
 ```
 
 **Starting Points:**
+- **From raw VCF**: Use `filter-vcf` first if needed, then `prepare` → `compute` → `plot`
 - **From VCF**: Use all three steps (`prepare` → `compute` → `plot`)
 - **From ZARR**: Skip `prepare`, use `compute` → `plot`
 - **From TSV results**: Skip to `plot` directly
 
 ### Command-Line Interface
 
-#### 1. Full Pipeline - `full`
+#### 1. VCF Filtering - `filter-vcf`
+
+>Keep only biallelic SNP records before `prepare`.
+
+```bash
+exp_heatmap filter-vcf [OPTIONS] <input_vcf>
+```
+
+| Argument/Option | Type | Default | Description |
+|-----------------|------|---------|-------------|
+| `<input_vcf>` | PATH | required | Input VCF or VCF.GZ file |
+| `-o, --out` | PATH | required | Output VCF path (`.vcf` or `.vcf.gz`) |
+| `--no-log` | flag | - | Disable logging to file |
+| `--verbose` | flag | - | Show detailed debug output in console |
+
+**Example:**
+```bash
+exp_heatmap filter-vcf chr21.vcf.gz -o chr21_snps.vcf
+```
+
+#### 2. Full Pipeline - `full`
 
 >Run the complete pipeline (prepare → compute → plot) in a single command.
 
@@ -152,6 +187,9 @@ exp_heatmap full [OPTIONS] <vcf_file> <panel_file>
 | `--title` | STR | - | Title of the heatmap |
 | `--cmap` | STR | `Blues` | Colormap for visualization |
 | `--interactive` | flag | - | Generate interactive HTML visualization |
+| `--max-columns` | INT | auto/static, `30000` interactive | Explicit column budget for wide regions |
+| `--column-aggregation` | choice | `max` | Reducer for static downsampling: `max`, `mean`, `median` |
+| `--dpi` | INT | `400` | DPI for saved static figures |
 | `--no-log` | flag | - | Disable logging to file |
 | `--verbose` | flag | - | Show detailed debug output |
 
@@ -162,7 +200,7 @@ exp_heatmap full chr15_snps.recode.vcf genotypes.panel -s 47924019 -e 48924019 -
 
 This creates: `slc24a5_analysis_zarr/`, `slc24a5_analysis_compute/`, and `slc24a5_analysis_plot.png`
 
-#### 2. Data Preparation - `prepare`
+#### 3. Data Preparation - `prepare`
 
 >Convert VCF files to efficient Zarr format for faster computation.
 
@@ -172,7 +210,7 @@ exp_heatmap prepare [OPTIONS] <vcf_file>
 
 | Argument/Option | Type | Default | Description |
 |-----------------|------|---------|-------------|
-| `<vcf_file>` | PATH | required | Recoded VCF file (SNPs only recommended) |
+| `<vcf_file>` | PATH | required | VCF file (biallelic SNP-only recommended) |
 | `-o, --out` | PATH | `zarr_output` | Directory for ZARR output files |
 | `--no-log` | flag | - | Disable logging to file |
 | `--verbose` | flag | - | Show detailed debug output in console |
@@ -182,7 +220,7 @@ exp_heatmap prepare [OPTIONS] <vcf_file>
 exp_heatmap prepare chr15_snps.recode.vcf -o chr15.zarr
 ```
 
-#### 3. Statistical Analysis - `compute`
+#### 4. Statistical Analysis - `compute`
 
 >Calculate population genetic statistics across all genomic positions.
 
@@ -213,7 +251,7 @@ exp_heatmap compute [OPTIONS] <zarr_dir> <panel_file>
 exp_heatmap compute chr15.zarr genotypes.panel -o chr15_results -t xpehh
 ```
 
-#### 4. Visualization - `plot`
+#### 5. Visualization - `plot`
 
 >Generate heatmap visualizations from computed statistics.
 
@@ -230,8 +268,13 @@ exp_heatmap plot [OPTIONS] <input_dir>
 | `-o, --out` | PATH | `ExP_heatmap` | Output filename (without extension) |
 | `-c, --cmap` | STR | `Blues` | Colormap name (see [Colormap Options](#colormap-options)) |
 | `--interactive` | flag | - | Generate interactive HTML visualization |
+| `--max-columns` | INT | auto/static, `30000` interactive | Explicit column budget for wide regions |
+| `--column-aggregation` | choice | `max` | Reducer for static downsampling: `max`, `mean`, `median` |
+| `--dpi` | INT | `400` | DPI for saved static figures |
 | `--no-log` | flag | - | Disable logging to file |
 | `--verbose` | flag | - | Show detailed debug output in console |
+
+When the input TSVs represent the full canonical 1000 Genomes panel, ExP Heatmap uses the standard 1000G row ordering and annotations. For other datasets, the plotter now infers the population set directly from the TSV filenames and renders a custom-population heatmap automatically.
 
 **Example:**
 ```bash
@@ -240,6 +283,65 @@ exp_heatmap plot chr15_results/ --start 47924019 --end 48924019 --title "SLC24A5
 
 # Interactive HTML output
 exp_heatmap plot chr15_results/ --start 47924019 --end 48924019 --interactive --out slc24a5_interactive
+
+# Static output with explicit wide-region downsampling
+exp_heatmap plot chr15_results/ --start 47924019 --end 48924019 --max-columns 6000 --column-aggregation max --out slc24a5_binned
+```
+
+#### 6. Superpopulation Summary - `summary`
+
+>Collapse population-pair rows to superpopulation pairs, write the collapsed TSV, and optionally create an interactive summary heatmap.
+
+```bash
+exp_heatmap summary [OPTIONS] <input_dir>
+```
+
+**Example:**
+```bash
+exp_heatmap summary chr15_results/ --start 47924019 --end 48924019 --agg-func mean --out slc24a5_summary
+```
+
+This creates:
+- `slc24a5_summary.tsv`
+- `slc24a5_summary.html` unless `--no-plot` is used
+
+#### 7. Population-Focused View - `focus`
+
+>Generate an interactive view containing only rows involving one chosen population.
+
+```bash
+exp_heatmap focus [OPTIONS] <input_dir>
+```
+
+**Example:**
+```bash
+exp_heatmap focus chr15_results/ --start 47924019 --end 48924019 --population CEU --out slc24a5_ceu_focus
+```
+
+#### 8. Region Comparison - `compare`
+
+>Generate an interactive side-by-side comparison of two genomic regions from the same computed result set.
+
+```bash
+exp_heatmap compare [OPTIONS] <input_dir>
+```
+
+**Example:**
+```bash
+exp_heatmap compare chr15_results/ --start-1 47924019 --end-1 48924019 --start-2 55000000 --end-2 57000000 --out region_comparison
+```
+
+#### 9. Top-Region Extraction - `regions`
+
+>Extract top-scoring windows into a TSV for downstream review or manuscript figure planning.
+
+```bash
+exp_heatmap regions [OPTIONS] <input_dir>
+```
+
+**Example:**
+```bash
+exp_heatmap regions chr15_results/ --start 47924019 --end 48924019 --n-top 25 --out slc24a5_top_regions.tsv
 ```
 
 ---
@@ -286,7 +388,7 @@ data_to_plot = create_plot_input(
     start=135287850, 
     end=136287850, 
     populations="1000Genomes",
-    rank_scores="2-tailed"    # Options: "2-tailed", "ascending", "descending"
+    rank_scores="directional"  # Options: "directional" (legacy alias: "2-tailed"), "ascending", "descending"
 )
 
 # Create heatmap
@@ -356,16 +458,41 @@ cmin, cmax, cbar_ticks = prepare_cbar_params(data_to_plot, n_cbar_ticks=6)
 
 ---
 
+## Reproducibility
+
+Two local reproducibility entry points are included:
+
+- `environment.yml`: conda environment with Python 3.11, optional `vcftools`, and the package installed in editable mode with the `dev` extra
+- `Dockerfile`: minimal container image that installs the CLI and optional external preprocessing tools
+
+Quick start:
+
+```bash
+conda env create -f environment.yml
+conda activate exp-heatmap-dev
+```
+
+Or:
+
+```bash
+docker build -t exp-heatmap-local .
+docker run --rm exp-heatmap-local --help
+```
+
+See [docs/LOCAL_REPRODUCIBILITY.md](docs/LOCAL_REPRODUCIBILITY.md) for details.
+
+---
+
 ## Input File Formats
 
 ### VCF File
 
 Standard VCF format. For best results:
-- Filter to SNPs only (remove indels)
-- Use recoded VCF from vcftools
+- Filter to biallelic SNPs only before `prepare`
+- Use the built-in CLI filter or your preferred external normalization tool
 
 ```bash
-vcftools --gzvcf input.vcf.gz --remove-indels --recode --recode-INFO-all --out snps_only
+exp_heatmap filter-vcf input.vcf.gz -o input_snps.vcf
 ```
 
 ### Panel File
@@ -405,6 +532,8 @@ wget "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_
 ### Compute Output (TSV Files)
 
 The `compute` step generates one TSV file per population pair, named `POP1_POP2.tsv`.
+
+Rows remain position-aligned across all pair files. If one population pair yields no valid value at a locus, that locus is preserved as `NaN` for that pair rather than being globally removed from every output file.
 
 **Columns:**
 
@@ -451,6 +580,8 @@ Or via CLI:
 ```bash
 exp_heatmap plot results/ --start 135287850 --end 136287850 --interactive --out lct_interactive
 ```
+
+For static PNG output, ExP Heatmap now supports explicit wide-region downsampling. When the genomic window is wider than the effective export width, the static renderer can aggregate neighboring SNP columns using `max`, `mean`, or `median` before drawing the heatmap. The default static behavior uses an automatic column budget derived from figure width and DPI.
 
 **Additional Interactive Functions:**
 
@@ -559,18 +690,14 @@ This example demonstrates a full workflow analyzing the [SLC24A5](https://www.en
 wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr15.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz" -O chr15.vcf.gz
 wget "ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel" -O genotypes.panel
 
-# Filter to SNPs only
-vcftools --gzvcf chr15.vcf.gz \
-    --remove-indels \
-    --recode \
-    --recode-INFO-all \
-    --out chr15_snps
+# Filter to biallelic SNPs only
+exp_heatmap filter-vcf chr15.vcf.gz -o chr15_snps.vcf
 
 # Prepare data
-exp_heatmap prepare chr15_snps.recode.vcf -o chr15_snps.recode.zarr
+exp_heatmap prepare chr15_snps.vcf -o chr15_snps.zarr
 
 # Compute statistics
-exp_heatmap compute chr15_snps.recode.zarr genotypes.panel -o chr15_snps_output
+exp_heatmap compute chr15_snps.zarr genotypes.panel -o chr15_snps_output
 
 # Generate heatmap for SLC24A5 region
 exp_heatmap plot chr15_snps_output \
@@ -587,39 +714,39 @@ exp_heatmap plot chr15_snps_output \
 
 The same XP-EHH test data for the ADM2 gene region, showing different rank score calculation methods:
 
-**Two-tailed rank scores:**
-<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_2tailed.png" width="800" alt="Two-tailed rank scores">
+**Directional rank scores** *(reciprocal ordered-pair ranking; legacy alias: "2-tailed")*:
+<img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_2tailed.png" width="800" alt="Directional rank scores">
 
-**Ascending rank scores:**
+**Ascending rank scores** *(one-sided, highlights lowest test values)*:
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_ascending.png" width="800" alt="Ascending rank scores">
 
-**Descending rank scores:**
+**Descending rank scores** *(one-sided, highlights highest test values)*:
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_descending.png" width="800" alt="Descending rank scores">
 
 ### Noise Filtering
 
-Using `display_limit` and `display_values` parameters to filter noisy data and highlight significant regions:
+Using `display_limit` and `display_values` parameters to filter noisy data and highlight the most extreme regions:
 
 <img src="https://github.com/bioinfocz/exp_heatmap/raw/main/assets/heatmap_gallery/ADM2_display_limit.png" width="800" alt="Filtered display">
 
-*Same data as above, but with display_limit=1.60 to filter noise and highlight significant signals.*
+*Same data as above, but with display_limit=1.60 to filter noise and highlight the strongest signals.*
 
 ## Statistical Methodology
 
-### Empirical Rank Scores (Not P-Values)
+### Empirical Rank Scores
 
-ExP Heatmap uses **empirical rank scores** to visualize selection signals. Despite column names containing "p_value" (kept for backward compatibility), these are **not classical statistical p-values**.
+ExP Heatmap uses **empirical rank scores** to visualize selection signals. Despite column names containing "p_value" for backward compatibility, these values are **not inferential p-values**.
 
 **How rank scores are computed:**
 
-1. **Rank all variants**: For each population pair, sort all genome-wide test statistics
-2. **Calculate percentile**: `rank_score = rank / total_variants`
-3. **Transform to -log10 scale**: `display_value = -log10(rank_score)`
+1. **Rank all variants**: For each population pair, sort all genome-wide test statistics.
+2. **Convert the rank to a fraction**: `rank_fraction = rank / total_variants`
+3. **Transform to the display scale**: `empirical_rank_score = -log10(rank_fraction)`
 
 **Interpretation:**
-- Higher values indicate more extreme (potentially selected) variants
-- A value of 3.0 means the variant is in the top 0.1% genome-wide
-- A value of 2.0 means the variant is in the top 1% genome-wide
+- Higher values indicate more extreme variants within that empirical ranking.
+- A value of 3.0 means the variant falls in the top 0.1% of the ranked distribution.
+- A value of 2.0 means the variant falls in the top 1% of the ranked distribution.
 
 ### Rank Score Options
 
@@ -627,16 +754,17 @@ The `rank_scores` parameter in `create_plot_input()` controls how rank scores ar
 
 | Option | Description | Use Case |
 |--------|-------------|----------|
-| `"2-tailed"` | For POP1_POP2: use descending; for POP2_POP1: use ascending | **Default** - Captures selection in either direction |
+| `"directional"` | For POP1_POP2: use descending; for POP2_POP1: use ascending | **Default** - Captures reciprocal directionality |
+| `"2-tailed"` | Legacy alias of `"directional"` | Backward-compatible legacy name |
 | `"ascending"` | Lowest test values ranked first | Detect negative selection signals |
 | `"descending"` | Highest test values ranked first | Detect positive selection signals |
 
 **Example:**
 ```python
-# Two-tailed (recommended for most analyses)
-data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="2-tailed")
+# Direction-aware reciprocal ranking (recommended for most analyses)
+data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="directional")
 
-# One-tailed for specific hypothesis
+# One-sided ranking for a specific hypothesis
 data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="descending")
 ```
 
@@ -648,6 +776,87 @@ data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="
 | **XP-nSL** | Selection (robust to recombination rate variation) | Similar to XP-EHH but more robust |
 | **Delta Tajima's D** | Difference in allele frequency spectrum | Positive: excess rare variants in pop1 |
 | **Hudson's Fst** | Population differentiation | Higher values: greater genetic distance |
+
+## Benchmarks
+
+All benchmarks were run locally on a macOS 14 / arm64 (Apple M4 Pro) workstation with 14 logical CPUs and 48 GB RAM. Python 3.12, zarr 2.x. Full benchmark scripts are provided under [`scripts/benchmarks/`](scripts/benchmarks). Raw logs, machine specs, and TSV summaries are kept in this repository's manuscript handoff bundle (see `temp_review/hand_off/benchmark_package/`).
+
+### Full pipeline on GGVP chr21
+
+Input: Gambian Genome Variation Project integrated chromosome 21 VCF (553,906 input records), filtered to 509,924 biallelic SNPs across 505 samples and 5 population labels (`FULA`, `GWD`, `JOLA`, `MANDINKA`, `WOLOFF`). Statistic: XP-EHH. Default settings otherwise.
+
+| Stage | Small case (1 Mb, 11,620 SNPs) | Full chromosome (509,924 SNPs) |
+|-------|-------------------------------:|-------------------------------:|
+| `prepare` | 0.99 s  /  0.28 GB peak RSS | 12.64 s  /  0.38 GB peak RSS |
+| `compute` | 2.76 s  /  0.21 GB peak RSS | 74.73 s  /  0.99 GB peak RSS |
+| `plot` (static overview) | 2.34 s  /  0.26 GB peak RSS | 2.27 s  /  0.74 GB peak RSS |
+
+`compute` dominates wall-clock cost at full-chromosome scale, while static overview plotting remains cheap once per-pair TSVs exist. Peak RSS stayed below 1 GB for every stage in both cases.
+
+### Display scaling with population count
+
+Synthetic scaling test that holds the genomic window fixed and varies the number of ordered population-pair rows by symlinking existing per-pair outputs. All runs use the GGVP chr21 compute output as the seed.
+
+| Populations | Ordered rows | Static plot | Interactive HTML | Peak RSS (interactive) |
+|-------------|-------------:|------------:|-----------------:|-----------------------:|
+| 5 | 20 | 1.80 s, 0.10 MB PNG | 1.83 s, 5.4 MB HTML | 0.43 GB |
+| 10 | 90 | 3.25 s | 3.57 s, 10.3 MB HTML | 0.62 GB |
+| 20 | 380 | 9.61 s | 9.24 s, 32.4 MB HTML | 1.08 GB |
+| 30 | 870 | 16.87 s | 16.34 s, 54.1 MB HTML | 1.48 GB |
+| 50 | 2,450 | 38.36 s, 2.47 MB PNG | 36.09 s, 99.5 MB HTML | 2.17 GB |
+
+The ordered-pair display stays computationally tractable up to 50 populations, but visual density and HTML size rise quickly. At 50 populations we recommend using the `focus`, `summary`, or `regions` workflows in addition to the full matrix view.
+
+### Reproducing the benchmarks
+
+```bash
+pip install -e .[benchmarks]
+
+# Full pipeline benchmark on your own VCF
+python scripts/benchmarks/run_pipeline_benchmark.py \
+    --vcf path/to/input.vcf.gz \
+    --panel path/to/panel.tsv \
+    --out-dir local_data/benchmarks/pipeline
+
+# Population scaling benchmark (seeds from an existing compute output directory)
+python scripts/benchmarks/run_population_scaling.py \
+    --compute-dir path/to/compute_output \
+    --out-dir local_data/benchmarks/population_scaling
+```
+
+See [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md) for the full reference.
+
+## Validation on Public Data
+
+ExP Heatmap ships with two reproducible 1000 Genomes Project validation pipelines under [`scripts/validation/`](scripts/validation). Both scripts start from public Phase 3 release URLs and run end-to-end through `filter-vcf` → `prepare` → `compute` → `plot`.
+
+### chr15 / SLC24A5 (full-pipeline validation)
+
+The `run_1kg_chr15_slc24a5.sh` script reproduces the pigmentation-locus showcase using raw public 1000 Genomes chromosome 15 data:
+
+| Stage | Wall-clock |
+|-------|-----------:|
+| `filter-vcf` | 99.59 s (biallelic-SNP filter; retains 6,456,568 / 6,477,157 records) |
+| `prepare` | 252.98 s (VCF → Zarr) |
+| `compute` | 3034.42 s (XP-EHH, all 26 × 26 ordered pairs) |
+| `plot` (static) | 28.43 s |
+| `plot` (interactive) | 14.04 s |
+
+Output artifacts include a 21.95 GB filtered VCF, 499.69 MB Zarr store, 2.94 GB of pairwise TSV results, and a 442 KB PNG / 21.54 MB HTML heatmap of the SLC24A5 window (chr15:47,924,019-48,924,019).
+
+### chr2 / LCT locus (region-scoped reconstruction)
+
+The `run_1kg_chr2_lct_reconstruction.sh` script reconstructs the canonical lactase-persistence locus as a region-scoped public-data run. Because the main manuscript LCT figure uses an archived author-prepared bundle, the script does not try to re-run whole-chromosome compute; instead it filters chromosome 2 to the plotted LCT window plus 1 Mb of flanking sequence on each side before preparing and computing.
+
+| Stage | Wall-clock |
+|-------|-----------:|
+| `filter-vcf` (chr2:135,108,646-138,108,646) | 268.18 s (retains 81,595 / 7,081,600 records) |
+| `prepare` | 11.18 s |
+| `compute` | 117.41 s |
+| `plot` (static) | 4.61 s |
+| `plot` (interactive) | 2.11 s |
+
+This scales the whole-locus reconstruction to ~7 minutes of wall time end-to-end while keeping the plotted window and interpretation identical. See [`docs/VALIDATION_1KG_PIPELINES.md`](docs/VALIDATION_1KG_PIPELINES.md) for details, and [`scripts/validation/summarize_validation_run.py`](scripts/validation/summarize_validation_run.py) to regenerate the JSON/Markdown summaries from log files.
 
 ## 1000 Genomes Population Reference
 
@@ -753,12 +962,9 @@ exp_heatmap compute data.zarr panel.tsv -o output/ --chunked
 
 #### Empty or All-NaN Results
 
-**Error:**
-```
-All positions have NaN results. No output will be generated.
-```
+**Symptoms:** One pair-specific TSV file contains only `NaN` values in the statistic and rank-score columns.
 
-**Cause:** The statistical test produced no valid results, often due to:
+**Cause:** The statistical test produced no valid results for that specific population pair, often due to:
 - Too few variants
 - Insufficient allele frequency variation
 - For `delta_tajima_d`: window size too large
@@ -766,6 +972,7 @@ All positions have NaN results. No output will be generated.
 **Solution:**
 - Check your data has sufficient variants
 - For `delta_tajima_d`, the default window size is 13 SNPs; ensure your data has enough variants
+- Inspect logs to identify which population pair failed; other pairs will still be preserved in the output directory
 
 ### Getting Help
 
@@ -782,24 +989,32 @@ We welcome contributions! Feel free to contact us or submit issues or pull reque
 ```bash
 git clone https://github.com/bioinfocz/exp_heatmap.git
 cd exp_heatmap
-pip install -e .
+pip install -e ".[dev]"
 ```
+
+### Running the test suite
+
+```bash
+python -m pytest
+```
+
+The suite currently contains 28 tests covering rank-score generation with ties and missing data, pair-specific output preservation, AF fallback behavior, static downsampling, VCF filtering, custom-panel inference, GGVP metadata handling, and CLI wiring. GitHub Actions runs the suite on Python 3.10, 3.11, and 3.12 for every push and pull request.
+
+### Building documentation-facing assets
+
+Reproducibility scripts, benchmark drivers, and validation pipelines live under [`scripts/`](scripts) and are covered in [`docs/`](docs).
 
 ## License
 
-This project is licensed under a Custom Non-Commercial License based on the MIT License - see the [LICENSE](https://github.com/bioinfocz/exp_heatmap/blob/main/LICENSE) file for details.
-
-**Note**: This is NOT the standard MIT License. Commercial use requires explicit written permission from the authors.
-
-For commercial licensing under different terms, please contact: edvard.ehler@img.cas.cz
+This project is licensed under the [MIT License](https://github.com/bioinfocz/exp_heatmap/blob/main/LICENSE).
 
 ## Contributors
 
-- **Edvard Ehler** ([@EdaEhler](https://github.com/EdaEhler)) - Lead Developer
-- **Adam Nógell** ([@AdamNogell](https://github.com/AdamNogell)) - Developer
+- **Edvard Ehler** ([@EdaEhler](https://github.com/EdaEhler)) - Lead Developer & Corresponding Author
+- **Adam Nógell** ([@AdamNogell](https://github.com/AdamNogell)) - Maintainer
 - **Jan Pačes** ([@hpaces](https://github.com/hpaces)) - Developer
-- **Mariana Šatrová** ([@satrovam](https://github.com/satrovam)) - Developer  
-- **Ondřej Moravčík** ([@ondra-m](https://github.com/ondra-m)) - Developer
+- **Mariana Komárková** ([@satrovam](https://github.com/satrovam)) - Developer
+- **Ondřej Moravčík** ([@ondra-m](https://github.com/ondra-m)) - Original Developer
 
 ## Acknowledgments
 

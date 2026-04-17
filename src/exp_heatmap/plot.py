@@ -1,8 +1,11 @@
 import os
 import sys
+import matplotlib
 import seaborn as sns
 import pandas as pd
 import numpy as np
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import glob
 from bisect import bisect_left
@@ -27,7 +30,106 @@ for superpop, pops in superpopulations.items():
     for pop in pops:
         pop_to_superpop[pop] = superpop
 
-def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_scores="2-tailed"):
+RANK_SCORE_MODE_ALIASES = {
+    "ascending": "ascending",
+    "descending": "descending",
+    "2-tailed": "directional",
+    "directional": "directional",
+}
+
+
+def _extract_pop_pairs_from_files(segment_files):
+    pop_pairs = []
+    for segment_file in sorted(segment_files):
+        pop_pair = os.path.splitext(os.path.basename(segment_file))[0].split(".")[0]
+        parts = pop_pair.split("_")
+        if len(parts) != 2:
+            logger.debug(f"Skipping unrecognized TSV filename format: {segment_file}")
+            continue
+        pop_pairs.append(tuple(parts))
+    return pop_pairs
+
+
+def infer_populations_from_pairs(pop_pairs):
+    seen = []
+    for p1, p2 in pop_pairs:
+        for pop in (p1, p2):
+            if pop not in seen:
+                seen.append(pop)
+    return tuple(seen)
+
+
+def resolve_population_configuration(populations, segment_files):
+    if populations != "1000Genomes":
+        return tuple(populations)
+
+    pop_pairs = _extract_pop_pairs_from_files(segment_files)
+    inferred = infer_populations_from_pairs(pop_pairs)
+    if (
+        len(inferred) == len(populations_1000genomes)
+        and set(inferred) == set(populations_1000genomes)
+    ):
+        return "1000Genomes"
+
+    return inferred
+
+
+def normalize_rank_score_mode(rank_scores):
+    try:
+        return RANK_SCORE_MODE_ALIASES[rank_scores]
+    except KeyError as exc:
+        valid_modes = "', '".join(RANK_SCORE_MODE_ALIASES)
+        raise ValueError(
+            f"Unknown value for 'rank_scores'. Expected one of '{valid_modes}', got '{rank_scores}'"
+        ) from exc
+
+
+def auto_max_columns(figsize, dpi):
+    """
+    Estimate a sensible static heatmap column budget from the export width.
+    """
+    return max(1000, int(figsize[0] * dpi))
+
+
+def downsample_heatmap_columns(input_df, max_columns, aggregation="max"):
+    """
+    Downsample wide genomic windows into a fixed number of representative columns.
+
+    The representative x-position for each bin is the midpoint genomic coordinate of
+    the source columns. Aggregation defaults to 'max' to preserve sharp local signals.
+    """
+    if max_columns is None or max_columns <= 0 or input_df.shape[1] <= max_columns:
+        return input_df, False
+
+    aggregation = aggregation.lower()
+    reducers = {
+        "max": lambda frame: frame.max(axis=1, skipna=True),
+        "mean": lambda frame: frame.mean(axis=1, skipna=True),
+        "median": lambda frame: frame.median(axis=1, skipna=True),
+    }
+    if aggregation not in reducers:
+        raise ValueError(
+            f"Unknown aggregation '{aggregation}'. Expected one of: {', '.join(reducers)}"
+        )
+
+    reducer = reducers[aggregation]
+    bins = np.array_split(np.arange(input_df.shape[1]), max_columns)
+    downsampled_rows = []
+    representative_positions = []
+
+    for column_indices in bins:
+        if len(column_indices) == 0:
+            continue
+        bin_frame = input_df.iloc[:, column_indices]
+        bin_positions = input_df.columns[column_indices]
+        representative_positions.append(int(bin_positions[len(bin_positions) // 2]))
+        downsampled_rows.append(reducer(bin_frame))
+
+    downsampled_df = pd.DataFrame(downsampled_rows, index=representative_positions).T
+    downsampled_df.columns = representative_positions
+    return downsampled_df, True
+
+def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_scores="directional"):
     """
     Generate a pandas DataFrame for plotting from a directory of pairwise population .tsv files.
 
@@ -36,10 +138,10 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_sco
         start (int): Start genomic position (X-axis lower bound).
         end (int): End genomic position (X-axis upper bound).
         populations (iterable or "1000Genomes"): List of population names to include and order in the heatmap. If not using 1000 Genomes, provide a custom iterable.
-        rank_scores (str): Determines which rank score column to use:
+        rank_scores (str): Determines which rank-score mode to use:
             - "ascending": Use ascending rank scores (lowest test values ranked first).
             - "descending": Use descending rank scores (highest test values ranked first).
-            - "2-tailed": For pop1_pop2, use descending; for pop2_pop1, use ascending.
+            - "directional" / legacy "2-tailed": For pop1_pop2, use descending; for pop2_pop1, use ascending.
             
             Note: TSV column names contain "p_value" for backward compatibility, but these are
             empirical rank scores (genome-wide percentile ranks transformed to -log10 scale),
@@ -50,8 +152,9 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_sco
     """
     df_list = []
     pop_id_list = []
-    population_sorter = populations_1000genomes if populations=="1000Genomes" else populations
-    segment_files = glob.glob(os.path.join(input_dir, "*.tsv"))
+    segment_files = sorted(glob.glob(os.path.join(input_dir, "*.tsv")))
+    populations = resolve_population_configuration(populations, segment_files)
+    population_sorter = populations_1000genomes if populations == "1000Genomes" else populations
     index = 1
     
     # Load population pair files between start and end and check if the populations are in the population_sorter
@@ -74,6 +177,9 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_sco
             logger.debug(f"[{index}/{len(segment_files)}] Skipping {pop_pair} from {segment_file}. {p1} or {p2} not in provided population list.")
             
         index += 1
+
+    if not df_list:
+        raise ValueError(f"No compatible TSV files were found in '{input_dir}'.")
             
     # Validate the dimensions and variant_pos in each dataframe
     df_shape = df_list[0].shape
@@ -87,24 +193,22 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_sco
 
     # Select variant_pos and rank score column, then transpose each df
     transp_list = []
+    rank_mode = normalize_rank_score_mode(rank_scores)
 
     for df, pop_pair in zip(df_list, pop_id_list):
         # Determine which columns to use based on rank_scores parameter
         # Note: TSV column names contain "p_value" for backward compatibility
-        if rank_scores == "ascending":
+        if rank_mode == "ascending":
             score_column1 = "-log10_p_value_ascending"
             score_column2 = "-log10_p_value_ascending"
         
-        elif rank_scores == "descending":
+        elif rank_mode == "descending":
             score_column1 = "-log10_p_value_descending"
             score_column2 = "-log10_p_value_descending"
 
-        elif rank_scores == "2-tailed":
+        elif rank_mode == "directional":
             score_column1 = "-log10_p_value_descending"
             score_column2 = "-log10_p_value_ascending"
-        
-        else:
-            raise ValueError(f"Unknown value for 'rank_scores' parameter in create_plot_input(). Expected values are: 'ascending', 'descending' or '2-tailed', got '{rank_scores}'")
             
         # Extract and transpose rank scores for pop1_pop2 (pop1 under selection)
         left_df = df[["variant_pos", score_column1]].copy()
@@ -175,6 +279,8 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_sco
     concat_df.sort_values(["first_pop", "second_pop"], inplace=True)
     concat_df.drop(["first_pop", "second_pop"], axis=1, inplace=True)
     concat_df.index.name = "pop_pairs"
+    concat_df.attrs["populations"] = tuple(population_sorter)
+    concat_df.attrs["population_mode"] = populations
 
     return concat_df
 
@@ -315,7 +421,10 @@ def plot_exp_heatmap(
     cbar_ticks=None,
     display_limit=None,
     display_values="higher",
-    row_order=None
+    row_order=None,
+    max_columns=None,
+    column_aggregation="max",
+    dpi=400,
 ):
     """
     Generate an ExP heatmap from a pandas DataFrame of pairwise statistics.
@@ -351,13 +460,20 @@ def plot_exp_heatmap(
         Custom ticks for the colorbar.
     display_limit : float, optional
         If set, values above or below this threshold are set to zero, depending on `display_values`.
-        Useful for highlighting only the most significant results (e.g., top 1000 SNPs).
+        Useful for highlighting only the most extreme results (e.g., top 1000 SNPs).
     display_values : {'higher', 'lower'}, optional
         Determines which values to retain when applying `display_limit`.
-        Use "higher" for rank scores or distances (default), "lower" for classical p-values.
+        Use "higher" for rank scores or distances (default), "lower" for metrics where smaller values are more extreme.
     row_order : list, optional
         Custom row order as a list of population pair names (e.g., ['ACB_ASW', 'ACB_BEB', ...]).
         If provided, rows will be reordered accordingly.
+    max_columns : int or None, optional
+        Maximum number of x-axis columns to render in the static figure. If None,
+        an automatic budget is derived from the export width and DPI.
+    column_aggregation : {'max', 'mean', 'median'}, optional
+        Aggregation used when downsampling wide regions for static rendering.
+    dpi : int, optional
+        Output DPI for the saved figure.
 
     Returns
     -------
@@ -459,6 +575,9 @@ def plot_exp_heatmap(
     if is_1000genomes:
         populations = populations_1000genomes
 
+    original_start = int(input_df.columns[0])
+    original_end = int(input_df.columns[-1])
+
     # Calculate figure size
     if is_1000genomes:
         figsize = (15, 5)
@@ -466,6 +585,21 @@ def plot_exp_heatmap(
         base_width = 15 + (input_df.shape[1] // 1000)
         base_height = 5 + (input_df.shape[0] // 900)
         figsize = (base_width, base_height)
+
+    original_column_count = input_df.shape[1]
+    if max_columns is None:
+        max_columns = auto_max_columns(figsize, dpi)
+    input_df, was_downsampled = downsample_heatmap_columns(
+        input_df,
+        max_columns=max_columns,
+        aggregation=column_aggregation,
+    )
+    if was_downsampled:
+        logger.info(
+            "Static heatmap downsampled from "
+            f"{original_column_count} to {input_df.shape[1]} columns "
+            f"using {column_aggregation} aggregation"
+        )
 
     # Create figure
     fig, ax = plt.subplots(figsize=figsize)
@@ -504,11 +638,9 @@ def plot_exp_heatmap(
     
     # Set x-axis ticks and labels
     x_extent = input_df.shape[1]
-    actual_start = int(input_df.columns[0])
-    actual_end = int(input_df.columns[-1])
-    actual_middle = (actual_start + actual_end) // 2
+    actual_middle = (original_start + original_end) // 2
     ax.set_xticks([0, x_extent // 2, x_extent - 1])
-    ax.set_xticklabels([f"{actual_start:,}", f"{actual_middle:,}", f"{actual_end:,}"], fontsize=7)
+    ax.set_xticklabels([f"{original_start:,}", f"{actual_middle:,}", f"{original_end:,}"], fontsize=7)
     ax.tick_params(axis="x", length=0, pad=8)
     ax.set_xlabel(xlabel if xlabel else "")
         
@@ -562,18 +694,25 @@ def plot_exp_heatmap(
             pos, label = item
             try:
                 col_index = list_of_columns.index(pos)
-                positions_indices.append(col_index)
-                labels.append(label)
-                ax.axvline(x=col_index, linewidth=0.3, color='#CCCCCC', zorder=1)
             except ValueError:
-                logger.warning(f"Position {pos} not found in data columns, skipping this vertical line")
-                continue
+                if not list_of_columns:
+                    logger.warning(f"Position {pos} not found in data columns, skipping this vertical line")
+                    continue
+                col_index = min(range(len(list_of_columns)), key=lambda idx: abs(list_of_columns[idx] - pos))
+                logger.warning(
+                    f"Position {pos} not found exactly after binning; using nearest rendered position "
+                    f"{list_of_columns[col_index]}"
+                )
+
+            positions_indices.append(col_index)
+            labels.append(label)
+            ax.axvline(x=col_index, linewidth=0.3, color='#CCCCCC', zorder=1)
         
         if positions_indices:
             ax.set_xticks(positions_indices)
             ax.set_xticklabels(labels)
     
-    ax.figure.savefig(f"{output}.{output_suffix}", dpi=400, bbox_inches="tight")
+    ax.figure.savefig(f"{output}.{output_suffix}", dpi=dpi, bbox_inches="tight")
     logger.info(f"ExP heatmap saved to {output}.{output_suffix}")
     return ax
 
@@ -632,7 +771,18 @@ def prepare_cbar_params(data_df, n_cbar_ticks=4):
 
 
 
-def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
+def plot(
+    input_dir,
+    start,
+    end,
+    title,
+    output="ExP_heatmap",
+    cmap="Blues",
+    max_columns=None,
+    column_aggregation="max",
+    dpi=400,
+    rank_scores="directional",
+):
     """
     Generate and save an ExP heatmap from XP-EHH analysis results.
 
@@ -661,6 +811,15 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
     cmap : str, optional
         Matplotlib colormap name for the heatmap visualization (default: "Blues").
         Can also use "expheatmap" for a custom colormap optimized for this analysis.
+    max_columns : int or None, optional
+        Maximum number of rendered x-axis columns. If None, choose automatically
+        from figure width and DPI.
+    column_aggregation : {'max', 'mean', 'median'}, optional
+        Aggregation used when downsampling static output.
+    dpi : int, optional
+        DPI used when saving the static figure.
+    rank_scores : {'directional', '2-tailed', 'ascending', 'descending'}, optional
+        Which empirical rank-score mode to visualize.
 
     Returns
     -------
@@ -669,13 +828,13 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
 
     Notes
     -----
-    This function assumes 1000 Genomes Project population structure and expects
-    650 pairwise population comparisons. The function will automatically handle
-    cases where the exact start/end positions are not present in the data by
-    selecting the closest available positions.
+    This function uses 1000 Genomes-specific layout only when the full canonical
+    26-population set is detected. Other datasets are treated as custom population
+    panels inferred from the compute output filenames.
     """
     try:
-        plot_input = create_plot_input(input_dir, start=start, end=end)
+        plot_input = create_plot_input(input_dir, start=start, end=end, rank_scores=rank_scores)
+        populations = plot_input.attrs.get("population_mode", "1000Genomes")
         
         # Use actual data range for xlabel (not requested range)
         actual_start = int(plot_input.columns[0])
@@ -686,7 +845,11 @@ def plot(input_dir, start, end, title, output="ExP_heatmap", cmap="Blues"):
             end=actual_end,
             title=title,
             cmap=cmap,
-            output=output
+            output=output,
+            populations=populations,
+            max_columns=max_columns,
+            column_aggregation=column_aggregation,
+            dpi=dpi,
         )
     except KeyboardInterrupt:
         logger.info("")
