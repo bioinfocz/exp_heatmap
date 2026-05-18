@@ -336,10 +336,10 @@ def summarize_by_superpopulation(input_df, populations="1000Genomes", agg_func='
 def extract_top_regions(input_df, n_top=100, window_size=10000, min_gap=5000):
     """
     Extract the top-scoring genomic regions from the heatmap data.
-    
+
     This function identifies genomic windows with the highest aggregate scores
     across all population pairs, useful for automated discovery of selection signals.
-    
+
     Parameters
     ----------
     input_df : pandas.DataFrame
@@ -349,59 +349,73 @@ def extract_top_regions(input_df, n_top=100, window_size=10000, min_gap=5000):
     window_size : int, optional
         Size of genomic windows in base pairs (default: 10000).
     min_gap : int, optional
-        Minimum gap between reported regions to avoid overlapping hits (default: 5000).
-        
+        Minimum edge-to-edge gap in base pairs between reported regions to avoid
+        overlapping or immediately adjacent hits (default: 5000).
+
     Returns
     -------
     pandas.DataFrame
         DataFrame with columns: 'start', 'end', 'center', 'mean_score', 'max_score',
-        'top_population_pair', sorted by mean_score descending.
+        'top_population_pair', 'n_positions', sorted by mean_score descending.
+        'start' and 'end' are the ±window_size/2 boundaries around 'center', so
+        they are well-defined even when only one column position falls inside the
+        window (e.g. pre-summarised 25 kb Roadmap windows). The legacy column name
+        'n_variants' is retained as a duplicate of 'n_positions' for backwards
+        compatibility.
     """
     positions = input_df.columns.tolist()
     position_scores = input_df.mean(axis=0)
     sorted_positions = position_scores.sort_values(ascending=False)
-    
+
     results = []
-    used_positions = set()
-    
+    used_windows = []
+
     for pos in sorted_positions.index:
-        # Skip if too close to already-selected region
-        if any(abs(pos - used) < min_gap for used in used_positions):
-            continue
-            
         # Define window around this position
         window_start = pos - window_size // 2
         window_end = pos + window_size // 2
-        
+
         # Get positions within window
         window_positions = [p for p in positions if window_start <= p <= window_end]
         if not window_positions:
             continue
-            
-        # Calculate statistics for this window
+
+        # Skip if this region overlaps or sits too close to an already-selected region
+        if any(
+            not (window_end + min_gap < used_start or window_start > used_end + min_gap)
+            for used_start, used_end in used_windows
+        ):
+            continue
+
+        # Calculate statistics for this window (NaN-safe)
         window_data = input_df[window_positions]
-        mean_score = window_data.values.mean()
-        max_score = window_data.values.max()
-        
+        window_values = window_data.to_numpy(dtype=float)
+        if np.isnan(window_values).all():
+            continue
+        mean_score = np.nanmean(window_values)
+        max_score = np.nanmax(window_values)
+
         # Find top population pair in this window
         pair_means = window_data.mean(axis=1)
         top_pair = pair_means.idxmax()
-        
+
+        n_positions = len(window_positions)
         results.append({
-            'start': min(window_positions),
-            'end': max(window_positions),
+            'start': window_start,
+            'end': window_end,
             'center': pos,
             'mean_score': mean_score,
             'max_score': max_score,
             'top_population_pair': top_pair,
-            'n_variants': len(window_positions)
+            'n_positions': n_positions,
+            'n_variants': n_positions,  # legacy alias
         })
-        
-        used_positions.add(pos)
-        
+
+        used_windows.append((window_start, window_end))
+
         if len(results) >= n_top:
             break
-    
+
     return pd.DataFrame(results)
 
 
