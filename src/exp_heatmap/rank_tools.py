@@ -50,7 +50,7 @@ def compute_ranks(values):
     if len(ranks) == len(values):
         return ranks
     else:
-        logger.error("number of ranks does not equal number of values")
+        raise ValueError(f"number of ranks ({len(ranks)}) does not equal number of values ({len(values)})")
 
 
 def compute_empirical_rank_scores(ranks):

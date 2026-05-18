@@ -517,7 +517,7 @@ def plot_exp_heatmap(
     # Crop the input_df according to user defined range
     try: # Given values are in the data (column index)
         input_df = input_df.loc[:, start:end]
-    except: # Given values are not in the column index, choose the new closest ones
+    except KeyError: # Given values are not in the column index, choose the new closest ones
         sorted_columns = sorted(list(input_df.columns))
         new_start = take_closest_start(sorted_columns, start)
         new_end = take_closest_end(sorted_columns, end)

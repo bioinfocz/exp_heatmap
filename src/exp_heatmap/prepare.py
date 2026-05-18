@@ -58,7 +58,7 @@ def prepare(recode_file: str, zarr_dir: str) -> None:
         logger.info("")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Error converting VCF to ZARR: {e}")
+        logger.error(f"Error converting VCF to ZARR: {e}", exc_info=True)
         sys.exit(1)
     
     logger.info(f"Prepare completed successfully")
