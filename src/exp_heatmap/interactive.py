@@ -101,18 +101,16 @@ def plot_interactive_heatmap(
     # Downsample if too many variants
     n_cols = len(input_df.columns)
     if max_columns is not None and n_cols > max_columns:
-        bin_size = n_cols // max_columns
+        bins = np.array_split(range(n_cols), max_columns)
         downsampled_data = []
         downsampled_positions = []
-        
-        for i in range(max_columns):
-            bin_start = i * bin_size
-            bin_end = min((i + 1) * bin_size, n_cols)
-            bin_data = input_df.iloc[:, bin_start:bin_end]
+
+        for bin_indices in bins:
+            bin_data = input_df.iloc[:, bin_indices]
             # Take max across the bin for each row (preserves selection signals)
             downsampled_data.append(bin_data.max(axis=1))
             # Use the middle position of the bin as the representative position
-            mid_idx = (bin_start + bin_end) // 2
+            mid_idx = bin_indices[len(bin_indices) // 2]
             downsampled_positions.append(input_df.columns[mid_idx])
         
         input_df = pd.DataFrame(downsampled_data, index=downsampled_positions).T
