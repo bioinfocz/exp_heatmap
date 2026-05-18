@@ -619,7 +619,7 @@ def plot_exp_heatmap(
             cbar_kws=cbar_kws,
         )
     else:
-        cbar_kws = {**cbar_kws_base, "ticks": cbar_ticks}
+        cbar_kws = {**cbar_kws_base, "ticks": cbar_ticks} if cbar_ticks else cbar_kws_base
         hm = sns.heatmap(
             input_df,
             yticklabels=False,
