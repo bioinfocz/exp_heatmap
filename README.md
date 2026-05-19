@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/exp-heatmap.svg)](https://pypi.org/project/exp_heatmap/)
 ![Python](https://img.shields.io/badge/python-≥3.10-blue)
-![Version](https://img.shields.io/badge/version-1.3.0-green)
+![Version](https://img.shields.io/badge/version-1.3.1-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
 [![Tests](https://github.com/bioinfocz/exp_heatmap/actions/workflows/tests.yml/badge.svg)](https://github.com/bioinfocz/exp_heatmap/actions/workflows/tests.yml)
 
