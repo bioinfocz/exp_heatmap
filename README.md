@@ -5,7 +5,7 @@
 ![Version](https://img.shields.io/badge/version-1.3.1-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
 [![Tests](https://github.com/bioinfocz/exp_heatmap/actions/workflows/tests.yml/badge.svg)](https://github.com/bioinfocz/exp_heatmap/actions/workflows/tests.yml)
-[![DOI](https://zenodo.org/badge/294450310.svg)](https://doi.org/10.5281/zenodo.20284070)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20284071.svg)](https://doi.org/10.5281/zenodo.20284070)
 
 > An ordered-pair workflow for regional cross-population genomic visualization. ExP Heatmap takes a VCF through filter → prepare → compute → plot and renders ordered population-pair matrices as empirical rank-score heatmaps.
 
