@@ -6,10 +6,33 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 RANK_SCORE_CHOICES = ['directional', '2-tailed', 'ascending', 'descending']
 
 
+POPULATIONS_HELP = (
+    'Comma-separated population codes to plot, e.g. "GWD,MSL,ESN". Declares the expected '
+    'panel, so a compute directory missing whole populations fails instead of silently '
+    'rendering a smaller heatmap. Omit to infer the panel from the compute-output filenames.'
+)
+
+
 def _finalize_log_file(logger):
     log_file = get_log_file_path()
     if log_file:
         logger.info(f"Log file: {log_file}")
+
+
+def _parse_populations(populations):
+    """Turn a --populations value into the argument expected by the plotting API."""
+    if populations is None:
+        return "1000Genomes"
+
+    codes = tuple(code.strip() for code in populations.split(",") if code.strip())
+    if len(codes) < 2:
+        raise click.UsageError("--populations needs at least two comma-separated population codes")
+
+    duplicates = sorted({code for code in codes if codes.count(code) > 1})
+    if duplicates:
+        raise click.UsageError(f"--populations contains duplicate codes: {', '.join(duplicates)}")
+
+    return codes
 
 @click.group(help="ExP Heatmap - Population genetics visualization tool", epilog="For more information, see the documentation at:\nhttps://github.com/bioinfocz/exp_heatmap/", context_settings=CONTEXT_SETTINGS)
 @click.version_option(__version__, '-v', '--version', prog_name='exp_heatmap')
@@ -78,12 +101,13 @@ def filter_vcf_cmd(input_vcf, output, chrom, start, end, no_log, verbose):
 @click.option('--cmap', type=str, default='Blues', show_default=True, help='Matplotlib colormap for heatmap visualization')
 @click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization')
 @click.option('--rank-scores', type=click.Choice(RANK_SCORE_CHOICES), default='directional', show_default=True, help='Rank-score mode to visualize')
+@click.option('--populations', type=str, default=None, help=POPULATIONS_HELP)
 @click.option('--max-columns', type=int, help='Maximum rendered columns for wide regions; enables explicit downsampling for static or interactive output')
 @click.option('--column-aggregation', type=click.Choice(['max', 'mean', 'median']), default='max', show_default=True, help='Aggregation used when static output is downsampled')
 @click.option('--dpi', type=int, default=400, show_default=True, help='DPI for saved static figures')
 @click.option('--no-log', is_flag=True, help='Disable logging to file')
 @click.option('--verbose', is_flag=True, help='Show detailed debug output in console')
-def full_cmd(vcf_file, panel_file, output, start, end, test, chunked, title, cmap, interactive, rank_scores, max_columns, column_aggregation, dpi, no_log, verbose):
+def full_cmd(vcf_file, panel_file, output, start, end, test, chunked, title, cmap, interactive, rank_scores, populations, max_columns, column_aggregation, dpi, no_log, verbose):
     from exp_heatmap.compute import compute
     from exp_heatmap.interactive import plot_interactive
     from exp_heatmap.plot import plot
@@ -92,7 +116,9 @@ def full_cmd(vcf_file, panel_file, output, start, end, test, chunked, title, cma
     setup_logging("full", log_to_file=not no_log, verbose=verbose)
     logger = get_logger(__name__)
     logger.info("Starting full command...")
-    
+
+    population_selection = _parse_populations(populations)
+
     # Prepare
     zarr_dir = f"{output}_zarr"
     prepare(vcf_file, zarr_dir)
@@ -113,6 +139,7 @@ def full_cmd(vcf_file, panel_file, output, start, end, test, chunked, title, cma
             title,
             plot_output,
             rank_scores=rank_scores,
+            populations=population_selection,
             colorscale=colorscale,
             max_columns=max_columns,
         )
@@ -129,6 +156,7 @@ def full_cmd(vcf_file, panel_file, output, start, end, test, chunked, title, cma
             column_aggregation=column_aggregation,
             dpi=dpi,
             rank_scores=rank_scores,
+            populations=population_selection,
         )
     
     _finalize_log_file(logger)
@@ -185,13 +213,14 @@ def compute_cmd(zarr_dir, panel_file, output, test, chunked, no_log, verbose):
 @click.option('-c', '--cmap', type=str, default='Blues', show_default=True, help='Matplotlib colormap for heatmap visualization')
 @click.option('--interactive', is_flag=True, help='Generate interactive HTML visualization')
 @click.option('--rank-scores', type=click.Choice(RANK_SCORE_CHOICES), default='directional', show_default=True, help='Rank-score mode to visualize')
+@click.option('--populations', type=str, default=None, help=POPULATIONS_HELP)
 @click.option('--max-columns', type=int, help='Maximum rendered columns for wide regions; enables explicit downsampling for static or interactive output')
 @click.option('--column-aggregation', type=click.Choice(['max', 'mean', 'median']), default='max', show_default=True, help='Aggregation used when static output is downsampled')
 @click.option('--dpi', type=int, default=400, show_default=True, help='DPI for saved static figures')
 @click.option('--no-log', is_flag=True, help='Disable logging to file')
 @click.option('--verbose', is_flag=True, help='Show detailed debug output in console')
 
-def plot_cmd(input_dir, start, end, title, output, cmap, interactive, rank_scores, max_columns, column_aggregation, dpi, no_log, verbose):
+def plot_cmd(input_dir, start, end, title, output, cmap, interactive, rank_scores, populations, max_columns, column_aggregation, dpi, no_log, verbose):
     from exp_heatmap.interactive import plot_interactive
     from exp_heatmap.plot import plot
 
@@ -201,34 +230,41 @@ def plot_cmd(input_dir, start, end, title, output, cmap, interactive, rank_score
     setup_logging("plot", log_to_file=not no_log, verbose=verbose)
     logger = get_logger(__name__)
     logger.info("Starting plot command...")
-    
-    if interactive:
-        # Use interactive Plotly visualization
-        colorscale=cmap if cmap != 'expheatmap' else 'Blues'
-        plot_interactive(
-            input_dir,
-            start,
-            end,
-            title,
-            output,
-            rank_scores=rank_scores,
-            colorscale=colorscale,
-            max_columns=max_columns,
-        )
-    else:
-        # Use static matplotlib visualization
-        plot(
-            input_dir,
-            start,
-            end,
-            title,
-            output,
-            cmap,
-            max_columns=max_columns,
-            column_aggregation=column_aggregation,
-            dpi=dpi,
-            rank_scores=rank_scores,
-        )
+
+    population_selection = _parse_populations(populations)
+
+    try:
+        if interactive:
+            # Use interactive Plotly visualization
+            colorscale=cmap if cmap != 'expheatmap' else 'Blues'
+            plot_interactive(
+                input_dir,
+                start,
+                end,
+                title,
+                output,
+                rank_scores=rank_scores,
+                populations=population_selection,
+                colorscale=colorscale,
+                max_columns=max_columns,
+            )
+        else:
+            # Use static matplotlib visualization
+            plot(
+                input_dir,
+                start,
+                end,
+                title,
+                output,
+                cmap,
+                max_columns=max_columns,
+                column_aggregation=column_aggregation,
+                dpi=dpi,
+                rank_scores=rank_scores,
+                populations=population_selection,
+            )
+    except ValueError as error:
+        raise click.ClickException(str(error)) from error
     
     _finalize_log_file(logger)
 

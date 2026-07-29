@@ -6,6 +6,9 @@ from exp_heatmap.plot import (
     downsample_heatmap_columns,
     normalize_rank_score_mode,
     plot,
+    plot_exp_heatmap,
+    populations_1000genomes,
+    resolve_population_configuration,
 )
 
 
@@ -42,6 +45,79 @@ def test_downsample_heatmap_columns_supports_mean_reducer():
 def test_normalize_rank_score_mode_accepts_legacy_alias():
     assert normalize_rank_score_mode("2-tailed") == "directional"
     assert normalize_rank_score_mode("directional") == "directional"
+
+
+def _write_pair_files(directory, pairs):
+    for pop1, pop2 in pairs:
+        pd.DataFrame(
+            [
+                {
+                    "name": "chr21",
+                    "variant_pos": 100,
+                    "-log10_p_value_ascending": 1.0,
+                    "-log10_p_value_descending": 2.0,
+                }
+            ]
+        ).to_csv(directory / f"{pop1}_{pop2}.tsv", sep="\t", index=False)
+
+
+def test_resolve_population_configuration_maps_declared_canonical_panel_to_1000g():
+    assert resolve_population_configuration(populations_1000genomes, []) == "1000Genomes"
+
+
+def test_resolve_population_configuration_respects_a_declared_custom_order():
+    reordered = tuple(reversed(populations_1000genomes))
+    assert resolve_population_configuration(reordered, []) == reordered
+    assert resolve_population_configuration(("GWD", "MSL", "ESN"), []) == ("GWD", "MSL", "ESN")
+
+
+def test_declared_populations_reject_a_compute_directory_missing_a_population(tmp_path):
+    # A directory that is complete for three populations but was meant to hold four.
+    _write_pair_files(tmp_path, [("ESN", "GWD"), ("ESN", "MSL"), ("GWD", "MSL")])
+    declared = ("ESN", "FULA", "GWD", "MSL")
+
+    with pytest.raises(ValueError) as excinfo:
+        create_plot_input(str(tmp_path), start=100, end=100, populations=declared)
+
+    message = str(excinfo.value)
+    assert "3 of 6 population pairs are missing" in message
+    assert "no output at all for FULA" in message
+
+
+def test_declared_populations_report_a_single_missing_pair(tmp_path):
+    # Both populations are present elsewhere, so only the pair itself is missing.
+    _write_pair_files(tmp_path, [("ESN", "MSL"), ("GWD", "MSL")])
+
+    with pytest.raises(ValueError) as excinfo:
+        create_plot_input(
+            str(tmp_path), start=100, end=100, populations=("ESN", "GWD", "MSL")
+        )
+
+    message = str(excinfo.value)
+    assert "Missing pairs: ESN_GWD" in message
+    assert "no output at all" not in message
+
+
+def test_declared_complete_panel_passes_the_completeness_check(tmp_path):
+    _write_pair_files(tmp_path, [("ESN", "GWD"), ("ESN", "MSL"), ("GWD", "MSL")])
+
+    plot_input = create_plot_input(
+        str(tmp_path), start=100, end=100, populations=("ESN", "GWD", "MSL")
+    )
+
+    assert plot_input.shape[0] == 6
+    assert list(plot_input.index)[:2] == ["ESN_GWD", "ESN_MSL"]
+
+
+def test_inferred_populations_silently_accept_the_same_incomplete_directory(tmp_path):
+    # Without a declared panel the same directory is a self-consistent 3-population run,
+    # which is why --populations exists.
+    _write_pair_files(tmp_path, [("ESN", "GWD"), ("ESN", "MSL"), ("GWD", "MSL")])
+
+    plot_input = create_plot_input(str(tmp_path), start=100, end=100)
+
+    assert plot_input.attrs["population_mode"] == ("ESN", "GWD", "MSL")
+    assert plot_input.shape[0] == 6
 
 
 def test_create_plot_input_infers_custom_populations_from_files(tmp_path):

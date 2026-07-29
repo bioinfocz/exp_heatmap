@@ -191,6 +191,71 @@ def test_regions_command_writes_output(monkeypatch, tmp_path):
     assert output_path.exists()
 
 
+def test_plot_command_forwards_declared_populations(monkeypatch, tmp_path):
+    _patch_logging(monkeypatch)
+    runner = CliRunner()
+    captured = {}
+
+    def fake_plot(input_dir, start, end, title, output, cmap, **kwargs):
+        captured.update(kwargs)
+        return "ok"
+
+    monkeypatch.setattr(plot_module, "plot", fake_plot)
+
+    result = runner.invoke(
+        cli_module.cli,
+        ["plot", str(tmp_path), "--start", "10", "--end", "20", "--populations", "GWD, MSL ,ESN"],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert captured["populations"] == ("GWD", "MSL", "ESN")
+
+
+def test_plot_command_defaults_to_inferring_populations(monkeypatch, tmp_path):
+    _patch_logging(monkeypatch)
+    runner = CliRunner()
+    captured = {}
+
+    def fake_plot(input_dir, start, end, title, output, cmap, **kwargs):
+        captured.update(kwargs)
+        return "ok"
+
+    monkeypatch.setattr(plot_module, "plot", fake_plot)
+
+    result = runner.invoke(
+        cli_module.cli, ["plot", str(tmp_path), "--start", "10", "--end", "20"]
+    )
+
+    assert result.exit_code == 0, result.output
+    assert captured["populations"] == "1000Genomes"
+
+
+def test_plot_command_rejects_a_single_population(monkeypatch, tmp_path):
+    _patch_logging(monkeypatch)
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli_module.cli,
+        ["plot", str(tmp_path), "--start", "10", "--end", "20", "--populations", "GWD"],
+    )
+
+    assert result.exit_code != 0
+    assert "at least two" in result.output
+
+
+def test_plot_command_rejects_duplicate_populations(monkeypatch, tmp_path):
+    _patch_logging(monkeypatch)
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli_module.cli,
+        ["plot", str(tmp_path), "--start", "10", "--end", "20", "--populations", "GWD,MSL,GWD"],
+    )
+
+    assert result.exit_code != 0
+    assert "duplicate codes: GWD" in result.output
+
+
 def test_filter_vcf_command_writes_filtered_output(monkeypatch, tmp_path):
     _patch_logging(monkeypatch)
     runner = CliRunner()
