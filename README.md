@@ -188,6 +188,7 @@ exp_heatmap full [OPTIONS] <vcf_file> <panel_file>
 | `--title` | STR | - | Title of the heatmap |
 | `--cmap` | STR | `Blues` | Colormap for visualization |
 | `--interactive` | flag | - | Generate interactive HTML visualization |
+| `--populations` | STR | inferred | Comma-separated population codes declaring the expected panel (see [Declaring the population panel](#declaring-the-population-panel)) |
 | `--max-columns` | INT | auto/static, `30000` interactive | Explicit column budget for wide regions |
 | `--column-aggregation` | choice | `max` | Reducer for static downsampling: `max`, `mean`, `median` |
 | `--dpi` | INT | `400` | DPI for saved static figures |
@@ -269,13 +270,12 @@ exp_heatmap plot [OPTIONS] <input_dir>
 | `-o, --out` | PATH | `ExP_heatmap` | Output filename (without extension) |
 | `-c, --cmap` | STR | `Blues` | Colormap name (see [Colormap Options](#colormap-options)) |
 | `--interactive` | flag | - | Generate interactive HTML visualization |
+| `--populations` | STR | inferred | Comma-separated population codes declaring the expected panel (see [Declaring the population panel](#declaring-the-population-panel)) |
 | `--max-columns` | INT | auto/static, `30000` interactive | Explicit column budget for wide regions |
 | `--column-aggregation` | choice | `max` | Reducer for static downsampling: `max`, `mean`, `median` |
 | `--dpi` | INT | `400` | DPI for saved static figures |
 | `--no-log` | flag | - | Disable logging to file |
 | `--verbose` | flag | - | Show detailed debug output in console |
-
-When the input TSVs represent the full canonical 1000 Genomes panel, ExP Heatmap uses the standard 1000G row ordering and annotations. For other datasets, the plotter now infers the population set directly from the TSV filenames and renders a custom-population heatmap automatically.
 
 **Example:**
 ```bash
@@ -287,7 +287,32 @@ exp_heatmap plot chr15_results/ --start 47924019 --end 48924019 --interactive --
 
 # Static output with explicit wide-region downsampling
 exp_heatmap plot chr15_results/ --start 47924019 --end 48924019 --max-columns 6000 --column-aggregation max --out slc24a5_binned
+
+# Declare the expected panel so an incomplete compute directory fails loudly
+exp_heatmap plot ggvp_results/ --start 15000000 --end 16000000 --populations "FULA,GWD,JOLA,MANDINKA,WOLOFF" --out ggvp_5pop
 ```
+
+##### Declaring the population panel
+
+The row order of an ExP heatmap is *n*(*n*−1) ordered pairs, blocked by first population and ordered by second population within each block, with self-pairs omitted. The population order used for those blocks is resolved in one of two ways.
+
+**Inferred (default).** With no `--populations`, the population set is recovered from the compute-output filenames. If that set is exactly the canonical 26-population 1000 Genomes panel, the standard 1000G row order and super-population annotations are used. Otherwise the populations are ordered by first appearance in the filenames read lexicographically, which is alphabetical for any complete set of pairwise outputs.
+
+**Declared.** Passing `--populations "GWD,MSL,ESN"` states the panel explicitly. That order is used directly, and the plotter verifies that every pairwise output for the declared panel is present. Here a `compute` run was interrupted before it reached the `MANDINKA` pairs:
+
+```bash
+$ exp_heatmap plot ggvp_results/ -s 15000000 -e 16000000 \
+    --populations "FULA,GWD,JOLA,MANDINKA,WOLOFF"
+Error: The declared population panel is incomplete in this compute directory:
+4 of 10 population pairs are missing, with no output at all for MANDINKA.
+Missing pairs: FULA_MANDINKA, GWD_MANDINKA, JOLA_MANDINKA, MANDINKA_WOLOFF.
+Re-run compute for the full panel, or omit the declared panel to plot only the
+populations that are present.
+```
+
+> **Why this matters.** Outputs for a subset of populations form a self-consistent smaller panel, so with an inferred panel an incomplete `compute` directory renders **without warning** — and if it drops below the canonical 26, the row order, super-population annotations and colour-scale bounds all switch to the custom-panel defaults. The same rank score then maps to a different colour, making the figure incomparable to others from the same project. Declare the panel whenever figures will be compared across runs, or whenever a `compute` run may have been interrupted.
+
+A declared panel matching the canonical 1000 Genomes order receives the full 1000G treatment, so `--populations` is safe to use on standard 1000 Genomes analyses. A declared panel listing the same populations in a different order is respected as given. Passing fewer populations than are present on disk is a supported way to plot a subset.
 
 #### 6. Superpopulation Summary - `summary`
 
@@ -424,6 +449,21 @@ plot_exp_heatmap(data_to_plot, start=47000000, end=49000000,
 ```
 
 #### Additional Python API Functions
+
+**Declare the expected population panel:**
+
+`plot()`, `plot_interactive()` and `create_plot_input()` all accept a `populations=` argument, the API equivalent of `--populations`. Pass an iterable of codes to declare the panel; omit it to infer the panel from the compute-output filenames.
+
+```python
+from exp_heatmap.plot import plot
+
+# Declared: raises ValueError naming the missing populations if any
+# pairwise output for this panel is absent from ggvp_results/
+plot("ggvp_results/", start=15000000, end=16000000, title="GGVP",
+     populations=("FULA", "GWD", "JOLA", "MANDINKA", "WOLOFF"))
+```
+
+See [Declaring the population panel](#declaring-the-population-panel) for what this guards against.
 
 **Summarize by Superpopulation:**
 ```python
@@ -933,6 +973,23 @@ The data contains positions from A to B.
 - Check that your coordinates match the chromosome in your data
 - Use coordinates within the available range shown in the error message
 - Verify you're using the correct output directory
+
+#### Heatmap Has Fewer Populations Than Expected
+
+**Symptoms:** The heatmap renders successfully, but the y-axis lists fewer populations than the panel file contains. On 1000 Genomes data the super-population labels and boundary lines are also missing, and the colour scale differs from earlier figures.
+
+**Cause:** The `compute` output directory is missing every pairwise file for one or more populations — usually an interrupted `compute` run, or files moved or deleted afterwards. Those remaining outputs form a self-consistent smaller panel, so with an inferred panel the plotter has no way to know populations are absent and renders them out.
+
+**Solution:**
+- Re-run `plot` with `--populations` listing the panel you expect. The plotter then reports exactly which populations and pairs are missing instead of rendering a reduced heatmap.
+- Confirm the directory holds *n*(*n*−1)/2 TSV files for *n* populations — 325 for the 26-population 1000 Genomes panel.
+- Re-run `compute` for the full panel if any are missing.
+
+**Related error:**
+```
+The declared population panel is incomplete in this compute directory: ...
+```
+This is the same condition, caught because a panel was declared. The message names the missing populations and pairs.
 
 #### Sample Order Mismatch
 
