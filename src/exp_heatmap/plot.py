@@ -9,6 +9,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import glob
 from bisect import bisect_left
+from itertools import combinations
 from tqdm import tqdm
 
 from exp_heatmap.logging import get_logger
@@ -60,8 +61,21 @@ def infer_populations_from_pairs(pop_pairs):
 
 
 def resolve_population_configuration(populations, segment_files):
+    """
+    Resolve the population set and row order used for a plot.
+
+    Pass an explicit iterable to declare the expected panel; the row-count check in
+    plot_exp_heatmap then compares against the declared size, so a compute directory
+    missing whole populations fails instead of silently rendering a smaller panel.
+    Pass "1000Genomes" to recover the panel from the compute-output filenames instead.
+    """
     if populations != "1000Genomes":
-        return tuple(populations)
+        declared = tuple(populations)
+        # A declared panel matching the canonical 1000 Genomes order gets the full
+        # 1000G treatment; any other explicit order is respected as given.
+        if declared == populations_1000genomes:
+            return "1000Genomes"
+        return declared
 
     pop_pairs = _extract_pop_pairs_from_files(segment_files)
     inferred = infer_populations_from_pairs(pop_pairs)
@@ -72,6 +86,38 @@ def resolve_population_configuration(populations, segment_files):
         return "1000Genomes"
 
     return inferred
+
+
+def verify_declared_panel_is_complete(declared_populations, loaded_pairs):
+    """
+    Fail with a specific message when a declared panel is not fully present on disk.
+
+    Without a declared panel an incomplete compute directory still forms a self-consistent
+    smaller panel and renders without complaint, so this check only runs when the caller
+    stated which populations to expect.
+    """
+    expected = {tuple(sorted(pair)) for pair in combinations(declared_populations, 2)}
+    found = {tuple(sorted(pair.split("_"))) for pair in loaded_pairs}
+    missing = sorted(expected - found)
+    if not missing:
+        return
+
+    absent = sorted(
+        pop for pop in declared_populations if not any(pop in pair for pair in found)
+    )
+    preview = ", ".join(f"{p1}_{p2}" for p1, p2 in missing[:5])
+    if len(missing) > 5:
+        preview += f", ... ({len(missing) - 5} more)"
+
+    detail = f"{len(missing)} of {len(expected)} population pairs are missing"
+    if absent:
+        detail += f", with no output at all for {', '.join(absent)}"
+
+    raise ValueError(
+        f"The declared population panel is incomplete in this compute directory: {detail}. "
+        f"Missing pairs: {preview}. Re-run compute for the full panel, or omit the declared "
+        f"panel to plot only the populations that are present."
+    )
 
 
 def normalize_rank_score_mode(rank_scores):
@@ -153,6 +199,7 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_sco
     df_list = []
     pop_id_list = []
     segment_files = sorted(glob.glob(os.path.join(input_dir, "*.tsv")))
+    panel_was_declared = populations != "1000Genomes"
     populations = resolve_population_configuration(populations, segment_files)
     population_sorter = populations_1000genomes if populations == "1000Genomes" else populations
     index = 1
@@ -180,7 +227,11 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_sco
 
     if not df_list:
         raise ValueError(f"No compatible TSV files were found in '{input_dir}'.")
-            
+
+    if panel_was_declared:
+        verify_declared_panel_is_complete(population_sorter, pop_id_list)
+
+
     # Validate the dimensions and variant_pos in each dataframe
     df_shape = df_list[0].shape
     variant_positions = df_list[0].variant_pos.values
@@ -796,6 +847,7 @@ def plot(
     column_aggregation="max",
     dpi=400,
     rank_scores="directional",
+    populations="1000Genomes",
 ):
     """
     Generate and save an ExP heatmap from XP-EHH analysis results.
@@ -834,6 +886,11 @@ def plot(
         DPI used when saving the static figure.
     rank_scores : {'directional', '2-tailed', 'ascending', 'descending'}, optional
         Which empirical rank-score mode to visualize.
+    populations : str or iterable, optional
+        Expected population panel. Provide an iterable of population codes to declare
+        the panel explicitly, which makes an incomplete compute directory raise instead
+        of rendering a smaller panel. The default "1000Genomes" recovers the panel from
+        the compute-output filenames.
 
     Returns
     -------
@@ -847,20 +904,26 @@ def plot(
     panels inferred from the compute output filenames.
     """
     try:
-        plot_input = create_plot_input(input_dir, start=start, end=end, rank_scores=rank_scores)
-        populations = plot_input.attrs.get("population_mode", "1000Genomes")
-        
+        plot_input = create_plot_input(
+            input_dir,
+            start=start,
+            end=end,
+            populations=populations,
+            rank_scores=rank_scores,
+        )
+        resolved_populations = plot_input.attrs.get("population_mode", "1000Genomes")
+
         # Use actual data range for xlabel (not requested range)
         actual_start = int(plot_input.columns[0])
         actual_end = int(plot_input.columns[-1])
-        
+
         return plot_exp_heatmap(
             plot_input, start=actual_start,
             end=actual_end,
             title=title,
             cmap=cmap,
             output=output,
-            populations=populations,
+            populations=resolved_populations,
             max_columns=max_columns,
             column_aggregation=column_aggregation,
             dpi=dpi,

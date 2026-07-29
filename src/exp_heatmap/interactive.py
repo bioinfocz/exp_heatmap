@@ -296,6 +296,7 @@ def plot_interactive(
     title: Optional[str] = None,
     output: str = "ExP_heatmap_interactive",
     rank_scores: str = "directional",
+    populations: Union[str, tuple] = "1000Genomes",
     **kwargs
 ) -> 'go.Figure':
     """
@@ -318,25 +319,36 @@ def plot_interactive(
         Output filename without extension.
     rank_scores : str, optional
         Which empirical rank-score mode to visualize.
+    populations : str or tuple, optional
+        Expected population panel. Provide an iterable of population codes to declare
+        the panel explicitly, which makes an incomplete compute directory raise instead
+        of rendering a smaller panel. The default "1000Genomes" recovers the panel from
+        the compute-output filenames.
     **kwargs : dict
         Additional arguments passed to plot_interactive_heatmap().
-        
+
     Returns
     -------
     plotly.graph_objects.Figure
         Interactive Plotly figure object.
     """
     # Load and prepare data
-    plot_input = create_plot_input(input_dir, start=start, end=end, rank_scores=rank_scores)
-    populations = plot_input.attrs.get("population_mode", "1000Genomes")
-    
+    plot_input = create_plot_input(
+        input_dir,
+        start=start,
+        end=end,
+        populations=populations,
+        rank_scores=rank_scores,
+    )
+    resolved_populations = plot_input.attrs.get("population_mode", "1000Genomes")
+
     return plot_interactive_heatmap(
         plot_input,
         start=plot_input.columns[0],
         end=plot_input.columns[-1],
         title=title,
         output=output,
-        populations=populations,
+        populations=resolved_populations,
         **kwargs
     )
 
