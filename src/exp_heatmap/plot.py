@@ -38,6 +38,17 @@ RANK_SCORE_MODE_ALIASES = {
     "directional": "directional",
 }
 
+# Color-scale bounds applied to the recognized 1000 Genomes panel, so that heatmaps stay
+# directly comparable across runs. The lower bound is -log10(0.05), the conventional 5%
+# tail cutoff, below which cells collapse to the background color by design.
+#
+# The upper bound is a fixed ceiling. Empirical rank scores reach log10(n) for n ranked
+# loci, so runs with more than about 68,000 loci per pair can produce values above it;
+# those cells are clipped to the top color. warn_if_values_are_clipped reports when this
+# happens. Pass cbar_vmax/zmax to widen the scale for a single figure.
+CBAR_VMIN_1000G = 1.301
+CBAR_VMAX_1000G = 4.833
+
 
 def _extract_pop_pairs_from_files(segment_files):
     pop_pairs = []
@@ -117,6 +128,33 @@ def verify_declared_panel_is_complete(declared_populations, loaded_pairs):
         f"The declared population panel is incomplete in this compute directory: {detail}. "
         f"Missing pairs: {preview}. Re-run compute for the full panel, or omit the declared "
         f"panel to plot only the populations that are present."
+    )
+
+
+def warn_if_values_are_clipped(input_df, vmax):
+    """
+    Log a warning when data exceeds an explicit color-scale maximum.
+
+    Clipped cells all render at the top color, so differences between them are not
+    visible in the figure. Only the upper bound is reported: values below the lower bound
+    are clipped deliberately, since the 1000 Genomes lower bound is the 5% tail cutoff.
+    """
+    if vmax is None:
+        return
+
+    values = input_df.to_numpy(dtype=float)
+    if not np.isfinite(values).any():
+        return
+
+    data_max = float(np.nanmax(values))
+    if data_max <= vmax:
+        return
+
+    clipped = int(np.count_nonzero(values > vmax))
+    logger.warning(
+        f"{clipped} of {values.size} rendered cells exceed the color-scale maximum "
+        f"({vmax}); the data reaches {data_max:.3f}. Clipped cells all render at the top "
+        f"color and cannot be told apart. Widen the scale to show them."
     )
 
 
@@ -329,6 +367,10 @@ def create_plot_input(input_dir, start, end, populations="1000Genomes", rank_sco
     # Clean up the DataFrame
     concat_df.sort_values(["first_pop", "second_pop"], inplace=True)
     concat_df.drop(["first_pop", "second_pop"], axis=1, inplace=True)
+    # Adding the two sort-key columns above promoted the genomic-position column index to
+    # object dtype, and dropping them does not restore it. Restore a numeric index so that
+    # callers can slice a region by coordinate.
+    concat_df.columns = pd.to_numeric(concat_df.columns)
     concat_df.index.name = "pop_pairs"
     concat_df.attrs["populations"] = tuple(population_sorter)
     concat_df.attrs["population_mode"] = populations
@@ -582,7 +624,9 @@ def plot_exp_heatmap(
     # Crop the input_df according to user defined range
     try: # Given values are in the data (column index)
         input_df = input_df.loc[:, start:end]
-    except KeyError: # Given values are not in the column index, choose the new closest ones
+    # KeyError when a bound is absent; TypeError when the column index is not numeric, which
+    # happens for externally built frames. Either way, fall back to the nearest positions.
+    except (KeyError, TypeError):
         sorted_columns = sorted(list(input_df.columns))
         new_start = take_closest_start(sorted_columns, start)
         new_end = take_closest_end(sorted_columns, end)
@@ -669,33 +713,32 @@ def plot_exp_heatmap(
     # Create figure
     fig, ax = plt.subplots(figsize=figsize)
 
-    # Plot the main heatmap
-    cbar_kws_base = {"shrink": 0.9, "aspect": 30}
+    # Resolve the color bounds. The recognized 1000 Genomes panel uses a fixed range for
+    # cross-run comparability; other panels fall back to the data range via vmin/vmax=None.
     if is_1000genomes:
-        cbar_kws = {**cbar_kws_base, "ticks": cbar_ticks} if cbar_ticks else cbar_kws_base
-        hm = sns.heatmap(
-            input_df,
-            yticklabels=False,
-            xticklabels=False,
-            vmin=1.301 if cbar_vmin is None else cbar_vmin,
-            vmax=4.833 if cbar_vmax is None else cbar_vmax,
-            ax=ax,
-            cmap=cmap,
-            cbar_kws=cbar_kws,
-        )
+        effective_vmin = CBAR_VMIN_1000G if cbar_vmin is None else cbar_vmin
+        effective_vmax = CBAR_VMAX_1000G if cbar_vmax is None else cbar_vmax
     else:
-        cbar_kws = {**cbar_kws_base, "ticks": cbar_ticks} if cbar_ticks else cbar_kws_base
-        hm = sns.heatmap(
-            input_df,
-            yticklabels=False,
-            xticklabels=False,
-            vmin=cbar_vmin,
-            vmax=cbar_vmax,
-            cbar_kws=cbar_kws,
-            ax=ax,
-            cmap=cmap,
-        )
-    
+        effective_vmin = cbar_vmin
+        effective_vmax = cbar_vmax
+
+    warn_if_values_are_clipped(input_df, effective_vmax)
+
+    # Plot the main heatmap
+    cbar_kws = {"shrink": 0.9, "aspect": 30}
+    if cbar_ticks:
+        cbar_kws["ticks"] = cbar_ticks
+    hm = sns.heatmap(
+        input_df,
+        yticklabels=False,
+        xticklabels=False,
+        vmin=effective_vmin,
+        vmax=effective_vmax,
+        ax=ax,
+        cmap=cmap,
+        cbar_kws=cbar_kws,
+    )
+
     cbar = hm.collections[0].colorbar
     cbar.ax.tick_params(length=0, labelsize=7)
 

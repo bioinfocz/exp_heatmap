@@ -13,11 +13,14 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 from exp_heatmap.plot import (
-    populations_1000genomes, 
+    populations_1000genomes,
     superpopulations,
     pop_to_superpop,
     create_plot_input,
     downsample_heatmap_columns,
+    warn_if_values_are_clipped,
+    CBAR_VMIN_1000G,
+    CBAR_VMAX_1000G,
 )
 from exp_heatmap.logging import get_logger
 
@@ -129,10 +132,12 @@ def plot_interactive_heatmap(
             input_df = input_df.where(input_df <= display_limit, 0)
     
     if zmin is None:
-        zmin = 1.301 if is_1000genomes else input_df.min().min()
+        zmin = CBAR_VMIN_1000G if is_1000genomes else input_df.min().min()
     if zmax is None:
-        zmax = 4.833 if is_1000genomes else input_df.max().max()
-    
+        zmax = CBAR_VMAX_1000G if is_1000genomes else input_df.max().max()
+
+    warn_if_values_are_clipped(input_df, zmax)
+
     # Create the heatmap
     fig = go.Figure()
     

@@ -312,7 +312,7 @@ Re-run compute for the full panel, or omit the declared panel to plot only the
 populations that are present.
 ```
 
-> **Why this matters.** Outputs for a subset of populations form a self-consistent smaller panel, so with an inferred panel an incomplete `compute` directory renders **without warning** — and if it drops below the canonical 26, the row order, super-population annotations and colour-scale bounds all switch to the custom-panel defaults. The same rank score then maps to a different colour, making the figure incomparable to others from the same project. Declare the panel whenever figures will be compared across runs, or whenever a `compute` run may have been interrupted.
+> **Why this matters.** Outputs for a subset of populations form a self-consistent smaller panel, so with an inferred panel an incomplete `compute` directory renders **without warning** — and if it drops below the canonical 26, the row order, super-population annotations and color-scale bounds all switch to the custom-panel defaults. The same rank score then maps to a different color, making the figure incomparable to others from the same project. Declare the panel whenever figures will be compared across runs, or whenever a `compute` run may have been interrupted.
 
 A declared panel matching the canonical 1000 Genomes order receives the full 1000G treatment, so `--populations` is safe to use on standard 1000 Genomes analyses. A declared panel listing the same populations in a different order is respected as given. Passing fewer populations than are present on disk is a supported way to plot a subset.
 
@@ -657,43 +657,106 @@ create_population_focus_view(
 Fine-tune your visualizations with advanced options:
 
 ```python
-from exp_heatmap.plot import plot_exp_heatmap, prepare_cbar_params, superpopulations
+from exp_heatmap.plot import (
+    create_plot_input,
+    plot_exp_heatmap,
+    prepare_cbar_params,
+    superpopulations,
+)
 
-# Custom colorbar settings
+# Load the region, restricted to one superpopulation's panel
+data_to_plot = create_plot_input(
+    "results/",
+    start=135000000,
+    end=137000000,
+    populations=superpopulations["AFR"],  # 7 populations -> 42 ordered rows
+)
+
+# Colorbar bounds and ticks fitted to this data
 cmin, cmax, cbar_ticks = prepare_cbar_params(data_to_plot, n_cbar_ticks=6)
 
 # Advanced plot with multiple customizations
 plot_exp_heatmap(
     data_to_plot,
-    start=135000000,
-    end=137000000,
+    # Pass the region as rendered rather than as requested: create_plot_input
+    # snaps the window to the variant positions actually present in the data.
+    start=int(data_to_plot.columns[0]),
+    end=int(data_to_plot.columns[-1]),
     title="Selection Signals in African Populations",
-    
-    # Population filtering
-    populations=superpopulations["AFR"],  # Focus on African populations
-    # Available: ["AFR", "AMR", "EAS", "EUR", "SAS"] or custom list
-    
+
+    # Must match the panel used for create_plot_input above
+    populations=superpopulations["AFR"],
+    # Available: superpopulations["AFR" | "AMR" | "EAS" | "EUR" | "SAS"], or a custom list
+
     # Visual customizations
     cmap="expheatmap",                    # Custom ExP colormap
-    display_limit=1.60,                   # Filter noise (values below limit = white)
-    display_values="higher",              # Show values above display_limit
-    
+    display_limit=1.60,                   # Filter noise (values below limit set to 0)
+    display_values="higher",              # Keep values above display_limit
+
     # Annotations
     vertical_line=[                       # Mark important SNPs
-        [135851073, "rs41525747"],        # [position, label]
-        [135851081, "rs41380347"]
+        (135851073, "rs41525747"),        # (position, label)
+        (135851081, "rs41380347"),
     ],
-    
+
     # Colorbar customization
     cbar_vmin=cmin,
     cbar_vmax=cmax,
     cbar_ticks=cbar_ticks,
-    
+
     # Output
     output="african_populations_analysis",
     xlabel="Custom region description"
 )
 ```
+
+### Color Scale Range
+
+The colormap controls *which* colors are used; the color scale controls *what range* they are mapped over. ExP Heatmap picks that range in one of two ways.
+
+**Recognized 1000 Genomes panel — fixed range, 1.301 to 4.833.** Applied so that heatmaps of the same panel stay directly comparable between runs: a given rank score maps to the same color in every figure.
+
+| Bound | Value | Meaning |
+|-------|-------|---------|
+| Lower | `1.301` | −log₁₀(0.05), the conventional 5% tail cutoff. Cells below it are rendered as background, which is the noise suppression that makes the display readable. |
+| Upper | `4.833` | A fixed ceiling. Cells above it are drawn at the maximum color. |
+
+**Any other panel — fitted to the data.** The range is taken from the minimum and maximum of the plotted values, because the displayed statistic and its range are not known in advance (Hudson's F<sub>ST</sub> is bounded 0–1, XP-EHH is unbounded, Delta Tajima's D is signed).
+
+#### Values above the upper bound are clipped
+
+Empirical rank scores can reach log₁₀(*n*) for *n* ranked loci, and ranks are computed over the **whole compute run**, not the plotted window. A whole-chromosome run therefore has a ceiling well above 4.833 — for 588,621 loci it is 5.771 — and any cell above the fixed bound is drawn at the maximum color, indistinguishable from a cell exactly at it.
+
+ExP Heatmap reports this when it happens:
+
+```
+322 of 1266200 rendered cells exceed the color-scale maximum (4.833); the data
+reaches 5.771. Clipped cells all render at the top color and cannot be told
+apart. Widen the scale to show them.
+```
+
+The affected fraction is small — about 10<sup>−4.833</sup> ≈ 1.5 × 10⁻⁵ of each pair's loci — but they are that pair's most extreme values. Whether that matters depends on your figure: it does not change where a signal appears, but it does flatten the top of a peak.
+
+**To keep the full range**, override the bounds. Static output:
+
+```python
+from exp_heatmap.plot import create_plot_input, plot_exp_heatmap, prepare_cbar_params
+
+data = create_plot_input("results/", start=136108646, end=137108646)
+cmin, cmax, cbar_ticks = prepare_cbar_params(data, n_cbar_ticks=5)   # fit to the data
+
+# Pass the region as rendered, not as requested: create_plot_input snaps the
+# window to the nearest variant positions present in the data.
+plot_exp_heatmap(data,
+                 start=int(data.columns[0]),
+                 end=int(data.columns[-1]),
+                 cbar_vmin=cmin, cbar_vmax=cmax, cbar_ticks=cbar_ticks,
+                 output="lct_full_range")
+```
+
+Interactive output uses `zmin`/`zmax` on `plot_interactive_heatmap()` instead. Overrides are honored on both the 1000 Genomes and custom paths, and suppress the warning once the range covers the data.
+
+> **Note on comparability.** Fitting the scale to the data is the right choice for a single figure, but it means two figures no longer share a color mapping. Keep the fixed range when figures will be compared side by side, and widen it only when the top of the distribution is what you are reading.
 
 ### Colormap Options
 
@@ -709,6 +772,8 @@ ExP Heatmap supports all matplotlib colormaps plus a custom colormap:
 | `RdBu` | Diverging red-blue | Bidirectional data |
 
 See the [full list of matplotlib colormaps](https://matplotlib.org/stable/users/explain/colors/colormaps.html).
+
+The colormap only chooses the colors. The range they are stretched over is set separately — see [Color Scale Range](#color-scale-range).
 
 **Custom `expheatmap` colormap:**
 - Based on `gist_ncar_r` 
@@ -986,9 +1051,27 @@ The data contains positions from A to B.
 - Use coordinates within the available range shown in the error message
 - Verify you're using the correct output directory
 
+#### Strongest Signals All Render as One Flat Block
+
+**Warning:**
+```
+322 of 1266200 rendered cells exceed the color-scale maximum (4.833); the data
+reaches 5.771. Clipped cells all render at the top color and cannot be told apart.
+Widen the scale to show them.
+```
+
+**Cause:** The recognized 1000 Genomes panel uses a fixed color scale of 1.301 to 4.833. Rank scores can reach log₁₀(*n*) for *n* ranked loci, so a whole-chromosome run exceeds the upper bound and the most extreme cells are all drawn at the maximum color. Nothing is wrong with the data — only the top of the color range is saturated.
+
+**Solution:**
+- Leave it as is if you are reading *where* signals fall. The fixed range keeps the figure comparable with your other heatmaps, and the region still renders dark.
+- Widen the range if you are reading *how strong* the strongest signals are: pass `cbar_vmin`/`cbar_vmax` for static output, or `zmin`/`zmax` for interactive output. See [Color Scale Range](#color-scale-range).
+- `prepare_cbar_params(data)` returns bounds and tick marks fitted to your data.
+
+Note that the colorbar is labeled with the scale maximum, not the data maximum, so read the warning rather than the colorbar when checking whether a figure is saturated.
+
 #### Heatmap Has Fewer Populations Than Expected
 
-**Symptoms:** The heatmap renders successfully, but the y-axis lists fewer populations than the panel file contains. On 1000 Genomes data the super-population labels and boundary lines are also missing, and the colour scale differs from earlier figures.
+**Symptoms:** The heatmap renders successfully, but the y-axis lists fewer populations than the panel file contains. On 1000 Genomes data the super-population labels and boundary lines are also missing, and the color scale differs from earlier figures.
 
 **Cause:** The `compute` output directory is missing every pairwise file for one or more populations — usually an interrupted `compute` run, or files moved or deleted afterwards. Those remaining outputs form a self-consistent smaller panel, so with an inferred panel the plotter has no way to know populations are absent and renders them out.
 
