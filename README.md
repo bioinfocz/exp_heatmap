@@ -188,6 +188,7 @@ exp_heatmap full [OPTIONS] <vcf_file> <panel_file>
 | `--title` | STR | - | Title of the heatmap |
 | `--cmap` | STR | `Blues` | Colormap for visualization |
 | `--interactive` | flag | - | Generate interactive HTML visualization |
+| `--rank-scores` | choice | `directional` | Rank-score mode: `directional`, `2-tailed` (legacy alias), `ascending`, `descending` (see [Rank Score Options](#rank-score-options)) |
 | `--populations` | STR | inferred | Comma-separated population codes declaring the expected panel (see [Declaring the population panel](#declaring-the-population-panel)) |
 | `--max-columns` | INT | auto/static, `30000` interactive | Explicit column budget for wide regions |
 | `--column-aggregation` | choice | `max` | Reducer for static downsampling: `max`, `mean`, `median` |
@@ -270,6 +271,7 @@ exp_heatmap plot [OPTIONS] <input_dir>
 | `-o, --out` | PATH | `ExP_heatmap` | Output filename (without extension) |
 | `-c, --cmap` | STR | `Blues` | Colormap name (see [Colormap Options](#colormap-options)) |
 | `--interactive` | flag | - | Generate interactive HTML visualization |
+| `--rank-scores` | choice | `directional` | Rank-score mode: `directional`, `2-tailed` (legacy alias), `ascending`, `descending` (see [Rank Score Options](#rank-score-options)) |
 | `--populations` | STR | inferred | Comma-separated population codes declaring the expected panel (see [Declaring the population panel](#declaring-the-population-panel)) |
 | `--max-columns` | INT | auto/static, `30000` interactive | Explicit column budget for wide regions |
 | `--column-aggregation` | choice | `max` | Reducer for static downsampling: `max`, `mean`, `median` |
@@ -789,16 +791,26 @@ ExP Heatmap uses **empirical rank scores** to visualize selection signals. Despi
 
 ### Rank Score Options
 
-The `rank_scores` parameter in `create_plot_input()` controls how rank scores are calculated:
+Which rank scores are displayed is selected by the `--rank-scores` option on the `full`, `plot`, `summary`, `focus`, `compare` and `regions` commands, and by the `rank_scores` parameter in `create_plot_input()`, `plot()` and `plot_interactive()`. Both accept the same four values:
 
 | Option | Description | Use Case |
 |--------|-------------|----------|
-| `"directional"` | For POP1_POP2: use descending; for POP2_POP1: use ascending | **Default** - Captures reciprocal directionality |
-| `"2-tailed"` | Legacy alias of `"directional"` | Backward-compatible legacy name |
-| `"ascending"` | Lowest test values ranked first | Detect negative selection signals |
-| `"descending"` | Highest test values ranked first | Detect positive selection signals |
+| `directional` | For POP1_POP2: use descending; for POP2_POP1: use ascending | **Default** - Captures reciprocal directionality |
+| `2-tailed` | Legacy alias of `directional` | Backward-compatible legacy name |
+| `ascending` | Lowest test values ranked first | Detect negative selection signals |
+| `descending` | Highest test values ranked first | Detect positive selection signals |
+
+Both rank-score columns are written by `compute` for every population pair, so switching mode only changes which column the plotting stage reads — no recomputation is needed.
 
 **Example:**
+```bash
+# Direction-aware reciprocal ranking (recommended for most analyses)
+exp_heatmap plot results/ --start 47000000 --end 49000000 --rank-scores directional --out lct_directional
+
+# One-sided ranking for a specific hypothesis, from the same compute output
+exp_heatmap plot results/ --start 47000000 --end 49000000 --rank-scores descending --out lct_descending
+```
+
 ```python
 # Direction-aware reciprocal ranking (recommended for most analyses)
 data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="directional")
