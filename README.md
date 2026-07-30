@@ -951,20 +951,35 @@ The ordered-pair display stays computationally tractable up to 50 populations, b
 
 ### Reproducing the benchmarks
 
+The VCF, panel and compute directory are **positional** arguments.
+
 ```bash
-pip install -e .[benchmarks]
+pip install -e '.[benchmarks]'
 
-# Full pipeline benchmark on your own VCF
+# Full pipeline benchmark (prepare -> compute -> plot) on your own VCF.
+# prepare is measured once; compute and plot are replicated.
 python scripts/benchmarks/run_pipeline_benchmark.py \
-    --vcf path/to/input.vcf.gz \
-    --panel path/to/panel.tsv \
-    --out-dir local_data/benchmarks/pipeline
+    path/to/input.vcf.gz \
+    path/to/panel.tsv \
+    --out-dir local_data/benchmarks/pipeline \
+    --repeats 5 --warmup 1
 
-# Population scaling benchmark (seeds from an existing compute output directory)
+# Display scaling with population count, seeded from an existing compute output directory
 python scripts/benchmarks/run_population_scaling.py \
-    --compute-dir path/to/compute_output \
-    --out-dir local_data/benchmarks/population_scaling
+    path/to/compute_output \
+    --out-dir local_data/benchmarks/population_scaling \
+    --repeats 5 --warmup 1 --dpi 600
+
+# Display and reporting cost across window sizes and population counts
+python scripts/benchmarks/run_local_benchmark.py \
+    path/to/compute_output \
+    --out-dir local_data/benchmarks/display \
+    --repeats 5 --warmup 1 --dpi 600
 ```
+
+`--repeats` reports mean, sample standard deviation, coefficient of variation and a 95% confidence interval (Student-t) over the measured runs; `--warmup` discards leading runs that pay filesystem-cache and import costs. Every run writes its own log, the individual per-run timings are kept in the `seconds_runs` column, and `machine_specs.json` records the CPU model, core counts, memory, platform and Python version alongside the results.
+
+> **Note on `--dpi`**: the scripts default to `--dpi 200`, which times a screen-resolution render. Pass the DPI you publish figures at if you want the reported display cost to match your figures.
 
 ## Validation on Public Data
 

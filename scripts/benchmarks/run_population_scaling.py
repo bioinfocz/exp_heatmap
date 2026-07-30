@@ -15,6 +15,9 @@ import psutil
 
 from exp_heatmap.benchmark_utils import read_variant_range, centered_window
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _bench_stats import machine_specs, repeat_measurements, summarize_runs
+
 
 def dataframe_to_markdown(df):
     headers = [str(column) for column in df.columns]
@@ -81,7 +84,21 @@ def parse_args():
         "--dpi",
         type=int,
         default=200,
-        help="DPI for static outputs.",
+        help="DPI for static outputs. Use the value figures are published at; the default "
+             "times a screen-resolution render.",
+    )
+    parser.add_argument(
+        "--repeats",
+        type=int,
+        default=1,
+        help="Measured runs per stage. Values above 1 report mean, standard deviation, "
+             "coefficient of variation and a 95%% confidence interval.",
+    )
+    parser.add_argument(
+        "--warmup",
+        type=int,
+        default=0,
+        help="Unmeasured runs executed before the measured ones and discarded.",
     )
     parser.add_argument(
         "--worker-stage",
@@ -280,12 +297,24 @@ def main():
                 str(template_dir),
             ]
 
-            stats = run_monitored_command(command, cwd=repo_root, env=env, log_path=log_path)
-            if stats["returncode"] != 0:
-                raise RuntimeError(
-                    f"Population scaling stage '{stage}' failed for population count {population_count}. "
-                    f"See log: {log_path}"
+            def run_once(run_index, stage=stage, command=command,
+                         population_count=population_count):
+                run_log = logs_dir / f"{stage}_p{population_count}_run{run_index}.log"
+                run_stats = run_monitored_command(
+                    command, cwd=repo_root, env=env, log_path=run_log
                 )
+                if run_stats["returncode"] != 0:
+                    raise RuntimeError(
+                        f"Population scaling stage '{stage}' failed for population count "
+                        f"{population_count} on run {run_index}. See log: {run_log}"
+                    )
+                run_stats["log_path"] = str(run_log)
+                return run_stats
+
+            runs = repeat_measurements(run_once, repeats=args.repeats, warmup=args.warmup)
+            seconds = summarize_runs([run["seconds"] for run in runs])
+            peak_rss = summarize_runs([run["peak_rss_bytes"] for run in runs])
+            run_logs = [run["log_path"] for run in runs]
 
             rows = None
             columns = None
@@ -317,13 +346,21 @@ def main():
                     "stage": stage,
                     "rows": rows,
                     "columns": columns,
-                    "seconds": round(stats["seconds"], 6),
-                    "peak_rss_bytes": int(stats["peak_rss_bytes"]),
-                    "peak_rss_gb": round(stats["peak_rss_bytes"] / (1024 ** 3), 4),
+                    "replicates": seconds["n"],
+                    "warmup_runs": int(args.warmup),
+                    "seconds": round(seconds["mean"], 6),
+                    "seconds_std": round(seconds["std"], 6),
+                    "seconds_cv_percent": round(seconds["cv_percent"], 4),
+                    "seconds_ci95_lower": round(seconds["ci95_lower"], 6),
+                    "seconds_ci95_upper": round(seconds["ci95_upper"], 6),
+                    "seconds_runs": ";".join(f"{value:.6f}" for value in seconds["values"]),
+                    "peak_rss_bytes": int(peak_rss["mean"]),
+                    "peak_rss_gb": round(peak_rss["mean"] / (1024 ** 3), 4),
+                    "peak_rss_gb_std": round(peak_rss["std"] / (1024 ** 3), 4),
                     "artifact_path": artifact_path,
                     "artifact_size_bytes": int(artifact_size),
                     "artifact_size_mb": round(artifact_size / (1024 ** 2), 4),
-                    "log_path": str(log_path),
+                    "log_path": ";".join(run_logs),
                     "command": shlex.join(command),
                 }
             )
@@ -335,7 +372,8 @@ def main():
     summary = results_df.pivot(
         index=["population_count", "ordered_pair_rows"],
         columns="stage",
-        values=["seconds", "peak_rss_gb", "artifact_size_mb", "rows", "columns"],
+        values=["seconds", "seconds_std", "seconds_cv_percent", "peak_rss_gb",
+                "artifact_size_mb", "rows", "columns"],
     ).reset_index()
     summary.columns = [
         "_".join([str(part) for part in column if part]).rstrip("_")
@@ -344,12 +382,23 @@ def main():
     summary_tsv = out_dir / "population_scaling_summary.tsv"
     summary.to_csv(summary_tsv, sep="\t", index=False)
 
+    specs = machine_specs()
+    (out_dir / "machine_specs.json").write_text(
+        json.dumps(specs, indent=2), encoding="utf-8"
+    )
+
     note_lines = [
         "# Population scaling summary",
         "",
         f"- Template compute directory: `{template_dir}`",
-        f"- Fixed window: `{start}-{end}`",
+        f"- Fixed window: `{start}-{end}` ({end - start:,} bp)",
         f"- Rank-score mode: `{args.rank_scores}`",
+        f"- Column budget: `{args.max_columns}` | DPI: `{args.dpi}`",
+        f"- Replicates: `{args.repeats}` measured, `{args.warmup}` warmup",
+        f"- Machine: {specs['processor']} | "
+        f"{specs['cpu_count_physical']} physical / {specs['cpu_count_logical']} logical cores | "
+        f"{specs['total_memory_gb']} GB RAM",
+        f"- Platform: {specs['platform']} | Python {specs['python']}",
         f"- Output directory: `{out_dir}`",
         "",
         dataframe_to_markdown(summary),

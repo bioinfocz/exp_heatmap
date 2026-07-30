@@ -14,6 +14,9 @@ import pandas as pd
 import psutil
 import pysam
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _bench_stats import machine_specs, repeat_measurements, summarize_runs
+
 
 def dataframe_to_markdown(df):
     headers = [str(column) for column in df.columns]
@@ -82,6 +85,19 @@ def parse_args():
         type=int,
         default=200,
         help="DPI for the static plot stage.",
+    )
+    parser.add_argument(
+        "--repeats",
+        type=int,
+        default=1,
+        help="Measured runs of the compute and plot stages. Above 1, reports mean, standard "
+             "deviation, coefficient of variation and a 95%% confidence interval.",
+    )
+    parser.add_argument(
+        "--warmup",
+        type=int,
+        default=0,
+        help="Unmeasured runs of compute and plot executed first and discarded.",
     )
     return parser.parse_args()
 
@@ -211,7 +227,7 @@ def run_monitored_command(cmd, cwd, env, log_path):
     }
 
 
-def _sysctl_value(name):
+def _unused_sysctl_value(name):
     try:
         result = subprocess.run(
             ["sysctl", "-n", name],
@@ -224,17 +240,9 @@ def _sysctl_value(name):
         return None
 
 
-def machine_specs():
-    total_memory = psutil.virtual_memory().total
-    return {
-        "platform": platform.platform(),
-        "python": sys.version.split()[0],
-        "machine": platform.machine(),
-        "processor": _sysctl_value("machdep.cpu.brand_string") or platform.processor(),
-        "cpu_count_logical": os.cpu_count(),
-        "total_memory_bytes": int(total_memory),
-        "total_memory_gb": round(total_memory / (1024 ** 3), 2),
-    }
+# machine_specs is imported from _bench_stats so the CPU model is recorded on Linux as
+# well as macOS. The previous local version read a macOS-only sysctl key and fell back to
+# platform.processor(), which is uninformative on most Linux distributions.
 
 
 def main():
@@ -352,9 +360,32 @@ def main():
         }
 
         for stage_name in ("prepare", "compute", "plot"):
-            log_path = logs_dir / f"{case_name}_{stage_name}.log"
             command = commands[stage_name]
-            stats = run_monitored_command(command, cwd=repo_root, env=benchmark_env, log_path=log_path)
+            # prepare builds the Zarr store the later stages read, and is a deterministic
+            # I/O-bound conversion, so it is measured once while compute and plot are
+            # replicated. This matches the convention of the earlier benchmark harness.
+            stage_repeats = 1 if stage_name == "prepare" else args.repeats
+            stage_warmup = 0 if stage_name == "prepare" else args.warmup
+
+            def run_once(run_index, stage_name=stage_name, command=command,
+                         case_name=case_name):
+                run_log = logs_dir / f"{case_name}_{stage_name}_run{run_index}.log"
+                run_stats = run_monitored_command(
+                    command, cwd=repo_root, env=benchmark_env, log_path=run_log
+                )
+                if run_stats["returncode"] != 0:
+                    raise RuntimeError(
+                        f"Benchmark stage '{stage_name}' failed for case '{case_name}' on "
+                        f"run {run_index}. See log: {run_log}"
+                    )
+                run_stats["log_path"] = str(run_log)
+                return run_stats
+
+            runs = repeat_measurements(run_once, repeats=stage_repeats, warmup=stage_warmup)
+            seconds = summarize_runs([run["seconds"] for run in runs])
+            peak_rss = summarize_runs([run["peak_rss_bytes"] for run in runs])
+            stats = runs[-1]
+            log_path = ";".join(run["log_path"] for run in runs)
 
             if stage_name == "prepare":
                 artifact_path = zarr_dir
@@ -374,9 +405,17 @@ def main():
                     "input_end": int(case["input_end"]),
                     "plot_start": int(case["plot_start"]),
                     "plot_end": int(case["plot_end"]),
-                    "seconds": round(stats["seconds"], 6),
-                    "peak_rss_bytes": int(stats["peak_rss_bytes"]),
-                    "peak_rss_gb": round(stats["peak_rss_bytes"] / (1024 ** 3), 4),
+                    "replicates": seconds["n"],
+                    "warmup_runs": int(stage_warmup),
+                    "seconds": round(seconds["mean"], 6),
+                    "seconds_std": round(seconds["std"], 6),
+                    "seconds_cv_percent": round(seconds["cv_percent"], 4),
+                    "seconds_ci95_lower": round(seconds["ci95_lower"], 6),
+                    "seconds_ci95_upper": round(seconds["ci95_upper"], 6),
+                    "seconds_runs": ";".join(f"{value:.6f}" for value in seconds["values"]),
+                    "peak_rss_bytes": int(peak_rss["mean"]),
+                    "peak_rss_gb": round(peak_rss["mean"] / (1024 ** 3), 4),
+                    "peak_rss_gb_std": round(peak_rss["std"] / (1024 ** 3), 4),
                     "returncode": int(stats["returncode"]),
                     "artifact_path": str(artifact_path),
                     "artifact_size_bytes": artifact_size,
@@ -386,11 +425,6 @@ def main():
                 }
             )
 
-            if stats["returncode"] != 0:
-                raise RuntimeError(
-                    f"Benchmark stage '{stage_name}' failed for case '{case_name}'. "
-                    f"See log: {log_path}"
-                )
 
     results_df = pd.DataFrame(results)
     results_tsv = out_dir / "pipeline_stage_results.tsv"
@@ -415,6 +449,8 @@ def main():
         "rank_scores": args.rank_scores,
         "max_columns": int(args.max_columns),
         "dpi": int(args.dpi),
+        "repeats": int(args.repeats),
+        "warmup": int(args.warmup),
         "run_label": run_label,
         "cases": serialized_cases,
         "workspace": str(workspace),

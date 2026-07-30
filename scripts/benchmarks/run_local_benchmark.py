@@ -13,6 +13,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _bench_stats import machine_specs, repeat_measurements, summarize_runs
+
 from exp_heatmap.benchmark_utils import (
     build_comparison_regions,
     centered_window,
@@ -82,6 +85,19 @@ def parse_args():
         type=int,
         default=200,
         help="DPI for static benchmark renders.",
+    )
+    parser.add_argument(
+        "--repeats",
+        type=int,
+        default=1,
+        help="Measured runs per mode. Above 1, reports mean, standard deviation, "
+             "coefficient of variation and a 95%% confidence interval.",
+    )
+    parser.add_argument(
+        "--warmup",
+        type=int,
+        default=0,
+        help="Unmeasured runs executed first and discarded.",
     )
     return parser.parse_args()
 
@@ -284,18 +300,27 @@ def main():
 
                 started = perf_counter()
                 try:
-                    artifact_path = _run_mode(
-                        mode=mode,
-                        plot_input=plot_input,
-                        population_selection=population_selection,
-                        start=int(plot_input.columns[0]),
-                        end=int(plot_input.columns[-1]),
-                        artifacts_dir=artifacts_dir,
-                        window_size=window_size,
-                        pop_count=pop_count,
-                        max_columns=args.max_columns,
-                        dpi=args.dpi,
+                    def run_once(run_index, mode=mode):
+                        run_started = perf_counter()
+                        path = _run_mode(
+                            mode=mode,
+                            plot_input=plot_input,
+                            population_selection=population_selection,
+                            start=int(plot_input.columns[0]),
+                            end=int(plot_input.columns[-1]),
+                            artifacts_dir=artifacts_dir,
+                            window_size=window_size,
+                            pop_count=pop_count,
+                            max_columns=args.max_columns,
+                            dpi=args.dpi,
+                        )
+                        return {"seconds": perf_counter() - run_started, "artifact_path": path}
+
+                    runs = repeat_measurements(
+                        run_once, repeats=args.repeats, warmup=args.warmup
                     )
+                    seconds = summarize_runs([run["seconds"] for run in runs])
+                    artifact_path = runs[-1]["artifact_path"]
                     _record_result(
                         results,
                         mode=mode,
@@ -303,7 +328,14 @@ def main():
                         population_count=pop_count,
                         start=int(plot_input.columns[0]),
                         end=int(plot_input.columns[-1]),
-                        seconds=perf_counter() - started,
+                        replicates=seconds["n"],
+                        warmup_runs=int(args.warmup),
+                        seconds=seconds["mean"],
+                        seconds_std=seconds["std"],
+                        seconds_cv_percent=seconds["cv_percent"],
+                        seconds_ci95_lower=seconds["ci95_lower"],
+                        seconds_ci95_upper=seconds["ci95_upper"],
+                        seconds_runs=";".join(f"{v:.6f}" for v in seconds["values"]),
                         rows=int(plot_input.shape[0]),
                         columns=int(plot_input.shape[1]),
                         artifact_path=str(artifact_path) if artifact_path else None,

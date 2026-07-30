@@ -63,7 +63,8 @@ dev = [
 ]
 benchmarks = [
     "psutil>=5.9",
-    "pysam>=0.22"
+    "pysam>=0.22",
+    "scipy>=1.10"
 ]
 all = [
     "pytest>=7.0",
