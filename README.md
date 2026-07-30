@@ -254,6 +254,32 @@ exp_heatmap compute [OPTIONS] <zarr_dir> <panel_file>
 exp_heatmap compute chr15.zarr genotypes.panel -o chr15_results -t xpehh
 ```
 
+##### Allele-frequency filtering
+
+`compute` discards low-frequency variants before any statistic is calculated. This changes which loci reach the output, so the exact rule is documented here.
+
+| | |
+|---|---|
+| **Rule** | A variant is kept when its **total alternate-allele frequency is strictly greater than 0.05** |
+| **Applied** | Once, across the whole callset, before population pairs are formed — not per population and not per pair |
+| **Frequency source** | `INFO/AF` from the VCF when that field is present, summed across all ALT alleles. If the field is absent, frequencies are derived from the genotypes as 1 − (reference allele frequency), and a warning is logged |
+| **Configurable** | No. The threshold is fixed in the current release |
+
+**This is alternate-allele frequency, not minor-allele frequency.** The two differ whenever the alternate allele is the major allele: a site with ALT AF = 0.98 has a minor-allele frequency of 0.02 and is **retained**, where a MAF filter at the same threshold would drop it. Filter upstream with `vcftools --maf` or `bcftools view -q` if you need minor-allele semantics.
+
+**The two frequency sources are not interchangeable.** `INFO/AF` in a public release such as 1000 Genomes is the frequency across that release's full cohort, whereas the genotype-derived fallback uses only the samples present in your file. If you subset samples, the same 0.05 threshold selects a different set of variants depending on whether `INFO/AF` survived your preprocessing. When reproducibility matters, check which source was used.
+
+`compute` reports what the filter did on every run, so the effect on your data is visible without extra flags:
+
+```
+Using precomputed alternate allele frequencies from variants/AF
+Allele-frequency filter: kept <retained> of <total> variants (<removed> removed) at total alternate-allele frequency > 0.05
+```
+
+The first line names the frequency source and is replaced by a warning when `INFO/AF` is absent and genotypes are used instead.
+
+Both lines are also written to the run log file (unless `--no-log`), so the threshold, the frequency source and the retained/removed counts form part of the provenance record for an analysis.
+
 #### 5. Visualization - `plot`
 
 >Generate heatmap visualizations from computed statistics.

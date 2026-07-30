@@ -80,7 +80,9 @@ def _extract_alt_frequencies(callset: Any, gt) -> np.ndarray:
             alt_frequencies = raw_af
         else:
             alt_frequencies = np.nansum(raw_af, axis=1)
-        logger.debug("Using precomputed alternate allele frequencies from variants/AF")
+        # Info rather than debug: INFO/AF is cohort-wide, whereas the genotype fallback below
+        # covers only the samples in this file, so the two can select different variants.
+        logger.info("Using precomputed alternate allele frequencies from variants/AF")
         return alt_frequencies
     except KeyError:
         logger.warning(
@@ -117,6 +119,16 @@ def filter_by_AF(callset: Any, af_threshold: float, chunked: bool = False) -> Tu
 
     alt_frequencies = _extract_alt_frequencies(callset, gt)
     loc_variant_selection = alt_frequencies > af_threshold
+
+    # Reported at info level because this filter changes which loci reach the output and is
+    # not otherwise visible to the user.
+    total_variants = int(loc_variant_selection.size)
+    kept_variants = int(loc_variant_selection.sum())
+    logger.info(
+        f"Allele-frequency filter: kept {kept_variants:,} of {total_variants:,} variants "
+        f"({total_variants - kept_variants:,} removed) at total alternate-allele frequency "
+        f"> {af_threshold}"
+    )
 
     gt_filtered = gt.compress(loc_variant_selection, axis=0)
     positions = allel.SortedIndex(callset["variants/POS"])
