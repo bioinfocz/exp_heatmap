@@ -1,0 +1,5 @@
+$ /home/adam/miniconda3/bin/python -m exp_heatmap.cli plot /tmp/claude-1002/-home-adam-Documents-PhD-Cursor-projects-exp-heatmap/81ba78c2-d814-4cf3-8ccc-ac8eeb745d51/scratchpad/pipeline_ggvp/runs/20260730_162450/small_1mb_region/compute -s 25365168 -e 26364892 -o /tmp/claude-1002/-home-adam-Documents-PhD-Cursor-projects-exp-heatmap/81ba78c2-d814-4cf3-8ccc-ac8eeb745d51/scratchpad/pipeline_ggvp/runs/20260730_162450/small_1mb_region/plot --rank-scores directional --max-columns 4000 --dpi 600 --no-log
+
+Starting plot command...
+Loading population pair files:   0%|          | 0/10 [00:00<?, ?it/s]Loading population pair files: 100%|██████████| 10/10 [00:00<00:00, 563.50it/s]
+ExP heatmap saved to /tmp/claude-1002/-home-adam-Documents-PhD-Cursor-projects-exp-heatmap/81ba78c2-d814-4cf3-8ccc-ac8eeb745d51/scratchpad/pipeline_ggvp/runs/20260730_162450/small_1mb_region/plot.png
