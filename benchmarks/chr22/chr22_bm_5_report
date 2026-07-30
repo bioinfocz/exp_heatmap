@@ -1,0 +1,69 @@
+ExP Heatmap Benchmark Report
+==================================================
+
+Generated on 2026-02-05 06:34:53
+Command: /home/adam/miniconda3/envs/exp/bin/exp_heatmap benchmark -s 40000000 -e 40500000 -r 5 -w 1 -o benchmark_5 --report benchmark_5_report /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/vcf_files/chr22_p3_37.vcf /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/testing_changes/genotypes.panel
+System Information
+------------------------------
+Timestamp: 2026-02-05T03:32:22.100825
+Python: 3.13.5
+OS: Linux 6.10.14-061014-generic (x86_64)
+CPU: AMD Ryzen 9 7900 12-Core Processor
+CPU Cores: 24 physical, 24 logical
+RAM: 62.0 GB
+exp_heatmap: 1.1.4
+scikit-allel: 1.3.13
+zarr: 2.18.7
+pandas: 2.3.0
+numpy: 2.3.1
+scipy: 1.16.0
+
+Summary
+------------------------------
+Number of Replicates: PREPARE: 1, COMPUTE: 5, PLOT: 5
+Total Runtime: 1941.84 ± 6.09 seconds (mean ± std)
+Peak Memory Usage: 10555.0 ± 0.0 MB
+
+Step-by-Step Results
+------------------------------
+
+PREPARE:
+  Runtime: 140.627 ± 0.000 seconds
+  CPU Time: 140.224 ± 0.000 seconds
+  Peak Memory: 681.8 ± 0.0 MB
+  Runtime 95% CI: [140.627, 140.627] seconds
+  Throughput: 7847.33 ± nan variants/second
+  Memory Efficiency: 617.83 ± nan MB/million_variants
+  Runtime CV: 0.0%
+  vcf_file_size_mb: 10692.949979782104
+  n_variants: 1103547.0
+
+COMPUTE:
+  Runtime: 1792.280 ± 6.086 seconds
+  CPU Time: 4119.173 ± 6.906 seconds
+  Peak Memory: 10555.0 ± 0.0 MB
+  Runtime 95% CI: [1784.723, 1799.836] seconds
+  Throughput: 0.18 ± 0.00 pairs/second
+  Memory Efficiency: 9564.57 ± 0.00 MB/million_variants
+  Runtime CV: 0.3%
+  n_variants: 1103547.0
+  test: xpehh
+  n_populations: 26.0
+  n_samples: 2504.0
+  n_pairs: 325.0
+  chunked: False
+  seconds_per_pair: 5.543
+  variants_x_pairs: 358652775.0
+
+PLOT:
+  Runtime: 8.929 ± 0.188 seconds
+  CPU Time: 8.926 ± 0.188 seconds
+  Peak Memory: 56.5 ± 0.1 MB
+  Runtime 95% CI: [8.696, 9.163] seconds
+  Throughput: 56015.23 ± 1203.35 bp/second
+  Memory Efficiency: 112.97 ± 0.13 MB/megabase
+  Runtime CV: 2.1%
+  n_files: 325.0
+  region_size_bp: 500000.0
+  start: 40000000.0
+  end: 40500000.0

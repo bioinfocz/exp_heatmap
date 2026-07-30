@@ -1,0 +1,6 @@
+$ /home/adam/miniconda3/bin/python -m exp_heatmap.cli compute /tmp/claude-1002/-home-adam-Documents-PhD-Cursor-projects-exp-heatmap/81ba78c2-d814-4cf3-8ccc-ac8eeb745d51/scratchpad/sample_scaling_xpehh/subset_zarr/subset_n50.zarr /tmp/claude-1002/-home-adam-Documents-PhD-Cursor-projects-exp-heatmap/81ba78c2-d814-4cf3-8ccc-ac8eeb745d51/scratchpad/sample_scaling_xpehh/panels/panel_n50.tsv -o /tmp/claude-1002/-home-adam-Documents-PhD-Cursor-projects-exp-heatmap/81ba78c2-d814-4cf3-8ccc-ac8eeb745d51/scratchpad/sample_scaling_xpehh/runs/n50 -t xpehh --no-log
+
+Starting compute command...
+Using precomputed alternate allele frequencies from variants/AF
+Allele-frequency filter: kept 100,151 of 1,059,517 variants (959,366 removed) at total alternate-allele frequency > 0.05
+Compute completed successfully

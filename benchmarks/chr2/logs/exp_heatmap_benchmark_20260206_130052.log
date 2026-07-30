@@ -1,0 +1,8 @@
+2026-02-06 13:00:52 - exp_heatmap - DEBUG - Logging initialized for command: benchmark
+2026-02-06 13:00:52 - exp_heatmap - DEBUG - Log file: logs/exp_heatmap_benchmark_20260206_130052.log
+2026-02-06 13:00:52 - exp_heatmap.cli - INFO - Starting benchmark command...
+2026-02-06 13:00:52 - exp_heatmap.benchmark - INFO - ============================================================
+2026-02-06 13:00:52 - exp_heatmap.benchmark - INFO - ExP Heatmap Full Pipeline Benchmark
+2026-02-06 13:00:52 - exp_heatmap.benchmark - INFO - ============================================================
+2026-02-06 13:00:52 - exp_heatmap.benchmark - INFO - [1/3] Benchmarking PREPARE step...
+2026-02-06 13:01:02 - exp_heatmap.prepare - INFO - 

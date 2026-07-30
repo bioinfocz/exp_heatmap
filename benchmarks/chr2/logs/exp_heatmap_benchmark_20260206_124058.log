@@ -1,0 +1,11 @@
+2026-02-06 12:40:58 - exp_heatmap - DEBUG - Logging initialized for command: benchmark
+2026-02-06 12:40:58 - exp_heatmap - DEBUG - Log file: logs/exp_heatmap_benchmark_20260206_124058.log
+2026-02-06 12:40:58 - exp_heatmap.cli - INFO - Starting benchmark command...
+2026-02-06 12:40:58 - exp_heatmap.benchmark - INFO - ============================================================
+2026-02-06 12:40:58 - exp_heatmap.benchmark - INFO - ExP Heatmap Full Pipeline Benchmark
+2026-02-06 12:40:58 - exp_heatmap.benchmark - INFO - ============================================================
+2026-02-06 12:40:58 - exp_heatmap.benchmark - INFO - [1/3] Benchmarking PREPARE step...
+2026-02-06 12:41:09 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 65536 rows in 10.42s; chunk in 10.42s (6290 rows/s); chr2 :2197440
+2026-02-06 12:41:20 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 131072 rows in 21.71s; chunk in 11.30s (5800 rows/s); chr2 :4432435
+2026-02-06 12:41:31 - exp_heatmap.prepare - DEBUG - [vcf_to_zarr] 196608 rows in 32.97s; chunk in 11.26s (5821 rows/s); chr2 :6761173
+2026-02-06 12:41:43 - exp_heatmap.prepare - INFO - 

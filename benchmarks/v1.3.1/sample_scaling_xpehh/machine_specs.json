@@ -1,0 +1,10 @@
+{
+  "platform": "Linux-6.10.14-061014-generic-x86_64-with-glibc2.39",
+  "python": "3.12.2",
+  "machine": "x86_64",
+  "processor": "AMD Ryzen 9 7900 12-Core Processor",
+  "cpu_count_physical": 12,
+  "cpu_count_logical": 24,
+  "total_memory_bytes": 66531561472,
+  "total_memory_gb": 61.96
+}

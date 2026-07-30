@@ -1,0 +1,47 @@
+ExP Heatmap Benchmark Report
+==================================================
+
+Generated on 2026-02-06 23:50:02
+Command: /home/adam/miniconda3/envs/exp/bin/exp_heatmap benchmark -s 47920990 -e 48920990 -o chr2_bm_2 -c --report chr2_bm_2_report /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/vcf_files/chr2_38.vcf /home/adam/Desktop/PhD/Cursor_projects/exp_heatmap/tool_testing/genes_testing/LCT_mytake_38/30xfinal.panel
+Summary
+------------------------------
+Total Runtime: 19156.89 seconds
+Peak Memory Usage: 7907.2 MB
+
+Step-by-Step Results
+------------------------------
+
+PREPARE:
+  Runtime: 1011.146 seconds
+  CPU Time: 1018.755 seconds
+  Peak Memory: 931.3 MB
+  Throughput: 6021.49 variants/second
+  Memory Efficiency: 152.96 MB/million_variants
+  vcf_file_size_mb: 80766.35008049011
+  n_variants: 6088598.0
+
+COMPUTE:
+  Runtime: 18100.905 seconds
+  CPU Time: 44152.082 seconds
+  Peak Memory: 7907.2 MB
+  Throughput: 0.02 pairs/second
+  Memory Efficiency: 1298.70 MB/million_variants
+  n_variants: 6088598.0
+  test: xpehh
+  n_populations: 26.0
+  n_samples: 3202.0
+  n_pairs: 325.0
+  chunked: True
+  seconds_per_pair: 55.695
+  variants_x_pairs: 1978794350.0
+
+PLOT:
+  Runtime: 44.836 seconds
+  CPU Time: 44.802 seconds
+  Peak Memory: 229.8 MB
+  Throughput: 22303.33 bp/second
+  Memory Efficiency: 229.84 MB/megabase
+  n_files: 325.0
+  region_size_bp: 1000000.0
+  start: 47920990.0
+  end: 48920990.0

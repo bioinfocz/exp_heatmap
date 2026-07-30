@@ -1,0 +1,33 @@
+{
+  "input_vcf": "/home/adam/Documents/PhD/Cursor_projects/exp_heatmap/local_data/ggvp/ggvp_chr21_snps.vcf",
+  "panel_file": "/home/adam/Documents/PhD/Cursor_projects/exp_heatmap/local_data/ggvp/ggvp_chr21.panel",
+  "test": "xpehh",
+  "rank_scores": "directional",
+  "max_columns": 4000,
+  "dpi": 600,
+  "repeats": 5,
+  "warmup": 1,
+  "run_label": "20260730_162450",
+  "cases": [
+    {
+      "case": "small_1mb_region",
+      "input_vcf": "/tmp/claude-1002/-home-adam-Documents-PhD-Cursor-projects-exp-heatmap/81ba78c2-d814-4cf3-8ccc-ac8eeb745d51/scratchpad/pipeline_ggvp/cases/ggvp_chr21_small_1mb.vcf",
+      "input_records": 11620,
+      "input_start": 25365168,
+      "input_end": 26364892,
+      "plot_start": 25365168,
+      "plot_end": 26364892
+    },
+    {
+      "case": "full_chr21",
+      "input_vcf": "/home/adam/Documents/PhD/Cursor_projects/exp_heatmap/local_data/ggvp/ggvp_chr21_snps.vcf",
+      "input_records": 509924,
+      "input_start": 5030356,
+      "input_end": 46699975,
+      "plot_start": 5030356,
+      "plot_end": 46699975
+    }
+  ],
+  "workspace": "/home/adam/Documents/PhD/Cursor_projects/exp_heatmap/local_data",
+  "repo_root": "/home/adam/Documents/PhD/Cursor_projects/exp_heatmap/exp_heatmap"
+}
