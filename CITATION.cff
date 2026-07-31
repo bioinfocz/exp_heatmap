@@ -1,9 +1,4 @@
-# Three fields need confirming before the 1.3.2 release is tagged:
-#   - date-released: currently set to the day this file was written, not to an actual
-#     release date.
-#   - identifiers: the Zenodo DOI is commented out below. The README badge image and its
-#     link currently point at two different records (…20284071 and …20284070), so the
-#     correct concept DOI has to be established first.
+# TODO:
 #   - preferred-citation: the manuscript is not yet published. Uncomment and complete the
 #     block at the end once it is, and update README.md, which currently reads
 #     "[citation details will be added upon publication]".
@@ -59,13 +54,13 @@ keywords:
   - 1000 Genomes Project
   - GGVP
 
-# identifiers:
-#   - type: doi
-#     value: "10.5281/zenodo.XXXXXXXX"
-#     description: "Concept DOI resolving to all versions of ExP Heatmap"
-#   - type: doi
-#     value: "10.5281/zenodo.XXXXXXXX"
-#     description: "Archived snapshot of version 1.3.2"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.20284070"
+    description: "Concept DOI resolving to all versions of ExP Heatmap"
+  - type: doi
+    value: "10.5281/zenodo.21722665"
+    description: "Archived snapshot of version 1.3.2"
 
 # preferred-citation:
 #   type: article
