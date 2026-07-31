@@ -324,7 +324,7 @@ exp_heatmap plot ggvp_results/ --start 15000000 --end 16000000 --populations "FU
 
 The row order of an ExP heatmap is *n*(*n*−1) ordered pairs, blocked by first population and ordered by second population within each block, with self-pairs omitted. The population order used for those blocks is resolved in one of two ways.
 
-**Inferred (default).** With no `--populations`, the population set is recovered from the compute-output filenames. If that set is exactly the canonical 26-population 1000 Genomes panel, the standard 1000G row order and super-population annotations are used. Otherwise the populations are ordered by first appearance in the filenames read lexicographically, which is alphabetical for any complete set of pairwise outputs.
+**Inferred (default).** With no `--populations`, the population set is recovered from the compute-output filenames. If that set is exactly the canonical 26-population 1000 Genomes panel, the standard 1000G row order and super-population annotations are used. Otherwise the populations are ordered by first appearance in the filenames read lexicographically, which is alphabetical for any complete set of pairwise outputs in which no population label is a prefix of another.
 
 **Declared.** Passing `--populations "GWD,MSL,ESN"` states the panel explicitly. That order is used directly, and the plotter verifies that every pairwise output for the declared panel is present. Here a `compute` run was interrupted before it reached the `MANDINKA` pairs:
 
