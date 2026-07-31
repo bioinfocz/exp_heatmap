@@ -921,33 +921,45 @@ data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="
 
 ## Benchmarks
 
-All benchmarks were run locally on a macOS 14 / arm64 (Apple M4 Pro) workstation with 14 logical CPUs and 48 GB RAM. Python 3.12, zarr 2.x. Full benchmark scripts are provided under [`scripts/benchmarks/`](scripts/benchmarks).
+Benchmark scripts live under [`scripts/benchmarks/`](scripts/benchmarks). Measured results are versioned separately on the [`benchmarks`](https://github.com/bioinfocz/exp_heatmap/tree/benchmarks/benchmarks) branch; the current set is `benchmarks/v1.3.1/`, with one directory per benchmark holding a results TSV, a Markdown summary carrying the full command lines, `machine_specs.json`, and one log per individual run.
+
+Every figure in this section was measured on one Linux workstation: AMD Ryzen 9 7900 (12 physical / 24 logical cores), 61.96 GB RAM, Linux 6.10.14-061014-generic (x86_64, glibc 2.39), Python 3.12.2, scikit-allel 1.3.13, zarr 2.18.7. They describe cost on that machine and are not hardware-independent performance guarantees.
 
 ### Full pipeline on GGVP chr21
 
-Input: Gambian Genome Variation Project integrated chromosome 21 VCF (553,906 input records), filtered to 509,924 biallelic SNPs across 505 samples and 5 population labels (`FULA`, `GWD`, `JOLA`, `MANDINKA`, `WOLOFF`). Statistic: XP-EHH. Default settings otherwise.
+Input: Gambian Genome Variation Project integrated chromosome 21 VCF (553,906 input records), filtered to 509,924 biallelic SNPs across 505 samples and 5 population labels (`FULA`, `GWD`, `JOLA`, `MANDINKA`, `WOLOFF`). Statistic: XP-EHH with directional rank scores. Plotting at 600 dpi with a 4,000-column budget. `compute` and `plot` are means ± sample SD over 5 measured runs after 1 warmup; `prepare` was run once.
 
 | Stage | Small case (1 Mb, 11,620 SNPs) | Full chromosome (509,924 SNPs) |
 |-------|-------------------------------:|-------------------------------:|
-| `prepare` | 0.99 s  /  0.28 GB peak RSS | 12.64 s  /  0.38 GB peak RSS |
-| `compute` | 2.76 s  /  0.21 GB peak RSS | 74.73 s  /  0.99 GB peak RSS |
-| `plot` (static overview) | 2.34 s  /  0.26 GB peak RSS | 2.27 s  /  0.74 GB peak RSS |
+| `prepare` | 0.88 s  /  0.16 GB peak RSS | 13.97 s  /  0.24 GB peak RSS |
+| `compute` | 1.72 ± 0.03 s  /  0.12 GB peak RSS | 54.84 ± 0.36 s  /  0.57 GB peak RSS |
+| `plot` (static overview) | 1.52 ± 0.03 s  /  0.44 GB peak RSS | 6.31 ± 0.16 s  /  2.76 GB peak RSS |
 
-`compute` dominates wall-clock cost at full-chromosome scale, while static overview plotting remains cheap once per-pair TSVs exist. Peak RSS stayed below 1 GB for every stage in both cases.
+`compute` dominates wall-clock cost at full-chromosome scale. Runtime coefficients of variation were 0.7-2.5% across the replicated stages.
 
-### Display scaling with population count
+`plot` cost is driven by output resolution and column budget, not only by region size: the full-chromosome figure above is a 600 dpi render across 4,000 columns, so it is not comparable with a screen-resolution render at the `--dpi 200` default. Compare display numbers only across runs that used the same DPI and column budget.
 
-Synthetic scaling test that holds the genomic window fixed and varies the number of ordered population-pair rows by symlinking existing per-pair outputs. All runs use the GGVP chr21 compute output as the seed.
+### Display and reporting scaling with population count
 
-| Populations | Ordered rows | Static plot | Interactive HTML | Peak RSS (interactive) |
-|-------------|-------------:|------------:|-----------------:|-----------------------:|
-| 5 | 20 | 1.80 s, 0.10 MB PNG | 1.83 s, 5.4 MB HTML | 0.43 GB |
-| 10 | 90 | 3.25 s | 3.57 s, 10.3 MB HTML | 0.62 GB |
-| 20 | 380 | 9.61 s | 9.24 s, 32.4 MB HTML | 1.08 GB |
-| 30 | 870 | 16.87 s | 16.34 s, 54.1 MB HTML | 1.48 GB |
-| 50 | 2,450 | 38.36 s, 2.47 MB PNG | 36.09 s, 99.5 MB HTML | 2.17 GB |
+Synthetic scaling test that holds the genomic window fixed and varies the number of ordered population-pair rows. The panel is grown by symlinking template per-pair outputs under invented population labels, so this measures loading, static rendering and interactive reporting only - it never invokes `compute`.
 
-The ordered-pair display stays computationally tractable up to 50 populations, but visual density and HTML size rise quickly. At 50 populations we recommend using the `focus`, `summary`, or `regions` workflows in addition to the full matrix view.
+Seed: a 1000 Genomes chromosome 2 LCT compute output spanning chr2:136,109,851-137,108,230 (998,379 bp; 1,948 loci per pair). Directional rank scores, 600 dpi, 4,000-column budget, so no downsampling was applied. Means ± sample SD over 5 measured runs after 1 warmup.
+
+| Populations | Ordered rows | Load (s) | Static (s) | PNG (MB) | Interactive (s) | HTML (MB) | Peak RSS, static (GB) |
+|-------------|-------------:|---------:|-----------:|---------:|----------------:|----------:|----------------------:|
+| 5 | 20 | 0.72 ± 0.02 | 1.36 ± 0.01 | 0.20 | 0.81 ± 0.03 | 5.2 | 0.40 |
+| 10 | 90 | 0.80 ± 0.03 | 1.41 ± 0.02 | 0.38 | 0.86 ± 0.03 | 6.9 | 0.42 |
+| 20 | 380 | 1.10 ± 0.05 | 2.02 ± 0.04 | 0.86 | 1.31 ± 0.04 | 14.3 | 0.46 |
+| 30 | 870 | 1.62 ± 0.03 | 3.11 ± 0.09 | 1.66 | 1.95 ± 0.06 | 26.7 | 0.57 |
+| 50 | 2,450 | 3.34 ± 0.12 | 6.94 ± 0.17 | 4.03 | 4.61 ± 0.12 | 66.7 | 1.02 |
+
+The ordered-pair row count grows as *n*(*n*-1), so 5 to 50 populations is a 122-fold increase in rows for a roughly 5-fold increase in rendering time. Interactive HTML size grows faster, reaching 66.7 MB at 50 populations, and is the practical constraint at that scale rather than runtime. At high population counts, use the `focus`, `summary`, or `regions` workflows in addition to the full matrix view.
+
+### Compute scaling with sample count
+
+Compute cost versus samples per population, on real genotypes at a fixed variant set and a fixed three-population panel, is reported in `benchmarks/v1.3.1/sample_scaling_xpehh/` and `benchmarks/v1.3.1/sample_scaling_hudson_fst/` on the `benchmarks` branch. Over a fivefold increase in samples per population, runtime rose 2.4-fold for XP-EHH and 1.3-fold for Hudson's Fst while peak RSS rose about 3-fold, so sample-count effects on runtime were sub-linear over the tested range and memory growth was closer to linear.
+
+None of these benchmarks varies variant density.
 
 ### Reproducing the benchmarks
 
@@ -975,6 +987,16 @@ python scripts/benchmarks/run_local_benchmark.py \
     path/to/compute_output \
     --out-dir local_data/benchmarks/display \
     --repeats 5 --warmup 1 --dpi 600
+
+# Compute cost versus samples per population, on real genotypes.
+# Each sample size gets its own Zarr store; building them is untimed setup.
+python scripts/benchmarks/run_sample_scaling.py \
+    path/to/store.zarr \
+    path/to/panel.tsv \
+    --out-dir local_data/benchmarks/sample_scaling \
+    --populations CEU GBR YRI \
+    --samples-per-population 10 25 50 \
+    --test xpehh --repeats 5 --warmup 1 --seed 0
 ```
 
 `--repeats` reports mean, sample standard deviation, coefficient of variation and a 95% confidence interval (Student-t) over the measured runs; `--warmup` discards leading runs that pay filesystem-cache and import costs. Every run writes its own log, the individual per-run timings are kept in the `seconds_runs` column, and `machine_specs.json` records the CPU model, core counts, memory, platform and Python version alongside the results.
@@ -1188,7 +1210,7 @@ pip install -e ".[dev]"
 python -m pytest
 ```
 
-The suite currently contains 28 tests covering rank-score generation with ties and missing data, pair-specific output preservation, AF fallback behavior, static downsampling, VCF filtering, custom-panel inference, GGVP metadata handling, and CLI wiring. GitHub Actions runs the suite on Python 3.10, 3.11, and 3.12 for every push and pull request.
+The suite currently contains 52 tests covering rank-score generation with ties and missing data, pair-specific output preservation, AF fallback behavior and allele-frequency filter reporting, static downsampling, VCF filtering, custom-panel declaration and inference, ordered-pair row contracts, GGVP metadata handling, and CLI wiring. Three of them ([`tests/test_compute_fidelity.py`](tests/test_compute_fidelity.py)) are fidelity checks: per-pair XP-EHH and Hudson's Fst output is compared against a direct `scikit-allel` call on the same data, and repeated runs are asserted to produce byte-identical per-pair outputs. GitHub Actions runs the suite on Python 3.10, 3.11, and 3.12 for every push and pull request.
 
 ### Building documentation-facing assets
 
