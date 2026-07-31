@@ -167,11 +167,19 @@ The release used for the analyses in the ExP Heatmap manuscript (commit `996c053
 ## Earlier releases
 
 No changelog was kept before 1.3.2; the entries above were reconstructed from the git
-history. Two tags predate this file and do not fit the sequence:
+history. Earlier releases are recorded on PyPI:
 
-- `v1.2.0` points at commit `6f95e2c` (2026-05-19), which is two commits *after* `v1.3.1`.
-  The tag appears to have been created against the wrong commit and does not mark a 1.2.0
-  release.
+| Version | Released on PyPI |
+| ------- | ---------------- |
+| 1.2.0   | 2026-02-25       |
+| 1.1.5   | 2025-10-21       |
+| 1.1.2a0 | 2024-04-02       |
+
+Their contents are not reconstructed here, because the git tags do not delimit them:
+
+- `v1.2.0` points at commit `6f95e2c` (2026-05-19), two commits *after* `v1.3.1` and three
+  months after the 1.2.0 release went to PyPI. The tag was created against the wrong
+  commit and cannot be used to recover the 1.2.0 range.
 - `Version` points at commit `c068517` (2026-02-04) and carries no version number.
 
 A prototype, v0.9.0, was disseminated separately as a public software resource and is not
