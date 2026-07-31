@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/exp-heatmap.svg)](https://pypi.org/project/exp_heatmap/)
 ![Python](https://img.shields.io/badge/python-≥3.10-blue)
-![Version](https://img.shields.io/badge/version-1.3.1-green)
+![Version](https://img.shields.io/badge/version-1.3.2-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
 [![Tests](https://github.com/bioinfocz/exp_heatmap/actions/workflows/tests.yml/badge.svg)](https://github.com/bioinfocz/exp_heatmap/actions/workflows/tests.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20284071.svg)](https://doi.org/10.5281/zenodo.20284070)
@@ -921,7 +921,7 @@ data = create_plot_input("results/", start=47000000, end=49000000, rank_scores="
 
 ## Benchmarks
 
-Benchmark scripts live under [`scripts/benchmarks/`](scripts/benchmarks). Measured results are versioned separately on the [`benchmarks`](https://github.com/bioinfocz/exp_heatmap/tree/benchmarks/benchmarks) branch; the current set is `benchmarks/v1.3.1/`, with one directory per benchmark holding a results TSV, a Markdown summary carrying the full command lines, `machine_specs.json`, and one log per individual run.
+Benchmark scripts live under [`scripts/benchmarks/`](scripts/benchmarks). Measured results are versioned separately on the [`benchmarks`](https://github.com/bioinfocz/exp_heatmap/tree/benchmarks/benchmarks) branch; the current set is `benchmarks/v1.3.2/`, with one directory per benchmark holding a results TSV, a Markdown summary carrying the full command lines, `machine_specs.json`, and one log per individual run.
 
 Every figure in this section was measured on one Linux workstation: AMD Ryzen 9 7900 (12 physical / 24 logical cores), 61.96 GB RAM, Linux 6.10.14-061014-generic (x86_64, glibc 2.39), Python 3.12.2, scikit-allel 1.3.13, zarr 2.18.7. They describe cost on that machine and are not hardware-independent performance guarantees.
 
@@ -957,7 +957,7 @@ The ordered-pair row count grows as *n*(*n*-1), so 5 to 50 populations is a 122-
 
 ### Compute scaling with sample count
 
-Compute cost versus samples per population, on real genotypes at a fixed variant set and a fixed three-population panel, is reported in `benchmarks/v1.3.1/sample_scaling_xpehh/` and `benchmarks/v1.3.1/sample_scaling_hudson_fst/` on the `benchmarks` branch. Over a fivefold increase in samples per population, runtime rose 2.4-fold for XP-EHH and 1.3-fold for Hudson's Fst while peak RSS rose about 3-fold, so sample-count effects on runtime were sub-linear over the tested range and memory growth was closer to linear.
+Compute cost versus samples per population, on real genotypes at a fixed variant set and a fixed three-population panel, is reported in `benchmarks/v1.3.2/sample_scaling_xpehh/` and `benchmarks/v1.3.2/sample_scaling_hudson_fst/` on the `benchmarks` branch. Over a fivefold increase in samples per population, runtime rose 2.4-fold for XP-EHH and 1.3-fold for Hudson's Fst while peak RSS rose about 3-fold, so sample-count effects on runtime were sub-linear over the tested range and memory growth was closer to linear.
 
 None of these benchmarks varies variant density.
 

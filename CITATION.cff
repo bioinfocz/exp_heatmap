@@ -1,0 +1,95 @@
+# Three fields need confirming before the 1.3.2 release is tagged:
+#   - date-released: currently set to the day this file was written, not to an actual
+#     release date.
+#   - identifiers: the Zenodo DOI is commented out below. The README badge image and its
+#     link currently point at two different records (…20284071 and …20284070), so the
+#     correct concept DOI has to be established first.
+#   - preferred-citation: the manuscript is not yet published. Uncomment and complete the
+#     block at the end once it is, and update README.md, which currently reads
+#     "[citation details will be added upon publication]".
+
+cff-version: 1.2.0
+message: "If you use ExP Heatmap in your research, please cite it using these metadata."
+title: "ExP Heatmap"
+abstract: >-
+  Ordered-pair workflow for regional cross-population genomic visualization.
+  ExP Heatmap takes a VCF through filter, prepare, compute and plot, and renders
+  ordered population-pair matrices as empirical rank-score heatmaps, preserving
+  genomic position and reciprocal population-pair direction in a single view.
+type: software
+version: "1.3.2"
+date-released: 2026-07-31
+license: MIT
+repository-code: "https://github.com/bioinfocz/exp_heatmap"
+url: "https://github.com/bioinfocz/exp_heatmap"
+
+authors:
+  - family-names: "Ehler"
+    given-names: "Edvard"
+    email: "edvard.ehler@img.cas.cz"
+    orcid: "https://orcid.org/0000-0003-1774-0091"
+    affiliation: >-
+      Laboratory of Genomics and Bioinformatics, Institute of Molecular Genetics
+      of the ASCR, v. v. i., Prague, Czech Republic
+  - family-names: "Moravčík"
+    given-names: "Ondřej"
+  - family-names: "Nógell"
+    given-names: "Adam"
+    email: "adam.nogell@img.cas.cz"
+    orcid: "https://orcid.org/0009-0003-7430-8024"
+    affiliation: >-
+      Laboratory of Genomics and Bioinformatics, Institute of Molecular Genetics
+      of the ASCR, v. v. i., Prague, Czech Republic
+
+contact:
+  - family-names: "Ehler"
+    given-names: "Edvard"
+    email: "edvard.ehler@img.cas.cz"
+
+keywords:
+  - bioinformatics
+  - population genetics
+  - selection scan
+  - XP-EHH
+  - XP-nSL
+  - Hudson's FST
+  - Tajima's D
+  - heatmap
+  - data visualization
+  - 1000 Genomes Project
+  - GGVP
+
+# identifiers:
+#   - type: doi
+#     value: "10.5281/zenodo.XXXXXXXX"
+#     description: "Concept DOI resolving to all versions of ExP Heatmap"
+#   - type: doi
+#     value: "10.5281/zenodo.XXXXXXXX"
+#     description: "Archived snapshot of version 1.3.2"
+
+# preferred-citation:
+#   type: article
+#   title: >-
+#     ExP Heatmap: an ordered-pair workflow for regional cross-population
+#     genomic visualization
+#   authors:
+#     - family-names: "Ehler"
+#       given-names: "Edvard"
+#       orcid: "https://orcid.org/0000-0003-1774-0091"
+#     - family-names: "Nógell"
+#       given-names: "Adam"
+#       orcid: "https://orcid.org/0009-0003-7430-8024"
+#     - family-names: "Komárková"
+#       given-names: "Mariana"
+#       orcid: "https://orcid.org/0009-0000-5492-9104"
+#     - family-names: "Liegertová"
+#       given-names: "Michaela"
+#       orcid: "https://orcid.org/0000-0003-3858-856X"
+#     - family-names: "Pačes"
+#       given-names: "Jan"
+#       orcid: "https://orcid.org/0000-0003-3059-6127"
+#   journal: "BMC Bioinformatics"
+#   year:
+#   volume:
+#   start:
+#   doi:
