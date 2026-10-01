@@ -179,8 +179,12 @@ def downsample_heatmap_columns(input_df, max_columns, aggregation="max"):
     """
     Downsample wide genomic windows into a fixed number of representative columns.
 
-    The representative x-position for each bin is the midpoint genomic coordinate of
-    the source columns. Aggregation defaults to 'max' to preserve sharp local signals.
+    Consecutive columns are grouped by index into approximately equal-sized
+    groups; these are not equal-width base-pair bins, so a region containing
+    no loci consumes no horizontal space. The representative x-position for
+    each group is the genomic coordinate of its central column, which is an
+    observed locus position rather than an interpolated midpoint. Aggregation
+    defaults to 'max' to preserve sharp local signals.
     """
     if max_columns is None or max_columns <= 0 or input_df.shape[1] <= max_columns:
         return input_df, False
