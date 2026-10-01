@@ -750,9 +750,12 @@ def plot_exp_heatmap(
     
     # Set x-axis ticks and labels
     x_extent = input_df.shape[1]
-    actual_middle = (original_start + original_end) // 2
-    ax.set_xticks([0, x_extent // 2, x_extent - 1])
-    ax.set_xticklabels([f"{original_start:,}", f"{actual_middle:,}", f"{original_end:,}"], fontsize=7)
+    mid_index = x_extent // 2
+    ax.set_xticks([0, mid_index, x_extent - 1])
+    ax.set_xticklabels([f"{original_start:,}",
+                        f"{int(input_df.columns[mid_index]):,}",
+                        f"{original_end:,}"],
+                       fontsize=7,)
     ax.tick_params(axis="x", length=0, pad=8)
     ax.set_xlabel(xlabel if xlabel else "")
         
