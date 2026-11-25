@@ -1248,4 +1248,4 @@ This project is licensed under the [MIT License](https://github.com/bioinfocz/ex
 
 ---
 
-*If you use ExP Heatmap in your research, please cite our paper [citation details will be added upon publication].*
+*If you use ExP Heatmap in your research, please cite our paper [ExP Heatmap: an ordered-pair workflow for regional cross-population genomic visualization](https://doi.org/10.1186/s12859-026-06762-z).*

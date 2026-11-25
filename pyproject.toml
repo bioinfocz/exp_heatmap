@@ -78,6 +78,7 @@ Homepage = "https://github.com/bioinfocz/exp_heatmap"
 Repository = "https://github.com/bioinfocz/exp_heatmap"
 "Bug Tracker" = "https://github.com/bioinfocz/exp_heatmap/issues"
 Documentation = "https://github.com/bioinfocz/exp_heatmap#readme"
+Paper = "https://doi.org/10.1186/s12859-026-06762-z"
 
 [project.scripts]
 exp_heatmap = "exp_heatmap.cli:cli"
